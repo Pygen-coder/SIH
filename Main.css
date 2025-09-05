@@ -6,8 +6,6 @@
     --shadow-light: rgba(0, 0, 0, 0.08);
     --shadow-dark: rgba(0, 0, 0, 0.3);
     --transition-speed: 0.6s;
-
-    /* Light Theme */
     --text-dark-color: #2c3e50;
     --text-medium-color: #555;
     --card-bg-color: rgba(255, 255, 255, 0.75);
@@ -24,7 +22,6 @@
 }
 
 body.dark-mode {
-    /* Dark Theme */
     --text-dark-color: #e0e0e0;
     --text-medium-color: #a0a0b0;
     --card-bg-color: rgba(24, 24, 31, 0.8);
@@ -55,7 +52,6 @@ body {
     font-family: 'Poppins', sans-serif;
     color: var(--text-dark-color);
     background-color: #f0f8ff;
-    /* Add background-color to this line */
     transition: color var(--transition-speed) ease, background-color var(--transition-speed) ease;
     line-height: 1.6;
     position: relative;
@@ -130,8 +126,6 @@ body.dark-mode::after {
     align-items: center;
     gap: 15px;
 }
-
-/* Add this CSS block to your Main.css file */
 
 .header-btn:active, 
 .query-btn:active, 
@@ -228,35 +222,29 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     color: var(--text-dark-color);
 }
 
-
-/* In Main.css, REMOVE all existing .dropdown-menu rules and ADD this entire block */
-
 /* --- Enhanced Dropdown Menu --- */
 .dropdown-menu {
     position: absolute;
     top: 120%;
     right: 0;
-    width: 250px; /* A bit wider for icons */
+    width: 250px;
     background: var(--dropdown-color);
-    border-radius: 12px; /* Slightly more rounded */
+    border-radius: 12px;
     box-shadow: 0 8px 30px var(--shadow-color);
     overflow: hidden;
     z-index: 100;
     border: 1px solid var(--card-border-color);
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px) scale(0.95); /* Add scale to the animation */
+    transform: translateY(-10px) scale(0.95);
     transform-origin: top right;
     transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s, background-color var(--transition-speed) ease;
 }
-
 .dropdown-menu.show {
     opacity: 1;
     visibility: visible;
     transform: translateY(0) scale(1);
 }
-
-/* Header section inside the dropdown */
 .dropdown-header {
     padding: 15px 20px;
     border-bottom: 1px solid var(--card-border-color);
@@ -271,68 +259,41 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     font-size: 0.8em;
     color: var(--text-medium-color);
 }
-
-/* Styling for each link/item */
 .dropdown-menu a {
     display: flex;
     align-items: center;
-    gap: 15px; /* Space between icon and text */
+    gap: 15px;
     padding: 12px 20px;
-    margin: 5px; /* Adds space so the hover effect doesn't touch the edges */
-    border-radius: 8px; /* Rounded corners on each item's hover */
+    margin: 5px;
+    border-radius: 8px;
     color: var(--text-dark-color);
     text-decoration: none;
     font-size: 0.95em;
     transition: background-color 0.2s, color 0.2s;
 }
-
 .dropdown-menu a i {
     color: var(--text-medium-color);
     transition: color 0.2s;
 }
-
-/* Hover effect for items */
 .dropdown-menu a:hover {
     background-color: var(--header-btn-hover-bg);
     color: var(--primary-color);
 }
-
 .dropdown-menu a:hover i {
     color: var(--primary-color);
 }
-
-/* Horizontal line divider */
 .dropdown-menu hr {
     border: none;
     height: 1px;
     background-color: var(--card-border-color);
     margin: 5px 0;
 }
-
-/* Special styling for the logout link */
 .dropdown-menu a.logout-link:hover {
     background-color: rgba(220, 53, 69, 0.1);
     color: #dc3545;
 }
-
 .dropdown-menu a.logout-link:hover i {
     color: #dc3545;
-}
-
-/* In Main.css, add this block */
-
-.dashboard-card:hover {
-    transform: translateY(-6px);
-    /* Adds a subtle "glow" using the primary color */
-    box-shadow: 0 10px 20px var(--shadow-color), 0 0 20px rgba(0, 123, 255, 0.2);
-}
-
-.dashboard-card .panel-header i {
-    transition: transform 0.4s ease;
-}
-
-.dashboard-card:hover .panel-header i {
-    transform: scale(1.1) rotate(-5deg);
 }
 
 .main-content {
@@ -355,7 +316,7 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     transition: background-color var(--transition-speed), border-color var(--transition-speed), transform 0.4s, box-shadow 0.4s;
 }
 
-.chat-panel:hover, .dashboard-card:hover {
+.chat-panel:hover {
     box-shadow: 0 10px 20px var(--shadow-color);
 }
 
@@ -370,8 +331,13 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     transform: translateY(0);
 }
 
+/* ADDED GLOW EFFECT */
 .dashboard-card:hover {
     transform: translateY(-6px);
+    box-shadow: 0 10px 20px var(--shadow-color), 0 0 20px rgba(0, 123, 255, 0.2);
+}
+.dashboard-card:hover .panel-header i {
+    transform: scale(1.1) rotate(-5deg);
 }
 
 .panel-header {
@@ -388,12 +354,11 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     align-items: center;
     gap: 15px;
 }
-
 .panel-header i {
     font-size: 22px;
     color: var(--primary-color);
+    transition: transform 0.4s ease;
 }
-
 .panel-header h3 {
     font-family: 'Montserrat', sans-serif;
     font-size: 1.1em;
@@ -480,7 +445,7 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     border-top: 1px solid var(--card-border-color);
     margin-top: auto;
     flex-shrink: 0;
-    position: relative; /* Needed for positioning the mic/send button */
+    position: relative;
 }
 
 #user-input {
@@ -489,7 +454,7 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     background-color: var(--input-bg-color);
     color: var(--text-dark-color);
     border-radius: 25px;
-    padding: 12px 60px 12px 20px; /* Right padding to avoid text overlapping icon */
+    padding: 12px 60px 12px 20px;
     font-size: 1em;
     outline: none;
     transition: background-color 0.3s, border-color 0.3s;
@@ -517,7 +482,6 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     transform: scale(1.1);
 }
 
-/* Position the dynamic mic/send button inside the input field */
 #mic-btn {
     position: absolute;
     right: 25px;
@@ -527,7 +491,6 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     padding: 10px;
 }
 
-/* Style for when the mic becomes a send button */
 #mic-btn.send-mode {
     color: var(--primary-color);
     transform: translateY(-50%) scale(1.1);
@@ -537,7 +500,6 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     animation: pulse 2.5s infinite ease-in-out;
 }
 
-/* Hide the original dedicated send button */
 .send-btn {
     display: none;
 }
@@ -654,7 +616,6 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     100% { transform: scale(1); }
 }
 
-/* Add this CSS to the end of your Main.css file */
 .typing-indicator {
     display: flex;
     align-items: center;
@@ -691,8 +652,6 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     }
 }
 
-/* Add this block to the end of Main.css for custom scrollbars */
-
 .chat-messages::-webkit-scrollbar,
 .dashboard-column::-webkit-scrollbar {
     width: 8px;
@@ -716,7 +675,6 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     background-color: rgba(0, 0, 0, 0.3);
 }
 
-/* Custom scrollbar for dark mode */
 body.dark-mode .chat-messages::-webkit-scrollbar-thumb,
 body.dark-mode .dashboard-column::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
@@ -727,11 +685,6 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.3);
 }
 
-/* ======================================================= */
-/* ===== RESPONSIVE DESIGN MEDIA QUERIES ===== */
-/* ======================================================= */
-
-/* --- For Tablets & Small Laptops (e.g., iPad landscape) --- */
 @media (max-width: 1200px) {
     .page-container {
         padding: 0 20px;
@@ -743,32 +696,28 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     }
 }
 
-/* --- For Smaller Tablets (e.g., iPad portrait) --- */
 @media (max-width: 992px) {
     .main-header h1 {
         font-size: 1.8em;
     }
     #profile-btn {
-        min-width: auto; /* Allow the button to shrink */
+        min-width: auto;
         padding: 8px 12px;
     }
     #profile-btn span {
-        display: none; /* Hide the user's name to save space */
+        display: none;
     }
     .main-content {
-        grid-template-columns: 1.5fr 1fr; /* Adjust grid ratio */
+        grid-template-columns: 1.5fr 1fr;
     }
 }
 
-/* --- For Mobile Devices (e.g., iPhones, Android phones) --- */
 @media (max-width: 768px) {
-    /* Allow vertical scrolling on mobile */
     html, body {
         overflow-y: auto;
         overflow-x: hidden;
     }
 
-    /* Make page container take full screen height */
     .page-container {
         height: auto;
         min-height: 100vh;
@@ -777,7 +726,6 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
         padding: 0 15px;
     }
 
-    /* Keep header in a row, adjust padding and size */
     .main-header {
         flex-direction: row;
         justify-content: space-between;
@@ -788,7 +736,6 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
         font-size: 1.5em;
     }
 
-    /* CRITICAL: Stack the chat and dashboard panels vertically */
     .main-content {
         grid-template-columns: 1fr;
         overflow: visible;
@@ -823,7 +770,6 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     }
 }
 
-/* --- For Very Small Mobile Devices --- */
 @media (max-width: 480px) {
     .main-header h1 {
         font-size: 1.3em;

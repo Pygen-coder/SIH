@@ -1,22 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Get references to our HTML elements ---
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
     const micBtn = document.getElementById('mic-btn');
     const uploadBtn = document.getElementById('upload-btn');
     const historyBtn = document.getElementById('history-btn');
-    
-    // --- Header dropdown elements ---
     const profileBtn = document.getElementById('profile-btn');
     const profileDropdown = document.getElementById('profile-dropdown');
     const langBtn = document.getElementById('lang-btn');
     const langDropdown = document.getElementById('lang-dropdown');
-    
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
-
-    // --- Get reference to the icon inside the mic button ---
     const micIcon = micBtn.querySelector('i');
 
     const applyTheme = () => {
@@ -103,8 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
         micBtn.setAttribute('data-tooltip', 'Speak your message');
     }
 
-    // In Main.js, replace your existing handleSendMessage function
-
     function handleSendMessage() {
         const text = userInput.value.trim();
 
@@ -114,28 +106,23 @@ document.addEventListener('DOMContentLoaded', () => {
             resetIcon();
             document.getElementById('suggested-queries').style.display = 'none';
 
-            // --- Start of new code ---
-            // Add the typing indicator
             const typingIndicator = document.createElement('div');
             typingIndicator.classList.add('typing-indicator');
             typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-            typingIndicator.id = 'typing-indicator'; // Give it an ID to easily remove it
+            typingIndicator.id = 'typing-indicator';
             chatMessages.appendChild(typingIndicator);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            // --- End of new code ---
 
             userInput.disabled = true;
             micBtn.disabled = true;
 
             setTimeout(() => {
-                // --- Remove the indicator before adding the real message ---
                 document.getElementById('typing-indicator').remove();
-
                 addMessage("Thank you for your message. I am processing your request.", 'bot');
                 userInput.disabled = false;
                 micBtn.disabled = false;
                 userInput.focus();
-            }, 1500); // You can adjust this delay
+            }, 1500);
         }
     }
     
@@ -178,8 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             const queryText = button.innerText;
             userInput.value = queryText;
-            userInput.dispatchEvent(new Event('input')); // Update icon to send
-            userInput.focus(); // Focus on the input field
+            userInput.dispatchEvent(new Event('input'));
+            userInput.focus();
         });
     });
 
