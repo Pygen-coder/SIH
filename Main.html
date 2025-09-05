@@ -3,9 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIH</title>
+    <title>Health Assistant Chatbot</title>
+    <link rel="stylesheet" href="Main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    
+    <div class="page-container">
+        <header class="main-header">
+            <h1>Welcome</h1>
+            <div class="header-controls">
+                <button id="theme-toggle-btn" class="header-btn header-icon-btn theme-toggle-btn" aria-label="Toggle Dark Mode">
+                    <i class="fa-solid fa-sun sun-icon"></i>
+                    <i class="fa-solid fa-moon moon-icon"></i>
+                </button>
+                <div class="language-selector">
+                    <button id="lang-btn" class="header-btn header-icon-btn" aria-label="Select Language">
+                        <span>EN</span>
+                    </button>
+                    <div id="lang-dropdown" class="dropdown-menu">
+                        <a href="#">English</a>
+                        <a href="#">ଓଡ଼ିଆ</a>
+                        <a href="#">हिन्दी</a>
+                    </div>
+                </div>
+                <div class="user-profile">
+                    <button id="profile-btn" class="header-btn" aria-label="User Profile">
+                        <i class="fa-solid fa-user-circle"></i>
+                        <span>Pratyush</span>
+                    </button>
+                    <div id="profile-dropdown" class="dropdown-menu">
+                        <div class="dropdown-header">
+                            <strong>Pratyush</strong>
+                            <small>Personal Account</small>
+                        </div>
+                        <a href="#"><i class="fa-solid fa-users fa-fw"></i><span>My Family</span></a>
+                        <a href="#"><i class="fa-solid fa-bell fa-fw"></i><span>My Health Reminders</span></a>
+                        <a href="#"><i class="fa-solid fa-chart-line fa-fw"></i><span>My Learning Progress</span></a>
+                        <hr>
+                        <a href="#" class="logout-link"><i class="fa-solid fa-arrow-right-from-bracket fa-fw"></i><span>Logout</span></a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="chat-panel">
+                <div class="panel-header">
+                    <div class="panel-header-left">
+                        <i class="fa-solid fa-comments"></i>
+                        <h3>Chat with your Assistant</h3>
+                    </div>
+                    <button class="history-btn tooltip" data-tooltip="View Chat History" id="history-btn">
+                        <i class="fa-solid fa-history"></i>
+                    </button>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot-message">
+                        <p>Hello! I'm your AI Health Assistant. How can I help you today?</p>
+                    </div>
+                    <div class="suggested-queries" id="suggested-queries">
+                        <button class="query-btn">Common Cold Symptoms</button>
+                        <button class="query-btn">Nearby Health Centers</button>
+                        <button class="query-btn">Vaccination Schedule</button>
+                    </div>
+                </div>
+                <div class="chat-input-form">
+                     <button class="icon-btn tooltip" data-tooltip="Upload Image (Symptom Check)" id="upload-btn" aria-label="Upload Image">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </button>
+                    <input type="text" id="user-input" placeholder="Type your message here...">
+                    <button class="icon-btn tooltip" data-tooltip="Speak your message" id="mic-btn" aria-label="Use Microphone">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <button class="send-btn tooltip" data-tooltip="Send message" id="send-btn" aria-label="Send Message">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-column" id="dashboard-column">
+                <div class="dashboard-card">
+                    <!-- UPDATED: Wrapped header content for correct alignment -->
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <h3>Nearby Health Centers</h3>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <p>Find clinics and hospitals near your location.</p>
+                        <button class="feature-btn" id="find-health-center-btn">Find Now</button>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <i class="fa-solid fa-prescription-bottle-medical"></i>
+                            <h3>Read Prescription</h3>
+                        </div>
+                    </div>
+                     <div class="card-content">
+                        <p>Upload a photo to understand your prescription.</p>
+                        <button class="feature-btn" id="read-prescription-btn">Upload Photo</button>
+                    </div>
+                </div>
+                 <div class="dashboard-card">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <i class="fa-solid fa-shield-virus"></i>
+                            <h3>Vaccination Schedule</h3>
+                        </div>
+                    </div>
+                     <div class="card-content">
+                        <p>Get personalized reminders for your family.</p>
+                        <button class="feature-btn" id="vaccination-schedule-btn">Check Schedule</button>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <i class="fa-solid fa-award"></i>
+                            <h3>Health Quizzes</h3>
+                        </div>
+                    </div>
+                     <div class="card-content">
+                        <p>Learn about health topics and earn rewards.</p>
+                        <button class="feature-btn" id="health-quizzes-btn">Start Quiz</button>
+                    </div>
+                </div>
+                 <div class="dashboard-card">
+                    <div class="panel-header">
+                         <div class="panel-header-left">
+                            <i class="fa-solid fa-book-open-reader"></i>
+                            <h3>Information Hub</h3>
+                        </div>
+                    </div>
+                     <div class="card-content">
+                        <p>Watch videos and read articles on health.</p>
+                        <button class="feature-btn" id="info-hub-btn">Explore</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="main-footer">
+            <div class="footer-links">
+                <a href="#" class="footer-btn">Health Worker Login</a>
+                <a href="#" class="footer-btn">Government Login</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="Main.js"></script>
 </body>
 </html>
+

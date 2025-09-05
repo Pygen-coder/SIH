@@ -1,0 +1,856 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap');
+
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #0056b3;
+    --shadow-light: rgba(0, 0, 0, 0.08);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+    --transition-speed: 0.6s;
+
+    /* Light Theme */
+    --text-dark-color: #2c3e50;
+    --text-medium-color: #555;
+    --card-bg-color: rgba(255, 255, 255, 0.75);
+    --card-border-color: rgba(0, 0, 0, 0.1);
+    --input-bg-color: rgba(220, 225, 230, 0.7);
+    --input-focus-bg-color: #fff;
+    --header-btn-hover-bg: rgba(0,0,0,0.05);
+    --bot-message-bg: #fff;
+    --footer-btn-bg: rgba(255,255,255,0.5);
+    --footer-btn-hover-bg: #fff;
+    --shadow-color: var(--shadow-light);
+    --icon-color: #2c3e50;
+    --dropdown-color: #fbfbfb;
+}
+
+body.dark-mode {
+    /* Dark Theme */
+    --text-dark-color: #e0e0e0;
+    --text-medium-color: #a0a0b0;
+    --card-bg-color: rgba(24, 24, 31, 0.8);
+    --card-border-color: rgba(255, 255, 255, 0.15);
+    --input-bg-color: rgba(255, 255, 255, 0.1);
+    --input-focus-bg-color: rgba(255, 255, 255, 0.15);
+    --header-btn-hover-bg: rgba(255,255,255,0.1);
+    --bot-message-bg: #2c2c54;
+    --footer-btn-bg: rgba(255,255,255,0.1);
+    --footer-btn-hover-bg: rgba(255,255,255,0.2);
+    --shadow-color: var(--shadow-dark);
+    --icon-color: #ffffff;
+    --dropdown-color: #131415;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body { 
+    height: 100%;
+    overflow: hidden; 
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-dark-color);
+    background-color: #f0f8ff;
+    /* Add background-color to this line */
+    transition: color var(--transition-speed) ease, background-color var(--transition-speed) ease;
+    line-height: 1.6;
+    position: relative;
+    z-index: 0;
+}
+
+body::before, body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    z-index: -1;
+    transition: opacity var(--transition-speed) ease-in-out;
+}
+body::before {
+    background-image: url('images/light_bg.jpg');
+    opacity: 1;
+}
+body::after {
+    background-image: url('images/dark_bg.jpg');
+    opacity: 0;
+}
+body.dark-mode::before {
+    opacity: 0;
+}
+body.dark-mode::after {
+    opacity: 1;
+}
+
+
+.page-container {
+    max-width: 1400px;
+    height: 95vh;
+    max-height: 850px;
+    margin: 2.5vh auto;
+    padding: 0 40px;
+    animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px 30px 10px;
+    flex-shrink: 0;
+}
+
+.main-header h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.0em;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--primary-color), #00aaff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: var(--text-dark-color);
+    animation: slideDown 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Add this CSS block to your Main.css file */
+
+.header-btn:active, 
+.query-btn:active, 
+.feature-btn:active, 
+.footer-btn:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
+}
+
+.header-icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    position: relative;
+    padding: 0;
+    border: 1px solid var(--card-border-color);
+    box-shadow: 0 2px 10px var(--shadow-color);
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle-btn {
+    overflow: hidden;
+}
+.theme-toggle-btn i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform var(--transition-speed) ease, opacity var(--transition-speed) ease;
+    font-size: 20px;
+    color: var(--icon-color);
+}
+.theme-toggle-btn .moon-icon {
+    transform: translate(-50%, -50%) rotate(90deg) scale(0.8);
+    opacity: 0;
+}
+body.dark-mode .theme-toggle-btn .sun-icon {
+    transform: translate(-50%, -50%) rotate(-90deg) scale(0.8);
+    opacity: 0;
+}
+body.dark-mode .theme-toggle-btn .moon-icon {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    opacity: 1;
+}
+
+.language-selector, .user-profile {
+    position: relative;
+}
+
+.header-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1em;
+    padding: 8px;
+    border-radius: 22px;
+    transition: background-color 0.3s;
+    color: var(--text-dark-color);
+}
+
+.header-btn:hover {
+    background-color: var(--header-btn-hover-bg);
+}
+
+#lang-btn span {
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--text-dark-color);
+}
+
+#profile-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--card-border-color);
+    box-shadow: 0 2px 10px var(--shadow-color);
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+    justify-content: space-between;
+    min-width: 140px;
+}
+
+#profile-btn i {
+    font-size: 24px;
+    color: var(--text-dark-color);
+}
+
+#profile-btn span {
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--text-dark-color);
+}
+
+
+/* In Main.css, REMOVE all existing .dropdown-menu rules and ADD this entire block */
+
+/* --- Enhanced Dropdown Menu --- */
+.dropdown-menu {
+    position: absolute;
+    top: 120%;
+    right: 0;
+    width: 250px; /* A bit wider for icons */
+    background: var(--dropdown-color);
+    border-radius: 12px; /* Slightly more rounded */
+    box-shadow: 0 8px 30px var(--shadow-color);
+    overflow: hidden;
+    z-index: 100;
+    border: 1px solid var(--card-border-color);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.95); /* Add scale to the animation */
+    transform-origin: top right;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s, background-color var(--transition-speed) ease;
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* Header section inside the dropdown */
+.dropdown-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--card-border-color);
+    margin-bottom: 5px;
+}
+.dropdown-header strong {
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--text-dark-color);
+}
+.dropdown-header small {
+    font-size: 0.8em;
+    color: var(--text-medium-color);
+}
+
+/* Styling for each link/item */
+.dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between icon and text */
+    padding: 12px 20px;
+    margin: 5px; /* Adds space so the hover effect doesn't touch the edges */
+    border-radius: 8px; /* Rounded corners on each item's hover */
+    color: var(--text-dark-color);
+    text-decoration: none;
+    font-size: 0.95em;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.dropdown-menu a i {
+    color: var(--text-medium-color);
+    transition: color 0.2s;
+}
+
+/* Hover effect for items */
+.dropdown-menu a:hover {
+    background-color: var(--header-btn-hover-bg);
+    color: var(--primary-color);
+}
+
+.dropdown-menu a:hover i {
+    color: var(--primary-color);
+}
+
+/* Horizontal line divider */
+.dropdown-menu hr {
+    border: none;
+    height: 1px;
+    background-color: var(--card-border-color);
+    margin: 5px 0;
+}
+
+/* Special styling for the logout link */
+.dropdown-menu a.logout-link:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.dropdown-menu a.logout-link:hover i {
+    color: #dc3545;
+}
+
+/* In Main.css, add this block */
+
+.dashboard-card:hover {
+    transform: translateY(-6px);
+    /* Adds a subtle "glow" using the primary color */
+    box-shadow: 0 10px 20px var(--shadow-color), 0 0 20px rgba(0, 123, 255, 0.2);
+}
+
+.dashboard-card .panel-header i {
+    transition: transform 0.4s ease;
+}
+
+.dashboard-card:hover .panel-header i {
+    transform: scale(1.1) rotate(-5deg);
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 30px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.chat-panel, .dashboard-card {
+    background: var(--card-bg-color);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid var(--card-border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: background-color var(--transition-speed), border-color var(--transition-speed), transform 0.4s, box-shadow 0.4s;
+}
+
+.chat-panel:hover, .dashboard-card:hover {
+    box-shadow: 0 10px 20px var(--shadow-color);
+}
+
+.dashboard-card {
+    flex-shrink: 0; 
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.dashboard-card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-6px);
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--card-border-color);
+    flex-shrink: 0;
+}
+.panel-header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.panel-header i {
+    font-size: 22px;
+    color: var(--primary-color);
+}
+
+.panel-header h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-dark-color);
+}
+
+.history-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--text-medium-color);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: color 0.3s, background-color 0.3s;
+}
+.history-btn:hover {
+    color: var(--primary-color);
+    background-color: var(--header-btn-hover-bg);
+}
+
+.chat-messages {
+    flex-grow: 1;
+    padding: 25px;
+    overflow-y: auto; 
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    padding: 12px 18px;
+    border-radius: 22px;
+    max-width: 75%;
+    line-height: 1.6;
+    animation: messageAppear 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.bot-message {
+    background-color: var(--bot-message-bg);
+    color: var(--text-dark-color);
+    align-self: flex-start;
+    border-bottom-left-radius: 8px;
+}
+
+.user-message {
+    background-color: var(--primary-color);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 8px;
+}
+
+.suggested-queries {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 0;
+    animation: fadeIn 0.5s 0.5s forwards;
+    opacity: 0;
+}
+
+.query-btn {
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    cursor: pointer;
+    color: var(--primary-color);
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.query-btn:hover {
+    background-color: var(--input-focus-bg-color);
+    transform: translateY(-2px);
+}
+
+
+.chat-input-form {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-top: 1px solid var(--card-border-color);
+    margin-top: auto;
+    flex-shrink: 0;
+    position: relative; /* Needed for positioning the mic/send button */
+}
+
+#user-input {
+    flex-grow: 1;
+    border: 2px solid transparent;
+    background-color: var(--input-bg-color);
+    color: var(--text-dark-color);
+    border-radius: 25px;
+    padding: 12px 60px 12px 20px; /* Right padding to avoid text overlapping icon */
+    font-size: 1em;
+    outline: none;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+#user-input:focus {
+    background-color: var(--input-focus-bg-color);
+    border-color: var(--primary-color);
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--text-medium-color);
+    cursor: pointer;
+    padding: 10px;
+    margin: 0 5px;
+    transition: color 0.3s ease, transform 0.3s ease;
+    position: relative;
+}
+
+.icon-btn:hover {
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+/* Position the dynamic mic/send button inside the input field */
+#mic-btn {
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    padding: 10px;
+}
+
+/* Style for when the mic becomes a send button */
+#mic-btn.send-mode {
+    color: var(--primary-color);
+    transform: translateY(-50%) scale(1.1);
+}
+
+#mic-btn i {
+    animation: pulse 2.5s infinite ease-in-out;
+}
+
+/* Hide the original dedicated send button */
+.send-btn {
+    display: none;
+}
+
+.tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px; 
+    border-radius: 5px;
+    font-size: 0.75em; 
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 10;
+}
+
+.tooltip:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+#upload-btn.tooltip::before {
+    right: auto;
+    left: 0;
+    transform: none;
+}
+.history-btn.tooltip::before {
+    transform: translateX(-80%);
+}
+
+.dashboard-column {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.card-content {
+    padding: 20px 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.card-content p {
+    font-size: 0.95em;
+    color: var(--text-medium-color);
+    margin-bottom: 20px;
+}
+
+.feature-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 25px;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.feature-btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-3px);
+}
+
+.main-footer {
+    text-align: center;
+    padding: 20px 0 0 0;
+    flex-shrink: 0;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer-btn {
+    color: var(--text-medium-color);
+    text-decoration: none;
+    font-size: 0.9em;
+    background-color: var(--footer-btn-bg);
+    padding: 8px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border-color);
+    transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+}
+
+.footer-btn:hover {
+    background-color: var(--footer-btn-hover-bg);
+    color: var(--primary-color);
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes messageAppear { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    5% { transform: scale(1.15); }
+    10% { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+/* Add this CSS to the end of your Main.css file */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    border-radius: 22px;
+    background-color: var(--bot-message-bg);
+    align-self: flex-start;
+    border-bottom-left-radius: 8px;
+}
+
+.typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background-color: var(--text-medium-color);
+    border-radius: 50%;
+    margin: 0 3px;
+    animation: bounce 1.2s infinite;
+}
+
+.typing-indicator span:nth-of-type(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-of-type(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-8px);
+    }
+}
+
+/* Add this block to the end of Main.css for custom scrollbars */
+
+.chat-messages::-webkit-scrollbar,
+.dashboard-column::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track,
+.dashboard-column::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb,
+.dashboard-column::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover,
+.dashboard-column::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Custom scrollbar for dark mode */
+body.dark-mode .chat-messages::-webkit-scrollbar-thumb,
+body.dark-mode .dashboard-column::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .chat-messages::-webkit-scrollbar-thumb:hover,
+body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ======================================================= */
+/* ===== RESPONSIVE DESIGN MEDIA QUERIES ===== */
+/* ======================================================= */
+
+/* --- For Tablets & Small Laptops (e.g., iPad landscape) --- */
+@media (max-width: 1200px) {
+    .page-container {
+        padding: 0 20px;
+        height: 98vh;
+        margin: 1vh auto;
+    }
+    .main-content {
+        gap: 20px;
+    }
+}
+
+/* --- For Smaller Tablets (e.g., iPad portrait) --- */
+@media (max-width: 992px) {
+    .main-header h1 {
+        font-size: 1.8em;
+    }
+    #profile-btn {
+        min-width: auto; /* Allow the button to shrink */
+        padding: 8px 12px;
+    }
+    #profile-btn span {
+        display: none; /* Hide the user's name to save space */
+    }
+    .main-content {
+        grid-template-columns: 1.5fr 1fr; /* Adjust grid ratio */
+    }
+}
+
+/* --- For Mobile Devices (e.g., iPhones, Android phones) --- */
+@media (max-width: 768px) {
+    /* Allow vertical scrolling on mobile */
+    html, body {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Make page container take full screen height */
+    .page-container {
+        height: auto;
+        min-height: 100vh;
+        max-height: none;
+        margin: 0;
+        padding: 0 15px;
+    }
+
+    /* Keep header in a row, adjust padding and size */
+    .main-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+    }
+    .main-header h1 {
+        font-size: 1.5em;
+    }
+
+    /* CRITICAL: Stack the chat and dashboard panels vertically */
+    .main-content {
+        grid-template-columns: 1fr;
+        overflow: visible;
+        gap: 25px;
+    }
+    
+    .chat-panel {
+        min-height: 60vh;
+    }
+
+    .dashboard-column {
+        overflow: visible;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
+
+    .chat-input-form {
+        padding: 10px;
+    }
+    #mic-btn {
+        right: 15px;
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .main-footer {
+        padding: 25px 0 15px 0;
+    }
+}
+
+/* --- For Very Small Mobile Devices --- */
+@media (max-width: 480px) {
+    .main-header h1 {
+        font-size: 1.3em;
+    }
+    .header-controls {
+        gap: 8px;
+    }
+    .header-icon-btn, #profile-btn {
+        width: 40px;
+        height: 40px;
+    }
+    #profile-btn span {
+        display: none;
+    }
+    #profile-btn {
+        justify-content: center;
+        padding: 8px;
+    }
+
+    .panel-header {
+        padding: 15px 20px;
+    }
+    .panel-header h3 {
+        font-size: 1em;
+    }
+
+    .chat-messages {
+        padding: 20px;
+    }
+}
