@@ -3,6 +3,8 @@
 :root {
     --primary-color: #007bff;
     --secondary-color: #0056b3;
+    --accent-color: #34d399;
+    --accent-gradient: linear-gradient(90deg, #34d399, #2dd4bf);
     --shadow-light: rgba(0, 0, 0, 0.08);
     --shadow-dark: rgba(0, 0, 0, 0.3);
     --transition-speed: 0.6s;
@@ -34,7 +36,7 @@ body.dark-mode {
     --footer-btn-hover-bg: rgba(255,255,255,0.2);
     --shadow-color: var(--shadow-dark);
     --icon-color: #ffffff;
-    --dropdown-color: #131415;
+    --dropdown-color: #1c1c24;
 }
 
 * {
@@ -90,9 +92,9 @@ body.dark-mode::after {
 
 .page-container {
     max-width: 1400px;
-    height: 95vh;
+    height: 98vh;
     max-height: 850px;
-    margin: 2.5vh auto;
+    margin: 1vh auto;
     padding: 0 40px;
     animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     display: flex;
@@ -203,30 +205,72 @@ body.dark-mode .theme-toggle-btn .moon-icon {
 }
 
 #profile-btn {
-    padding: 8px 16px;
+    padding: 6px 16px 6px 6px;
     border: 1px solid var(--card-border-color);
     box-shadow: 0 2px 10px var(--shadow-color);
     transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
     justify-content: space-between;
     min-width: 140px;
+    gap: 12px;
 }
 
-#profile-btn i {
-    font-size: 24px;
-    color: var(--text-dark-color);
+/* --- New Avatar Styles --- */
+.profile-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--input-bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    overflow: hidden;
+    flex-shrink: 0;
 }
+.profile-avatar.large {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+}
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.profile-avatar i {
+    font-size: 28px;
+    color: var(--text-medium-color);
+}
+.profile-avatar.large i {
+    font-size: 36px;
+}
+.initials-avatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+}
+/* --- End Avatar Styles --- */
 
 #profile-btn span {
     font-weight: 600;
     font-size: 0.9em;
     color: var(--text-dark-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
 }
 
+/* --- Dropdown Styles --- */
 .dropdown-menu {
     position: absolute;
     top: 120%;
     right: 0;
-    width: 250px;
+    width: 280px;
     background: var(--dropdown-color);
     border-radius: 12px;
     box-shadow: 0 8px 30px var(--shadow-color);
@@ -247,7 +291,14 @@ body.dark-mode .theme-toggle-btn .moon-icon {
 .dropdown-header {
     padding: 15px 20px;
     border-bottom: 1px solid var(--card-border-color);
-    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.dropdown-header .user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Fix for flexbox overflow */
 }
 .dropdown-header strong {
     font-size: 1em;
@@ -257,13 +308,18 @@ body.dark-mode .theme-toggle-btn .moon-icon {
 .dropdown-header small {
     font-size: 0.8em;
     color: var(--text-medium-color);
+    word-break: break-all; /* Wrap long emails */
+    line-height: 1.3;
+}
+.dropdown-links {
+    padding: 10px 5px;
 }
 .dropdown-menu a {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 12px 20px;
-    margin: 5px;
+    padding: 12px 15px;
+    margin: 0 5px;
     border-radius: 8px;
     color: var(--text-dark-color);
     text-decoration: none;
@@ -273,6 +329,8 @@ body.dark-mode .theme-toggle-btn .moon-icon {
 .dropdown-menu a i {
     color: var(--text-medium-color);
     transition: color 0.2s;
+    width: 20px;
+    text-align: center;
 }
 .dropdown-menu a:hover {
     background-color: var(--header-btn-hover-bg);
@@ -287,6 +345,9 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     background-color: var(--card-border-color);
     margin: 5px 0;
 }
+.dropdown-menu a.logout-link {
+    margin: 5px;
+}
 .dropdown-menu a.logout-link:hover {
     background-color: rgba(220, 53, 69, 0.1);
     color: #dc3545;
@@ -294,6 +355,40 @@ body.dark-mode .theme-toggle-btn .moon-icon {
 .dropdown-menu a.logout-link:hover i {
     color: #dc3545;
 }
+
+.dropdown-footer {
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.login-btn, .signup-btn {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border-color);
+    background-color: transparent;
+    color: var(--text-dark-color);
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.login-btn:hover {
+    background-color: var(--header-btn-hover-bg);
+}
+
+.signup-btn {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+.signup-btn:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
 
 .main-content {
     display: grid;
@@ -313,6 +408,7 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     flex-direction: column;
     overflow: hidden;
     transition: background-color var(--transition-speed), border-color var(--transition-speed), transform 0.4s, box-shadow 0.4s;
+    position: relative; /* For logo positioning */
 }
 
 .chat-panel:hover {
@@ -379,6 +475,44 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     background-color: var(--header-btn-hover-bg);
 }
 
+.chat-logo-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -90%); /* Moved it further up */
+    opacity: 1;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.logo-wrapper {
+    font-size: 8em; /* Increased size */
+    opacity: 0.35; /* Increased opacity */
+}
+
+body.dark-mode .logo-wrapper {
+    opacity: 0.3; /* Adjusted for dark mode */
+}
+
+.logo-wrapper i {
+    background: linear-gradient(45deg, var(--primary-color), #00aaff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent; /* Fallback */
+}
+
+.chat-panel.chat-active .chat-logo-container {
+    opacity: 0;
+    transform: translate(-50%, -90%) scale(0.8);
+    visibility: hidden;
+}
+
+.chat-panel.chat-active .chat-messages {
+    justify-content: flex-start;
+}
+
 .chat-messages {
     flex-grow: 1;
     padding: 25px;
@@ -386,6 +520,10 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    position: relative;
+    z-index: 2;
+    justify-content: flex-end;
+    transition: justify-content 0.5s ease;
 }
 
 .message {
@@ -408,6 +546,14 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     color: white;
     align-self: flex-end;
     border-bottom-right-radius: 8px;
+}
+
+.chat-starter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 15px;
 }
 
 .suggested-queries {
@@ -444,6 +590,7 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     margin-top: auto;
     flex-shrink: 0;
     position: relative;
+    z-index: 2;
 }
 
 #user-input {
@@ -699,6 +846,195 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.3);
 }
 
+/* Auth Modal Styles */
+.auth-container {
+    align-items: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden; /* Prevent interaction when hidden */
+    position: fixed;
+    top: 0;
+    transition: opacity 0.5s ease, visibility 0s 0.5s; /* Delay visibility change */
+    width: 100vw;
+    z-index: 1001;
+}
+
+.auth-container.show {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    transition: opacity 0.5s ease;
+}
+
+.auth-card {
+    background-color: var(--card-bg-color);
+    border-radius: 25px;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    color: var(--text-dark-color);
+    min-height: 500px;
+    max-width: 100%;
+    overflow: hidden;
+    position: relative;
+    width: 768px;
+}
+
+.auth-card h1 { font-weight: bold; margin: 0; }
+.auth-card p { color: var(--text-medium-color); font-size: 14px; font-weight: 100; line-height: 20px; letter-spacing: 0.5px; margin: 15px 0; }
+.overlay-panel p { color: #FFFFFF; }
+.auth-card span { color: var(--text-medium-color); font-size: 12px; }
+.auth-card a { color: var(--text-medium-color); font-size: 14px; text-decoration: none; margin: 15px 0; }
+.auth-card a:hover { text-decoration: underline; }
+
+.auth-card button {
+    background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+    border: 1px solid transparent;
+    border-radius: 20px;
+    color: #FFFFFF;
+    cursor: pointer;
+    filter: brightness(1);
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 12px 45px;
+    text-transform: uppercase;
+    transition: transform 80ms ease-in, filter 0.2s ease;
+}
+.auth-card button:hover { filter: brightness(1.1); }
+.auth-card button:active { transform: scale(0.95); }
+.auth-card button:focus { outline: none; }
+.auth-card button.ghost { 
+    background-color: transparent; 
+    border-color: #FFFFFF; 
+    color: #FFFFFF;
+}
+.auth-card button.ghost:hover { background-color: rgba(255, 255, 255, 0.1); filter: brightness(1); }
+
+.auth-card form {
+    align-items: center;
+    background-color: var(--card-bg-color);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    justify-content: center;
+    padding: 0 50px;
+    text-align: center;
+}
+
+.sign-up-container form {
+    justify-content: space-evenly;
+}
+
+.auth-card input {
+    background-color: var(--input-bg-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 10px;
+    color: var(--text-dark-color);
+    padding: 12px 15px;
+    width: 100%;
+}
+
+.form-container {
+    height: 100%;
+    position: absolute;
+    top: 0;
+    transition: all 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.sign-in-container { left: 0; z-index: 2; width: 50%;}
+.sign-up-container { left: 0; opacity: 0; z-index: 1; width: 50%; pointer-events: none;}
+
+.overlay-container {
+    height: 100%;
+    left: 50%;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 50%;
+    z-index: 100;
+    border-radius: 25px 0 0 25px;
+    transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1), border-radius 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.overlay {
+    background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+    color: #FFFFFF;
+    height: 100%;
+    left: -100%;
+    position: relative;
+    transform: translateX(0);
+    transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+    width: 200%;
+}
+
+.overlay-panel {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+    justify-content: center;
+    padding: 0 45px;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 50%;
+}
+
+.overlay-right { right: 0; }
+
+.social-container { 
+    margin: 10px 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.google-login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid var(--card-border-color);
+    background-color: transparent;
+    color: var(--text-dark-color);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+    width: 100%;
+    max-width: 240px;
+}
+
+.google-login-btn:hover {
+    background-color: var(--header-btn-hover-bg);
+}
+
+.google-login-btn i {
+    font-size: 18px;
+}
+
+
+.auth-card.right-panel-active .sign-in-container { transform: translateX(100%); opacity: 0; z-index: 1; pointer-events: none; }
+.auth-card.right-panel-active .sign-up-container { animation: show 0.5s; opacity: 1; transform: translateX(100%); z-index: 5; pointer-events: auto; }
+.auth-card.right-panel-active .overlay-container { transform: translateX(-100%); border-radius: 0 25px 25px 0;}
+.auth-card.right-panel-active .overlay { transform: translateX(50%); }
+
+@keyframes show {
+    0%, 49.99% { opacity: 0; z-index: 1; }
+    50%, 100% { opacity: 1; z-index: 5; }
+}
+
+
 @media (max-width: 1200px) {
     .page-container {
         padding: 0 20px;
@@ -716,9 +1052,9 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     }
     #profile-btn {
         min-width: auto;
-        padding: 8px 12px;
+        padding: 6px;
     }
-    #profile-btn span {
+    #profile-btn #profile-btn-text {
         display: none;
     }
     .main-content {
@@ -731,13 +1067,31 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
         overflow-y: auto;
         overflow-x: hidden;
     }
-
     .page-container {
         height: auto;
         min-height: 100vh;
         max-height: none;
         margin: 0;
         padding: 0 15px;
+    }
+    .auth-card {
+        width: 90vw;
+        min-height: 520px;
+    }
+    .overlay-container { display: none; }
+    .form-container { width: 100%; }
+    .sign-in-container {
+        transform: translateX(100%);
+    }
+    .auth-card.right-panel-active .sign-in-container {
+        transform: translateX(0);
+    }
+    .auth-card.right-panel-active .sign-up-container {
+        transform: translateX(0%);
+        pointer-events: auto;
+    }
+    .auth-card.right-panel-active .sign-in-container {
+        pointer-events: none;
     }
 
     .main-header {
@@ -791,16 +1145,13 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     .header-controls {
         gap: 8px;
     }
-    .header-icon-btn, #profile-btn {
+    .header-icon-btn {
         width: 40px;
         height: 40px;
     }
-    #profile-btn span {
-        display: none;
-    }
     #profile-btn {
         justify-content: center;
-        padding: 8px;
+        padding: 4px;
     }
 
     .panel-header {
@@ -813,4 +1164,8 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     .chat-messages {
         padding: 20px;
     }
+    .auth-card form {
+        padding: 0 25px;
+    }
 }
+

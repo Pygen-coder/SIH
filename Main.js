@@ -1,6 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- Firebase Configuration ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDZpgomP6wL0shJBytulfaLqjj0c0kXa2k",
+      authDomain: "sih-health-bot.firebaseapp.com",
+      projectId: "sih-health-bot",
+      storageBucket: "sih-health-bot.appspot.com",
+      messagingSenderId: "453736771753",
+      appId: "1:453736771753:web:2cd6beb18ea09aae3b39b8",
+      measurementId: "G-Z08N0GQ794"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+
     // --- DOM Element Selection ---
+    const chatPanel = document.getElementById('chat-panel');
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const micBtn = document.getElementById('mic-btn');
@@ -12,6 +29,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const langDropdown = document.getElementById('lang-dropdown');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const micIcon = micBtn.querySelector('i');
+    const profileBtnText = document.getElementById('profile-btn-text');
+
+    // Auth Dropdown Elements
+    const loggedOutView = document.querySelector('.logged-out-view');
+    const loggedInView = document.querySelector('.logged-in-view');
+    const loginBtnDropdown = document.getElementById('login-btn-dropdown');
+    const signupBtnDropdown = document.getElementById('signup-btn-dropdown');
+    const logoutLink = document.getElementById('logout-link');
+    const userNameDropdown = document.getElementById('user-name-dropdown');
+    const userEmailDropdown = document.getElementById('user-email-dropdown');
+
+    // Auth Modal Elements
+    const authContainer = document.querySelector('.auth-container');
+    const authCard = document.getElementById('auth-card');
+    const signUpBtnCard = document.getElementById('signUp');
+    const signInBtnCard = document.getElementById('signIn');
+    
+    // Auth Forms
+    const signupForm = document.getElementById('signup-form');
+    const signinForm = document.getElementById('signin-form');
+    const googleSignupBtn = document.getElementById('google-signup-btn');
+    const googleSigninBtn = document.getElementById('google-signin-btn');
+
 
     // --- Gemini API Configuration ---
     // IMPORTANT: Replace "YOUR_GEMINI_API_KEY" with your actual API key from Google AI Studio.
@@ -72,6 +112,155 @@ document.addEventListener('DOMContentLoaded', () => {
         langDropdown.classList.remove('show');
     });
 
+    // --- Auth Modal Logic ---
+    if (authContainer) {
+        signUpBtnCard.addEventListener('click', () => authCard.classList.add("right-panel-active"));
+        signInBtnCard.addEventListener('click', () => authCard.classList.remove("right-panel-active"));
+
+        authContainer.addEventListener('click', (event) => {
+            if (event.target === authContainer) {
+                authContainer.classList.remove('show');
+            }
+        });
+    }
+
+    function openAuthModal(showSignUp = false) {
+        if (!authContainer) return;
+        
+        if(showSignUp) {
+            authCard.classList.add("right-panel-active");
+        } else {
+            authCard.classList.remove("right-panel-active");
+        }
+        authContainer.classList.add('show');
+    }
+
+    loginBtnDropdown.addEventListener('click', () => {
+        openAuthModal(false);
+        profileDropdown.classList.remove('show');
+    });
+
+    signupBtnDropdown.addEventListener('click', () => {
+        openAuthModal(true);
+        profileDropdown.classList.remove('show');
+    });
+
+
+    // --- Firebase Authentication Logic ---
+
+    function updateUserProfileUI(user) {
+        const avatarCapsule = document.getElementById('profile-avatar-capsule');
+        const avatarDropdown = document.getElementById('profile-avatar-dropdown');
+
+        if (user) {
+            // --- User is SIGNED IN ---
+            loggedOutView.style.display = 'none';
+            loggedInView.style.display = 'block';
+
+            const displayName = user.displayName || user.email.split('@')[0];
+            profileBtnText.textContent = displayName;
+            userNameDropdown.textContent = user.displayName || 'User';
+            userEmailDropdown.textContent = user.email;
+
+            // Avatar Logic
+            if (user.photoURL) {
+                const imgHTML = `<img src="${user.photoURL}" alt="Profile Picture">`;
+                avatarCapsule.innerHTML = imgHTML;
+                avatarDropdown.innerHTML = imgHTML;
+            } else {
+                const initial = (displayName).charAt(0).toUpperCase();
+                const colors = ["#ffc107", "#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", "#00bcd4", "#4caf50", "#8bc34a", "#ff9800", "#795548"];
+                const colorIndex = Math.abs(displayName.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0)) % colors.length;
+                const bgColor = colors[colorIndex];
+                
+                const avatarHTML = `<div class="initials-avatar" style="background-color: ${bgColor}; color: #fff;">${initial}</div>`;
+                avatarCapsule.innerHTML = avatarHTML;
+                avatarDropdown.innerHTML = avatarHTML;
+            }
+
+        } else {
+            // --- User is SIGNED OUT ---
+            loggedOutView.style.display = 'block';
+            loggedInView.style.display = 'none';
+            profileBtnText.textContent = 'Welcome';
+
+            // Reset avatars to default icon
+            avatarCapsule.innerHTML = '<i class="fa-solid fa-user-circle"></i>';
+            avatarDropdown.innerHTML = '<i class="fa-solid fa-user-circle fa-2x"></i>';
+        }
+    }
+    
+    // Listen for authentication state changes
+    auth.onAuthStateChanged(user => {
+        updateUserProfileUI(user);
+        if (user) {
+            // Close dropdowns and modal on successful login/signup
+            profileDropdown.classList.remove('show');
+            authContainer.classList.remove('show');
+        }
+    });
+
+    // Sign Up with Email and Password
+    signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = signupForm['signup-name'].value;
+        const email = signupForm['signup-email'].value;
+        const password = signupForm['signup-password'].value;
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                // After creation, update the profile with the name
+                return userCredential.user.updateProfile({
+                    displayName: name
+                });
+            })
+            .then(() => {
+                // onAuthStateChanged has already fired, but maybe without the displayName.
+                // We manually call our UI update function with the latest user data to fix the name instantly.
+                updateUserProfileUI(auth.currentUser);
+                signupForm.reset();
+            })
+            .catch((error) => {
+                alert(error.message);
+            });
+    });
+
+    // Sign In with Email and Password
+    signinForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = signinForm['signin-email'].value;
+        const password = signinForm['signin-password'].value;
+
+        auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+                // onAuthStateChanged will handle UI updates
+                signinForm.reset();
+            })
+            .catch((error) => {
+                alert(error.message);
+            });
+    });
+    
+    // Sign In/Up with Google
+    const handleGoogleSignIn = () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider)
+            .catch((error) => {
+                 alert(error.message);
+            });
+    };
+
+    googleSignupBtn.addEventListener('click', handleGoogleSignIn);
+    googleSigninBtn.addEventListener('click', handleGoogleSignIn);
+
+
+    // Sign Out
+    logoutLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        auth.signOut().catch(error => alert(error.message));
+    });
+
+
     // --- Chat Functionality ---
     function addMessage(text, sender) {
         const messageElement = document.createElement('div');
@@ -120,6 +309,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                  const errorBody = await response.text();
                  console.error("API Error Response:", errorBody);
+                 if (API_KEY === "YOUR_GEMINI_API_KEY") {
+                    return "API Key not set. Please add your Gemini API key in Main.js.";
+                 }
                  return `Error: ${response.statusText}. Please check your API key and network connection.`;
             }
 
@@ -142,10 +334,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = userInput.value.trim();
         if (!text) return;
 
+        // Activate the chat view on the first message
+        if (!chatPanel.classList.contains('chat-active')) {
+            chatPanel.classList.add('chat-active');
+        }
+
         addMessage(text, 'user');
         userInput.value = '';
         updateMicIcon();
-        document.getElementById('suggested-queries').style.display = 'none';
+        
+        const suggestedQueries = document.getElementById('suggested-queries');
+        if (suggestedQueries) {
+            suggestedQueries.style.display = 'none';
+        }
 
         showTypingIndicator();
         userInput.disabled = true;
@@ -201,8 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.query-btn').forEach(button => {
         button.addEventListener('click', () => {
             userInput.value = button.innerText;
-            updateMicIcon();
-            userInput.focus();
+            handleSendMessage();
         });
     });
 
@@ -213,3 +413,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
