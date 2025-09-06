@@ -45,6 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const authCard = document.getElementById('auth-card');
     const signUpBtnCard = document.getElementById('signUp');
     const signInBtnCard = document.getElementById('signIn');
+    const signInMobileLink = document.getElementById('signInMobile');
+    const signUpMobileLink = document.getElementById('signUpMobile');
     
     // Auth Forms
     const signupForm = document.getElementById('signup-form');
@@ -114,8 +116,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Auth Modal Logic ---
     if (authContainer) {
+        // Desktop Toggle
         signUpBtnCard.addEventListener('click', () => authCard.classList.add("right-panel-active"));
         signInBtnCard.addEventListener('click', () => authCard.classList.remove("right-panel-active"));
+        
+        // Get the new mobile slider element
+        const mobileSlider = document.querySelector('.mobile-accent-slider');
+
+        // Mobile Toggle with Animation
+        signInMobileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Only run animation if we are switching panels
+            if (authCard.classList.contains("right-panel-active")) {
+                if (mobileSlider) {
+                    mobileSlider.classList.add('is-animating');
+                    // Important: remove the class after animation to allow it to run again
+                    mobileSlider.addEventListener('animationend', () => {
+                        mobileSlider.classList.remove('is-animating');
+                    }, { once: true });
+                }
+                authCard.classList.remove("right-panel-active");
+            }
+        });
+
+        signUpMobileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Only run animation if we are switching panels
+            if (!authCard.classList.contains("right-panel-active")) {
+                if (mobileSlider) {
+                    mobileSlider.classList.add('is-animating');
+                    // Important: remove the class after animation to allow it to run again
+                    mobileSlider.addEventListener('animationend', () => {
+                        mobileSlider.classList.remove('is-animating');
+                    }, { once: true });
+                }
+                authCard.classList.add("right-panel-active");
+            }
+        });
+
 
         authContainer.addEventListener('click', (event) => {
             if (event.target === authContainer) {
@@ -343,9 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.value = '';
         updateMicIcon();
         
-        const suggestedQueries = document.getElementById('suggested-queries');
-        if (suggestedQueries) {
-            suggestedQueries.style.display = 'none';
+        const chatStarter = document.getElementById('chat-starter');
+        if (chatStarter) {
+            chatStarter.remove();
         }
 
         showTypingIndicator();
@@ -413,4 +451,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-

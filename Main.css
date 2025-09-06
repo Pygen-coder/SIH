@@ -479,7 +479,7 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -90%); /* Moved it further up */
+    transform: translate(-50%, -90%);
     opacity: 1;
     transition: opacity 0.5s ease, transform 0.5s ease;
     pointer-events: none;
@@ -487,12 +487,12 @@ body.dark-mode .theme-toggle-btn .moon-icon {
 }
 
 .logo-wrapper {
-    font-size: 8em; /* Increased size */
-    opacity: 0.35; /* Increased opacity */
+    font-size: 8em;
+    opacity: 0.35;
 }
 
 body.dark-mode .logo-wrapper {
-    opacity: 0.3; /* Adjusted for dark mode */
+    opacity: 0.3;
 }
 
 .logo-wrapper i {
@@ -500,8 +500,9 @@ body.dark-mode .logo-wrapper {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    color: transparent; /* Fallback */
+    color: transparent;
 }
+
 
 .chat-panel.chat-active .chat-logo-container {
     opacity: 0;
@@ -858,10 +859,10 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     left: 0;
     opacity: 0;
     pointer-events: none;
-    visibility: hidden; /* Prevent interaction when hidden */
+    visibility: hidden;
     position: fixed;
     top: 0;
-    transition: opacity 0.5s ease, visibility 0s 0.5s; /* Delay visibility change */
+    transition: opacity 0.5s ease, visibility 0s 0.5s;
     width: 100vw;
     z-index: 1001;
 }
@@ -883,7 +884,21 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     overflow: hidden;
     position: relative;
     width: 768px;
+    display: flex;
+    transition: all 0.5s cubic-bezier(0.76, 0, 0.24, 1);
 }
+
+.mobile-switch-link {
+    display: none;
+    margin-top: 15px;
+    font-size: 13px;
+}
+.mobile-switch-link a {
+    color: var(--primary-color);
+    font-weight: bold;
+    cursor: pointer;
+}
+
 
 .auth-card h1 { font-weight: bold; margin: 0; }
 .auth-card p { color: var(--text-medium-color); font-size: 14px; font-weight: 100; line-height: 20px; letter-spacing: 0.5px; margin: 15px 0; }
@@ -1076,23 +1091,78 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     }
     .auth-card {
         width: 90vw;
-        min-height: 520px;
+        max-width: 400px;
+        min-height: 580px;
+        height: 90vh;
+        max-height: 650px;
+        position: relative;
+        overflow: hidden; 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
     }
-    .overlay-container { display: none; }
-    .form-container { width: 100%; }
+    .overlay-container { 
+        display: none; 
+    }
+    .mobile-switch-link {
+        display: block;
+    }
+    .form-container { 
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transition: opacity 0.6s ease-in-out;
+        /* This is a crucial addition to prevent desktop transforms from affecting mobile view */
+        transform: none !important;
+    }
     .sign-in-container {
-        transform: translateX(100%);
+        opacity: 1;
+        pointer-events: auto;
+        z-index: 2;
     }
+    .sign-up-container {
+        opacity: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+
     .auth-card.right-panel-active .sign-in-container {
-        transform: translateX(0);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 1;
     }
     .auth-card.right-panel-active .sign-up-container {
-        transform: translateX(0%);
+        opacity: 1;
         pointer-events: auto;
+        z-index: 2;
+        /* This is a crucial addition to prevent the desktop animation from running on mobile */
+        animation: none;
     }
-    .auth-card.right-panel-active .sign-in-container {
+    
+    /* Styles for the new mobile slider */
+    .mobile-accent-slider {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+        z-index: 3;
+        transform: translateY(100%);
         pointer-events: none;
     }
+
+    .mobile-accent-slider.is-animating {
+        animation: slide-up-and-out 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    @keyframes slide-up-and-out {
+        0% { transform: translateY(100%); }
+        45%, 55% { transform: translateY(0); }
+        100% { transform: translateY(-100%); }
+    }
+    /* End of mobile slider styles */
 
     .main-header {
         flex-direction: row;
@@ -1145,9 +1215,12 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
     .header-controls {
         gap: 8px;
     }
-    .header-icon-btn {
+    .header-icon-btn, #profile-btn {
         width: 40px;
         height: 40px;
+    }
+     #profile-btn #profile-btn-text {
+        display: none;
     }
     #profile-btn {
         justify-content: center;
@@ -1168,4 +1241,3 @@ body.dark-mode .dashboard-column::-webkit-scrollbar-thumb:hover {
         padding: 0 25px;
     }
 }
-
