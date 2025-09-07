@@ -2,13 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Firebase Configuration ---
     const firebaseConfig = {
-      apiKey: "AIzaSyDZpgomP6wL0shJBytulfaLqjj0c0kXa2k",
-      authDomain: "sih-health-bot.firebaseapp.com",
-      projectId: "sih-health-bot",
-      storageBucket: "sih-health-bot.appspot.com",
-      messagingSenderId: "453736771753",
-      appId: "1:453736771753:web:2cd6beb18ea09aae3b39b8",
-      measurementId: "G-Z08N0GQ794"
+        apiKey: "AIzaSyCGO9vLvYRUOVz4urMatIvoyMoVOwoa0_8",
+        authDomain: "smart-india-hackathon-fb417.firebaseapp.com",
+        projectId: "smart-india-hackathon-fb417",
+        storageBucket: "smart-india-hackathon-fb417.firebasestorage.app",
+        messagingSenderId: "1049386565394",
+        appId: "1:1049386565394:web:a1fbd1f9f820c180b6bdcb",
+        measurementId: "G-D0CTBFWHYE"
+
     };
 
     // Initialize Firebase
@@ -56,17 +57,115 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Gemini API Configuration ---
-    // IMPORTANT: Replace "YOUR_GEMINI_API_KEY" with your actual API key from Google AI Studio.
-    const API_KEY = "AIzaSyBECBXaynBqi1J4kD0rabcRhW97Sps28mc";
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+    const API_KEY = "AIzaSyBolo_dfR-aHyjmvNpTSuAZb2D3LfQi-48"; // User's new API key
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    
+    // --- Speech Recognition Functionality ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let isListening = false;
+    let silenceTimeout; 
+
+    const stopListening = () => {
+        if (!isListening) return;
+        isListening = false;
+        micBtn.classList.remove('listening');
+        userInput.placeholder = "Type your message here...";
+        clearTimeout(silenceTimeout); 
+        updateMicIcon();
+    };
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true; 
+        recognition.lang = 'en-US';
+        recognition.interimResults = true;
+
+        const resetSilenceTimer = () => {
+            clearTimeout(silenceTimeout);
+            silenceTimeout = setTimeout(() => {
+                if (isListening) {
+                    recognition.stop();
+                }
+            }, 60000); // 1 minute
+        };
+
+        recognition.onstart = () => {
+            isListening = true;
+            micBtn.classList.add('listening');
+            micBtn.classList.remove('send-mode');
+            micIcon.className = 'fa-solid fa-stop';
+            micBtn.setAttribute('data-tooltip', 'Stop listening');
+            userInput.placeholder = "Listening... please speak clearly.";
+            userInput.focus();
+            resetSilenceTimer(); 
+        };
+
+        recognition.onresult = (event) => {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+            userInput.value = finalTranscript + interimTranscript;
+            
+            if (finalTranscript.trim()) {
+                 updateMicIcon();
+            }
+            resetSilenceTimer(); 
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            alert(`An error occurred during speech recognition: ${event.error}.`);
+            stopListening();
+        };
+
+        recognition.onend = () => {
+            if (isListening) {
+                stopListening();
+            }
+        };
+
+    } else {
+        console.warn("Speech Recognition not supported in this browser.");
+    }
+    
+    const langLinks = langDropdown.querySelectorAll('a');
+    langLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const selectedLangText = e.target.textContent;
+            const langBtnSpan = langBtn.querySelector('span');
+            let newLang = 'en-US';
+
+            if (selectedLangText === 'ଓଡ଼ିଆ') {
+                newLang = 'or-IN';
+                langBtnSpan.textContent = 'OR';
+            } else if (selectedLangText === 'हिन्दी') {
+                newLang = 'hi-IN';
+                langBtnSpan.textContent = 'HI';
+            } else {
+                newLang = 'en-US';
+                langBtnSpan.textContent = 'EN';
+            }
+
+            if (recognition) {
+                recognition.lang = newLang;
+            }
+            langDropdown.classList.remove('show');
+        });
+    });
+
 
     // --- Theme Management ---
     const applyTheme = () => {
-        if (document.body.classList.contains('dark-mode')) {
-            localStorage.setItem('theme', 'dark');
-        } else {
-            localStorage.setItem('theme', 'light');
-        }
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
     };
 
     themeToggleBtn.addEventListener('click', () => {
@@ -74,8 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme();
     });
 
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
+    if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
     }
 
@@ -116,82 +214,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Auth Modal Logic ---
     if (authContainer) {
-        // Desktop Toggle
         signUpBtnCard.addEventListener('click', () => authCard.classList.add("right-panel-active"));
         signInBtnCard.addEventListener('click', () => authCard.classList.remove("right-panel-active"));
         
-        // Get the new mobile slider element
         const mobileSlider = document.querySelector('.mobile-accent-slider');
 
-        // Mobile Toggle with Animation
-        signInMobileLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Only run animation if we are switching panels
-            if (authCard.classList.contains("right-panel-active")) {
-                if (mobileSlider) {
-                    mobileSlider.classList.add('is-animating');
-                    // Important: remove the class after animation to allow it to run again
-                    mobileSlider.addEventListener('animationend', () => {
-                        mobileSlider.classList.remove('is-animating');
-                    }, { once: true });
-                }
-                authCard.classList.remove("right-panel-active");
-            }
-        });
+        const toggleMobilePanel = (isSignUp) => {
+             const needsAnimation = isSignUp !== authCard.classList.contains("right-panel-active");
+             if(needsAnimation && mobileSlider) {
+                mobileSlider.classList.add('is-animating');
+                mobileSlider.addEventListener('animationend', () => mobileSlider.classList.remove('is-animating'), { once: true });
+             }
+             authCard.classList.toggle("right-panel-active", isSignUp);
+        }
 
-        signUpMobileLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Only run animation if we are switching panels
-            if (!authCard.classList.contains("right-panel-active")) {
-                if (mobileSlider) {
-                    mobileSlider.classList.add('is-animating');
-                    // Important: remove the class after animation to allow it to run again
-                    mobileSlider.addEventListener('animationend', () => {
-                        mobileSlider.classList.remove('is-animating');
-                    }, { once: true });
-                }
-                authCard.classList.add("right-panel-active");
-            }
-        });
-
+        signInMobileLink.addEventListener('click', (e) => { e.preventDefault(); toggleMobilePanel(false); });
+        signUpMobileLink.addEventListener('click', (e) => { e.preventDefault(); toggleMobilePanel(true); });
 
         authContainer.addEventListener('click', (event) => {
-            if (event.target === authContainer) {
-                authContainer.classList.remove('show');
-            }
+            if (event.target === authContainer) authContainer.classList.remove('show');
         });
     }
 
     function openAuthModal(showSignUp = false) {
         if (!authContainer) return;
-        
-        if(showSignUp) {
-            authCard.classList.add("right-panel-active");
-        } else {
-            authCard.classList.remove("right-panel-active");
-        }
+        authCard.classList.toggle("right-panel-active", showSignUp);
         authContainer.classList.add('show');
     }
 
-    loginBtnDropdown.addEventListener('click', () => {
-        openAuthModal(false);
-        profileDropdown.classList.remove('show');
-    });
-
-    signupBtnDropdown.addEventListener('click', () => {
-        openAuthModal(true);
-        profileDropdown.classList.remove('show');
-    });
+    loginBtnDropdown.addEventListener('click', () => { openAuthModal(false); profileDropdown.classList.remove('show'); });
+    signupBtnDropdown.addEventListener('click', () => { openAuthModal(true); profileDropdown.classList.remove('show'); });
 
 
     // --- Firebase Authentication Logic ---
-
     function updateUserProfileUI(user) {
         const avatarCapsule = document.getElementById('profile-avatar-capsule');
         const avatarDropdown = document.getElementById('profile-avatar-dropdown');
 
         if (user) {
-            // --- User is SIGNED IN ---
             loggedOutView.style.display = 'none';
             loggedInView.style.display = 'block';
 
@@ -200,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
             userNameDropdown.textContent = user.displayName || 'User';
             userEmailDropdown.textContent = user.email;
 
-            // Avatar Logic
             if (user.photoURL) {
                 const imgHTML = `<img src="${user.photoURL}" alt="Profile Picture">`;
                 avatarCapsule.innerHTML = imgHTML;
@@ -209,36 +268,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 const initial = (displayName).charAt(0).toUpperCase();
                 const colors = ["#ffc107", "#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", "#00bcd4", "#4caf50", "#8bc34a", "#ff9800", "#795548"];
                 const colorIndex = Math.abs(displayName.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0)) % colors.length;
-                const bgColor = colors[colorIndex];
-                
-                const avatarHTML = `<div class="initials-avatar" style="background-color: ${bgColor}; color: #fff;">${initial}</div>`;
+                const avatarHTML = `<div class="initials-avatar" style="background-color: ${colors[colorIndex]}; color: #fff;">${initial}</div>`;
                 avatarCapsule.innerHTML = avatarHTML;
                 avatarDropdown.innerHTML = avatarHTML;
             }
-
         } else {
-            // --- User is SIGNED OUT ---
             loggedOutView.style.display = 'block';
             loggedInView.style.display = 'none';
             profileBtnText.textContent = 'Welcome';
-
-            // Reset avatars to default icon
             avatarCapsule.innerHTML = '<i class="fa-solid fa-user-circle"></i>';
             avatarDropdown.innerHTML = '<i class="fa-solid fa-user-circle fa-2x"></i>';
         }
     }
     
-    // Listen for authentication state changes
     auth.onAuthStateChanged(user => {
         updateUserProfileUI(user);
         if (user) {
-            // Close dropdowns and modal on successful login/signup
             profileDropdown.classList.remove('show');
-            authContainer.classList.remove('show');
+            if (authContainer) authContainer.classList.remove('show');
         }
     });
 
-    // Sign Up with Email and Password
     signupForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = signupForm['signup-name'].value;
@@ -246,63 +296,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = signupForm['signup-password'].value;
 
         auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                // After creation, update the profile with the name
-                return userCredential.user.updateProfile({
-                    displayName: name
-                });
-            })
+            .then(cred => cred.user.updateProfile({ displayName: name }))
             .then(() => {
-                // onAuthStateChanged has already fired, but maybe without the displayName.
-                // We manually call our UI update function with the latest user data to fix the name instantly.
                 updateUserProfileUI(auth.currentUser);
                 signupForm.reset();
             })
-            .catch((error) => {
-                alert(error.message);
-            });
+            .catch(err => alert(err.message));
     });
 
-    // Sign In with Email and Password
     signinForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const email = signinForm['signin-email'].value;
         const password = signinForm['signin-password'].value;
-
         auth.signInWithEmailAndPassword(email, password)
-            .then(() => {
-                // onAuthStateChanged will handle UI updates
-                signinForm.reset();
-            })
-            .catch((error) => {
-                alert(error.message);
-            });
+            .then(() => signinForm.reset())
+            .catch(err => alert(err.message));
     });
     
-    // Sign In/Up with Google
     const handleGoogleSignIn = () => {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider)
-            .catch((error) => {
-                 alert(error.message);
-            });
+        auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => alert(err.message));
     };
 
     googleSignupBtn.addEventListener('click', handleGoogleSignIn);
     googleSigninBtn.addEventListener('click', handleGoogleSignIn);
 
+    logoutLink.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
 
-    // Sign Out
-    logoutLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        auth.signOut().catch(error => alert(error.message));
-    });
-
-
-    // --- Chat Functionality ---
+    // --- Core Chat Functionality ---
     function addMessage(text, sender) {
         const messageElement = document.createElement('div');
-        messageElement.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+        messageElement.className = `message ${sender}-message`;
         const p = document.createElement('p');
         p.innerText = text;
         messageElement.appendChild(p);
@@ -311,81 +334,85 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showTypingIndicator() {
+        if (document.getElementById('typing-indicator')) return;
         const typingIndicator = document.createElement('div');
-        typingIndicator.classList.add('typing-indicator');
-        typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+        typingIndicator.className = 'typing-indicator';
         typingIndicator.id = 'typing-indicator';
+        typingIndicator.innerHTML = '<span></span><span></span><span></span>';
         chatMessages.appendChild(typingIndicator);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
     function removeTypingIndicator() {
         const indicator = document.getElementById('typing-indicator');
-        if (indicator) {
-            indicator.remove();
-        }
+        if (indicator) indicator.remove();
     }
 
     async function getBotResponse(userText) {
+        const systemPrompt = `
+            You are an AI Personal Health Companion for rural citizens of Odisha, India.
+
+            **Your Persona & Style:**
+            1.  **Warm and Empathetic:** Your tone must be caring, friendly, and human-like. When a user mentions they are feeling unwell, ALWAYS start with an empathetic response first.
+            2.  **Detailed and Clear:** Always give detailed explanations. When you list symptoms or advice, don't just state the point. Explain it in a simple, easy-to-understand sentence. For example, instead of just "Fever," say "1. **Fever:** You might feel hotter than usual as this is your body's natural way of fighting off an infection."
+            3.  **Structured Formatting:** Use clean, numbered lists (1., 2., 3., etc.) for advice or symptoms. **Crucially, add an extra line break between each number** to ensure there is clear spacing, making the list very easy to read.
+            4.  **Subtle Emojis:** Use emojis sparingly to add a touch of friendliness to your conversation. **Do not use emojis as bullet points for lists.** The numbered list format is what you should use.
+
+            **Core Guidelines (Safety First!):**
+            1.  **Primary Focus on Health**: Your main purpose is to answer health-related questions. You can also discuss topics closely related to wellness, such as nutrition, hygiene, exercise, and mental well-being.
+            2.  **Handling Off-Topic Questions**: If the user asks about something completely unrelated to health (like politics, sports, etc.), politely decline with a friendly touch. You can say something like: "My purpose is to help with health and wellness questions, so I can't really help with that. Is there a health topic I can assist you with? 😊"
+            3.  **Disclaimer is Crucial**: ALWAYS include this clear, bold disclaimer at the beginning of any detailed health advice: "**Disclaimer: This information is for educational purposes only and is not a substitute for professional medical advice. Please consult a qualified doctor for any health concerns.**"
+            4.  **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages. You can mention general over-the-counter options (like paracetamol for fever) but must immediately state that it's essential to follow packaging directions and check with a doctor or pharmacist first.
+            5.  **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center or consult with a healthcare professional for a proper diagnosis.
+        `;
+
         const payload = {
-            contents: [{
-                parts: [{
-                    text: userText
-                }]
-            }]
+            contents: [{ parts: [{ text: systemPrompt }, { text: `User's question: "${userText}"` }] }]
         };
 
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
-                 const errorBody = await response.text();
-                 console.error("API Error Response:", errorBody);
-                 if (API_KEY === "YOUR_GEMINI_API_KEY") {
-                    return "API Key not set. Please add your Gemini API key in Main.js.";
-                 }
-                 return `Error: ${response.statusText}. Please check your API key and network connection.`;
+                console.error("API Error Response:", await response.text());
+                return `Error: ${response.statusText}. Please check your API key and network.`;
             }
 
             const data = await response.json();
             
-            if (data.candidates && data.candidates.length > 0) {
-                 const botText = data.candidates[0].content.parts[0].text;
-                 return botText;
+            if (data.candidates && data.candidates[0]) {
+                 return data.candidates[0].content.parts[0].text;
             } else {
+                if (data.promptFeedback?.blockReason) {
+                    return "I cannot answer that. Please ask another health-related question.";
+                }
                 return "I'm sorry, I couldn't generate a response. Please try again.";
             }
-
         } catch (error) {
             console.error("Error fetching from API:", error);
-            return "An error occurred. Please check the console for details.";
+            return "An error occurred. Please check the console.";
         }
     }
 
     async function handleSendMessage() {
+        if (isListening) recognition.stop();
+
         const text = userInput.value.trim();
         if (!text) return;
 
-        // Activate the chat view on the first message
         if (!chatPanel.classList.contains('chat-active')) {
             chatPanel.classList.add('chat-active');
+            document.getElementById('chat-starter')?.remove();
         }
 
         addMessage(text, 'user');
         userInput.value = '';
         updateMicIcon();
         
-        const chatStarter = document.getElementById('chat-starter');
-        if (chatStarter) {
-            chatStarter.remove();
-        }
-
         showTypingIndicator();
         userInput.disabled = true;
         micBtn.disabled = true;
@@ -402,18 +429,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Event Listeners ---
     userInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-            handleSendMessage();
-        }
+        if (event.key === 'Enter') handleSendMessage();
     });
 
     function updateMicIcon() {
+        if (isListening) return;
+
         if (userInput.value.trim().length > 0) {
-            micIcon.classList.replace('fa-microphone', 'fa-paper-plane');
+            micIcon.className = 'fa-solid fa-paper-plane';
             micBtn.classList.add('send-mode');
             micBtn.setAttribute('data-tooltip', 'Send message');
         } else {
-            micIcon.classList.replace('fa-paper-plane', 'fa-microphone');
+            micIcon.className = 'fa-solid fa-microphone';
             micBtn.classList.remove('send-mode');
             micBtn.setAttribute('data-tooltip', 'Speak your message');
         }
@@ -424,18 +451,20 @@ document.addEventListener('DOMContentLoaded', () => {
     micBtn.addEventListener('click', () => {
         if (micBtn.classList.contains('send-mode')) {
             handleSendMessage();
+        } else if (SpeechRecognition) {
+            if (isListening) {
+                stopListening();
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
         } else {
-            alert("Voice input feature is coming soon!");
+            alert("Voice input is not supported in your browser.");
         }
     });
     
-    uploadBtn.addEventListener('click', () => {
-        alert("Image upload feature for symptom checking is coming soon!");
-    });
-
-    historyBtn.addEventListener('click', () => {
-        alert("Chat history feature is coming soon!");
-    });
+    uploadBtn.addEventListener('click', () => alert("Image upload is coming soon!"));
+    historyBtn.addEventListener('click', () => alert("Chat history is coming soon!"));
     
     document.querySelectorAll('.query-btn').forEach(button => {
         button.addEventListener('click', () => {
@@ -451,3 +480,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+

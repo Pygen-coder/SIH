@@ -642,21 +642,41 @@ body.dark-mode .logo-wrapper {
     transform: translateY(-50%) scale(1.1);
 }
 
-#mic-btn i {
-    animation: pulse 2.5s infinite ease-in-out;
+
+#mic-btn::before,
+#mic-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  transform-origin: center;
+  opacity: 0;
+  pointer-events: none; 
+  z-index: -1;
 }
 
-@keyframes glowing {
-  0% { box-shadow: 0 0 3px var(--primary-color); }
-  50% { box-shadow: 0 0 15px var(--primary-color), 0 0 20px var(--primary-color); }
-  100% { box-shadow: 0 0 3px var(--primary-color); }
+#mic-btn.listening::before {
+  animation: ripple 2s infinite ease-out;
 }
 
-#mic-btn.listening {
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-    border-radius: 50%;
-    animation: glowing 1.5s infinite ease-in-out;
+#mic-btn.listening::after {
+  animation: ripple 2s 1s infinite ease-out; /* Starts 1 second later */
+}
+
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(3.5);
+    opacity: 0;
+  }
 }
 
 .send-btn {
@@ -772,12 +792,6 @@ body.dark-mode .logo-wrapper {
 @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes messageAppear { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    5% { transform: scale(1.15); }
-    10% { transform: scale(1); }
-    100% { transform: scale(1); }
-}
 
 .typing-indicator {
     display: flex;
