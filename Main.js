@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // --- Firebase Configuration ---
     const firebaseConfig = {
         apiKey: "AIzaSyCGO9vLvYRUOVz4urMatIvoyMoVOwoa0_8",
         authDomain: "smart-india-hackathon-fb417.firebaseapp.com",
@@ -9,16 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         messagingSenderId: "1049386565394",
         appId: "1:1049386565394:web:a1fbd1f9f820c180b6bdcb",
         measurementId: "G-D0CTBFWHYE"
-
     };
-
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-
-    // --- DOM Element Selection ---
-    const chatPanel = document.getElementById('chat-panel');
+    const mainInterface = document.getElementById('main-interface');
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const micBtn = document.getElementById('mic-btn');
@@ -32,52 +25,64 @@ document.addEventListener('DOMContentLoaded', () => {
     const micIcon = micBtn.querySelector('i');
     const profileBtnText = document.getElementById('profile-btn-text');
 
-    // Auth Dropdown Elements
-    const loggedOutView = document.querySelector('.logged-out-view');
-    const loggedInView = document.querySelector('.logged-in-view');
+    const loggedOutView = profileDropdown.querySelector('.logged-out-view');
+    const loggedInView = profileDropdown.querySelector('.logged-in-view');
     const loginBtnDropdown = document.getElementById('login-btn-dropdown');
     const signupBtnDropdown = document.getElementById('signup-btn-dropdown');
     const logoutLink = document.getElementById('logout-link');
     const userNameDropdown = document.getElementById('user-name-dropdown');
     const userEmailDropdown = document.getElementById('user-email-dropdown');
 
-    // Auth Modal Elements
     const authContainer = document.querySelector('.auth-container');
     const authCard = document.getElementById('auth-card');
     const signUpBtnCard = document.getElementById('signUp');
     const signInBtnCard = document.getElementById('signIn');
     const signInMobileLink = document.getElementById('signInMobile');
     const signUpMobileLink = document.getElementById('signUpMobile');
-    
-    // Auth Forms
+
     const signupForm = document.getElementById('signup-form');
     const signinForm = document.getElementById('signin-form');
     const googleSignupBtn = document.getElementById('google-signup-btn');
     const googleSigninBtn = document.getElementById('google-signin-btn');
 
-
-    // --- Gemini API Configuration ---
-    const API_KEY = "AIzaSyBolo_dfR-aHyjmvNpTSuAZb2D3LfQi-48"; // User's new API key
+    const API_KEY = "AIzaSyBolo_dfR-aHyjmvNpTSuAZb2D3LfQi-48";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-    
-    // --- Speech Recognition Functionality ---
+
+    function renderMarkdown(text) {
+        let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\n/g, '<br>');
+        return html;
+    }
+
+    const activateChatView = () => {
+        if (!mainInterface.classList.contains('chat-active')) {
+            mainInterface.classList.add('chat-active');
+        }
+    };
+
+    userInput.addEventListener('input', () => {
+        userInput.style.height = 'auto';
+        userInput.style.height = `${userInput.scrollHeight}px`;
+        updateMicIcon();
+    });
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     let isListening = false;
-    let silenceTimeout; 
+    let silenceTimeout;
 
     const stopListening = () => {
         if (!isListening) return;
         isListening = false;
         micBtn.classList.remove('listening');
-        userInput.placeholder = "Type your message here...";
-        clearTimeout(silenceTimeout); 
+        userInput.placeholder = "Ask anything...";
+        clearTimeout(silenceTimeout);
         updateMicIcon();
     };
 
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
-        recognition.continuous = true; 
+        recognition.continuous = true;
         recognition.lang = 'en-US';
         recognition.interimResults = true;
 
@@ -87,24 +92,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isListening) {
                     recognition.stop();
                 }
-            }, 60000); // 1 minute
+            }, 3000); // Stop after 3 seconds of silence
         };
 
         recognition.onstart = () => {
             isListening = true;
             micBtn.classList.add('listening');
-            micBtn.classList.remove('send-mode');
             micIcon.className = 'fa-solid fa-stop';
             micBtn.setAttribute('data-tooltip', 'Stop listening');
             userInput.placeholder = "Listening... please speak clearly.";
             userInput.focus();
-            resetSilenceTimer(); 
+            resetSilenceTimer();
         };
 
         recognition.onresult = (event) => {
             let interimTranscript = '';
             let finalTranscript = '';
-
             for (let i = event.resultIndex; i < event.results.length; ++i) {
                 if (event.results[i].isFinal) {
                     finalTranscript += event.results[i][0].transcript;
@@ -113,16 +116,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             userInput.value = finalTranscript + interimTranscript;
-            
             if (finalTranscript.trim()) {
-                 updateMicIcon();
+                updateMicIcon();
+                userInput.dispatchEvent(new Event('input'));
             }
-            resetSilenceTimer(); 
+            resetSilenceTimer();
         };
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            alert(`An error occurred during speech recognition: ${event.error}.`);
             stopListening();
         };
 
@@ -131,11 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 stopListening();
             }
         };
-
-    } else {
-        console.warn("Speech Recognition not supported in this browser.");
     }
-    
+
     const langLinks = langDropdown.querySelectorAll('a');
     langLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -162,75 +161,60 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-
-    // --- Theme Management ---
     const applyTheme = () => {
-        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
     };
-
     themeToggleBtn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
+        document.body.classList.toggle('light-mode');
         applyTheme();
     });
-
-    if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-mode');
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-mode');
     }
 
-    // --- Dashboard Card Animation ---
-    const cards = document.querySelectorAll('.dashboard-card');
-    const dashboardColumn = document.getElementById('dashboard-column');
-
-    const cardObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-            }
-        });
-    }, { root: dashboardColumn, threshold: 0.2 });
-
-    cards.forEach(card => cardObserver.observe(card));
-
-    // --- Dropdown Menu Logic ---
-    function toggleDropdown(dropdown, otherDropdown) {
-        otherDropdown.classList.remove('show');
+    function toggleDropdown(dropdown) {
+        if (dropdown === profileDropdown) {
+            langDropdown.classList.remove('show');
+        } else {
+            profileDropdown.classList.remove('show');
+        }
         dropdown.classList.toggle('show');
     }
-
     profileBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        toggleDropdown(profileDropdown, langDropdown);
+        toggleDropdown(profileDropdown);
     });
-
     langBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        toggleDropdown(langDropdown, profileDropdown);
+        toggleDropdown(langDropdown);
     });
-
     window.addEventListener('click', () => {
         profileDropdown.classList.remove('show');
         langDropdown.classList.remove('show');
     });
 
-    // --- Auth Modal Logic ---
     if (authContainer) {
         signUpBtnCard.addEventListener('click', () => authCard.classList.add("right-panel-active"));
         signInBtnCard.addEventListener('click', () => authCard.classList.remove("right-panel-active"));
-        
         const mobileSlider = document.querySelector('.mobile-accent-slider');
-
         const toggleMobilePanel = (isSignUp) => {
-             const needsAnimation = isSignUp !== authCard.classList.contains("right-panel-active");
-             if(needsAnimation && mobileSlider) {
+            const needsAnimation = isSignUp !== authCard.classList.contains("right-panel-active");
+            if (needsAnimation && mobileSlider) {
                 mobileSlider.classList.add('is-animating');
-                mobileSlider.addEventListener('animationend', () => mobileSlider.classList.remove('is-animating'), { once: true });
-             }
-             authCard.classList.toggle("right-panel-active", isSignUp);
+                mobileSlider.addEventListener('animationend', () => mobileSlider.classList.remove('is-animating'), {
+                    once: true
+                });
+            }
+            authCard.classList.toggle("right-panel-active", isSignUp);
         }
-
-        signInMobileLink.addEventListener('click', (e) => { e.preventDefault(); toggleMobilePanel(false); });
-        signUpMobileLink.addEventListener('click', (e) => { e.preventDefault(); toggleMobilePanel(true); });
-
+        signInMobileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleMobilePanel(false);
+        });
+        signUpMobileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleMobilePanel(true);
+        });
         authContainer.addEventListener('click', (event) => {
             if (event.target === authContainer) authContainer.classList.remove('show');
         });
@@ -241,12 +225,15 @@ document.addEventListener('DOMContentLoaded', () => {
         authCard.classList.toggle("right-panel-active", showSignUp);
         authContainer.classList.add('show');
     }
+    loginBtnDropdown.addEventListener('click', () => {
+        openAuthModal(false);
+        profileDropdown.classList.remove('show');
+    });
+    signupBtnDropdown.addEventListener('click', () => {
+        openAuthModal(true);
+        profileDropdown.classList.remove('show');
+    });
 
-    loginBtnDropdown.addEventListener('click', () => { openAuthModal(false); profileDropdown.classList.remove('show'); });
-    signupBtnDropdown.addEventListener('click', () => { openAuthModal(true); profileDropdown.classList.remove('show'); });
-
-
-    // --- Firebase Authentication Logic ---
     function updateUserProfileUI(user) {
         const avatarCapsule = document.getElementById('profile-avatar-capsule');
         const avatarDropdown = document.getElementById('profile-avatar-dropdown');
@@ -261,9 +248,8 @@ document.addEventListener('DOMContentLoaded', () => {
             userEmailDropdown.textContent = user.email;
 
             if (user.photoURL) {
-                const imgHTML = `<img src="${user.photoURL}" alt="Profile Picture">`;
-                avatarCapsule.innerHTML = imgHTML;
-                avatarDropdown.innerHTML = imgHTML;
+                avatarCapsule.innerHTML = `<img src="${user.photoURL}" alt="Profile Picture">`;
+                avatarDropdown.innerHTML = `<img src="${user.photoURL}" alt="Profile Picture">`;
             } else {
                 const initial = (displayName).charAt(0).toUpperCase();
                 const colors = ["#ffc107", "#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", "#00bcd4", "#4caf50", "#8bc34a", "#ff9800", "#795548"];
@@ -275,12 +261,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             loggedOutView.style.display = 'block';
             loggedInView.style.display = 'none';
-            profileBtnText.textContent = 'Welcome';
+            profileBtnText.textContent = 'Sign in';
             avatarCapsule.innerHTML = '<i class="fa-solid fa-user-circle"></i>';
             avatarDropdown.innerHTML = '<i class="fa-solid fa-user-circle fa-2x"></i>';
         }
     }
-    
     auth.onAuthStateChanged(user => {
         updateUserProfileUI(user);
         if (user) {
@@ -296,13 +281,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = signupForm['signup-password'].value;
 
         auth.createUserWithEmailAndPassword(email, password)
-            .then(cred => cred.user.updateProfile({ displayName: name }))
+            .then(cred => {
+                return cred.user.updateProfile({
+                    displayName: name
+                }).then(() => {
+                    updateUserProfileUI(auth.currentUser);
+                });
+            })
             .then(() => {
-                updateUserProfileUI(auth.currentUser);
                 signupForm.reset();
             })
-            .catch(err => alert(err.message));
+            .catch(err => {
+                alert(err.message);
+            });
     });
+
 
     signinForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -312,22 +305,26 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(() => signinForm.reset())
             .catch(err => alert(err.message));
     });
-    
+
     const handleGoogleSignIn = () => {
         auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => alert(err.message));
     };
-
     googleSignupBtn.addEventListener('click', handleGoogleSignIn);
     googleSigninBtn.addEventListener('click', handleGoogleSignIn);
+    logoutLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        auth.signOut();
+    });
 
-    logoutLink.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
-
-    // --- Core Chat Functionality ---
     function addMessage(text, sender) {
         const messageElement = document.createElement('div');
         messageElement.className = `message ${sender}-message`;
         const p = document.createElement('p');
-        p.innerText = text;
+        if (sender === 'bot') {
+            p.innerHTML = renderMarkdown(text);
+        } else {
+            p.innerText = text;
+        }
         messageElement.appendChild(p);
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -365,31 +362,31 @@ document.addEventListener('DOMContentLoaded', () => {
             4.  **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages. You can mention general over-the-counter options (like paracetamol for fever) but must immediately state that it's essential to follow packaging directions and check with a doctor or pharmacist first.
             5.  **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center or consult with a healthcare professional for a proper diagnosis.
         `;
-
         const payload = {
-            contents: [{ parts: [{ text: systemPrompt }, { text: `User's question: "${userText}"` }] }]
+            contents: [{
+                parts: [{
+                    text: systemPrompt
+                }, {
+                    text: `User's question: "${userText}"`
+                }]
+            }]
         };
-
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(payload),
             });
-
             if (!response.ok) {
                 console.error("API Error Response:", await response.text());
                 return `Error: ${response.statusText}. Please check your API key and network.`;
             }
-
             const data = await response.json();
-            
             if (data.candidates && data.candidates[0]) {
-                 return data.candidates[0].content.parts[0].text;
+                return data.candidates[0].content.parts[0].text;
             } else {
-                if (data.promptFeedback?.blockReason) {
-                    return "I cannot answer that. Please ask another health-related question.";
-                }
                 return "I'm sorry, I couldn't generate a response. Please try again.";
             }
         } catch (error) {
@@ -400,36 +397,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleSendMessage() {
         if (isListening) recognition.stop();
-
         const text = userInput.value.trim();
         if (!text) return;
 
-        if (!chatPanel.classList.contains('chat-active')) {
-            chatPanel.classList.add('chat-active');
-            document.getElementById('chat-starter')?.remove();
-        }
-
+        activateChatView();
         addMessage(text, 'user');
         userInput.value = '';
-        updateMicIcon();
-        
+        userInput.dispatchEvent(new Event('input'));
+
         showTypingIndicator();
         userInput.disabled = true;
         micBtn.disabled = true;
-        
+
         const botResponse = await getBotResponse(text);
 
         removeTypingIndicator();
         addMessage(botResponse, 'bot');
-        
+
         userInput.disabled = false;
         micBtn.disabled = false;
         userInput.focus();
     }
-    
-    // --- Event Listeners ---
+
     userInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') handleSendMessage();
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            handleSendMessage();
+        }
     });
 
     function updateMicIcon() {
@@ -445,15 +439,12 @@ document.addEventListener('DOMContentLoaded', () => {
             micBtn.setAttribute('data-tooltip', 'Speak your message');
         }
     }
-    
-    userInput.addEventListener('input', updateMicIcon);
 
     micBtn.addEventListener('click', () => {
         if (micBtn.classList.contains('send-mode')) {
             handleSendMessage();
         } else if (SpeechRecognition) {
             if (isListening) {
-                stopListening();
                 recognition.stop();
             } else {
                 recognition.start();
@@ -462,22 +453,8 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Voice input is not supported in your browser.");
         }
     });
-    
+
     uploadBtn.addEventListener('click', () => alert("Image upload is coming soon!"));
     historyBtn.addEventListener('click', () => alert("Chat history is coming soon!"));
-    
-    document.querySelectorAll('.query-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            userInput.value = button.innerText;
-            handleSendMessage();
-        });
-    });
-
-    document.querySelectorAll('.feature-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const featureName = button.closest('.dashboard-card').querySelector('h3').textContent;
-            alert(`${featureName} is coming soon!`);
-        });
-    });
 });
 

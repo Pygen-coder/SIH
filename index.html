@@ -3,199 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Assistant Chatbot</title>
+    <title>Remedi - Health Companion</title>
     <link rel="stylesheet" href="Main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="page-container">
-        <header class="main-header">
-            <h1><a href="index.html" style="text-decoration:none">Health Bot</a></h1>
-            <div class="header-controls">
-                <button id="theme-toggle-btn" class="header-btn header-icon-btn theme-toggle-btn" aria-label="Toggle Dark Mode">
-                    <i class="fa-solid fa-sun sun-icon"></i>
-                    <i class="fa-solid fa-moon moon-icon"></i>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <a href="index.html" class="sidebar-logo" title="Remedi">
+                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM12 20C7.589 20 4 16.411 4 12C4 7.589 7.589 4 12 4C16.411 4 20 7.589 20 12C20 16.411 16.411 20 12 20Z" fill="currentColor"/>
+                        <path d="M12 6C8.686 6 6 8.686 6 12C6 15.314 8.686 18 12 18V6Z" fill="currentColor"/>
+                     </svg>
+                </a>
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-link active" title="Home">
+                        <i class="fa-solid fa-house fa-lg"></i>
+                    </a>
+                    <a href="#" class="nav-link" title="Discover">
+                         <i class="fa-solid fa-compass fa-lg"></i>
+                    </a>
+                    <button class="nav-link" title="History" id="history-btn">
+                        <i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+                    </button>
+                </nav>
+            </div>
+            <div class="sidebar-bottom">
+                 <button class="nav-link" title="New Thread">
+                     <i class="fa-solid fa-plus fa-lg"></i>
                 </button>
-                <div class="language-selector">
-                    <button id="lang-btn" class="header-btn header-icon-btn" aria-label="Select Language">
-                        <span>EN</span>
-                    </button>
-                    <div id="lang-dropdown" class="dropdown-menu">
-                        <a href="#">English</a>
-                        <a href="#">ଓଡ଼ିଆ</a>
-                        <a href="#">हिन्दी</a>
-                    </div>
-                </div>
-                <div class="user-profile">
-                    <button id="profile-btn" class="header-btn" aria-label="User Profile">
-                        <div class="profile-avatar" id="profile-avatar-capsule">
-                            <i class="fa-solid fa-user-circle"></i>
-                        </div>
-                        <span id="profile-btn-text">Welcome</span>
-                    </button>
-                    <div id="profile-dropdown" class="dropdown-menu">
-                        <div class="logged-out-view">
-                            <div class="dropdown-header">
-                                <i class="fa-solid fa-user-circle fa-2x"></i>
-                                <div class="user-info">
-                                    <strong>Welcome</strong>
-                                    <small>Sign in or create an account</small>
-                                </div>
-                            </div>
-                            <div class="dropdown-footer">
-                                <button class="login-btn" id="login-btn-dropdown">Login</button>
-                                <button class="signup-btn" id="signup-btn-dropdown">Sign Up</button>
-                            </div>
-                        </div>
+            </div>
+        </aside>
 
-                        <div class="logged-in-view" style="display: none;">
-                             <div class="dropdown-header">
-                                <div class="profile-avatar large" id="profile-avatar-dropdown">
+        <div class="main-content-wrapper">
+            <header class="main-header">
+                 <div class="header-controls">
+                    <button id="theme-toggle-btn" class="header-btn theme-toggle-btn" aria-label="Toggle Dark Mode">
+                        <i class="fa-solid fa-sun sun-icon"></i>
+                        <i class="fa-solid fa-moon moon-icon"></i>
+                    </button>
+                    <div class="language-selector">
+                        <button id="lang-btn" class="header-btn lang-btn" aria-label="Select Language">
+                            <span>EN</span>
+                        </button>
+                        <div id="lang-dropdown" class="dropdown-menu">
+                            <a href="#">English</a>
+                            <a href="#">ଓଡ଼ିଆ</a>
+                            <a href="#">हिन्दी</a>
+                        </div>
+                    </div>
+                    <div class="user-profile">
+                        <button id="profile-btn" class="header-btn profile-btn" aria-label="User Profile">
+                            <div class="profile-avatar" id="profile-avatar-capsule">
+                                <i class="fa-solid fa-user-circle"></i>
+                            </div>
+                            <span id="profile-btn-text">Sign in</span>
+                        </button>
+                        <div id="profile-dropdown" class="dropdown-menu">
+                            <div class="logged-out-view">
+                               <div class="dropdown-header">
                                     <i class="fa-solid fa-user-circle fa-2x"></i>
+                                    <div class="user-info">
+                                        <strong>Welcome</strong>
+                                        <small>Sign in or create an account</small>
+                                    </div>
                                 </div>
-                                <div class="user-info" id="user-info-dropdown">
-                                    <strong id="user-name-dropdown">User</strong>
-                                    <small id="user-email-dropdown">user@example.com</small>
+                                <div class="dropdown-footer">
+                                    <button class="login-btn" id="login-btn-dropdown">Login</button>
+                                    <button class="signup-btn" id="signup-btn-dropdown">Sign Up</button>
                                 </div>
                             </div>
-                            <div class="dropdown-links">
-                                <a href="#"><i class="fa-solid fa-users fa-fw"></i><span>My Family</span></a>
-                                <a href="#"><i class="fa-solid fa-bell fa-fw"></i><span>Health Reminders</span></a>
-                                <a href="#"><i class="fa-solid fa-chart-line fa-fw"></i><span>Learning Progress</span></a>
+                            <div class="logged-in-view" style="display: none;">
+                                 <div class="dropdown-header">
+                                    <div class="profile-avatar large" id="profile-avatar-dropdown">
+                                        <i class="fa-solid fa-user-circle fa-2x"></i>
+                                    </div>
+                                    <div class="user-info" id="user-info-dropdown">
+                                        <strong id="user-name-dropdown">User</strong>
+                                        <small id="user-email-dropdown">user@example.com</small>
+                                    </div>
+                                </div>
+                                <div class="dropdown-links">
+                                    <a href="#"><i class="fa-solid fa-users fa-fw"></i><span>My Family</span></a>
+                                    <a href="#"><i class="fa-solid fa-bell fa-fw"></i><span>Health Reminders</span></a>
+                                </div>
+                                <hr>
+                                <a href="#" class="logout-link" id="logout-link"><i class="fa-solid fa-arrow-right-from-bracket fa-fw"></i><span>Logout</span></a>
                             </div>
-                            <hr>
-                            <a href="#" class="logout-link" id="logout-link"><i class="fa-solid fa-arrow-right-from-bracket fa-fw"></i><span>Logout</span></a>
                         </div>
                     </div>
                 </div>
-            </div>
-        </header>
+            </header>
+            
+            <main class="main-interface" id="main-interface">
+                 <div class="chat-messages" id="chat-messages">
+                    </div>
 
-        <main class="main-content">
-            <div class="chat-panel" id="chat-panel">
-                <div class="panel-header">
-                    <div class="panel-header-left">
-                        <i class="fa-solid fa-comments"></i>
-                        <h3>Chat with your Assistant</h3>
-                    </div>
-                    <button class="history-btn tooltip" data-tooltip="View Chat History" id="history-btn">
-                        <i class="fa-solid fa-history"></i>
-                    </button>
+                 <div class="search-starter" id="search-starter">
+                    <h1 class="main-title">Remedi</h1>
                 </div>
-                <div class="chat-logo-container" id="chat-logo-container">
-                    <div class="logo-wrapper">
-                        <i class="fa-solid fa-user-doctor"></i>
-                    </div>
-                </div>
-                <div class="chat-messages" id="chat-messages">
-                    <div class="chat-starter" id="chat-starter">
-                        <div class="message bot-message">
-                            <p>Welcome! I am your Personal Health Companion. How can I assist you today?</p>
-                        </div>
-                        <div class="suggested-queries" id="suggested-queries">
-                            <button class="query-btn">Common Cold Symptoms</button>
-                            <button class="query-btn">Nearby Health Centers</button>
-                            <button class="query-btn">Vaccination Schedule</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="chat-input-form">
-                     <button class="icon-btn tooltip" data-tooltip="Upload Image (Symptom Check)" id="upload-btn" aria-label="Upload Image">
-                        <i class="fa-solid fa-paperclip"></i>
-                    </button>
-                    <input type="text" id="user-input" placeholder="Type your message here...">
-                    <button class="icon-btn tooltip" data-tooltip="Speak your message" id="mic-btn" aria-label="Use Microphone">
-                        <i class="fa-solid fa-microphone"></i>
-                    </button>
-                    <button class="send-btn tooltip" data-tooltip="Send message" id="send-btn" aria-label="Send Message">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
 
-            <div class="dashboard-column" id="dashboard-column">
-                <div class="dashboard-card">
-                    <div class="panel-header">
-                        <div class="panel-header-left">
-                            <i class="fa-solid fa-map-location-dot"></i>
-                            <h3>Nearby Health Centers</h3>
+                <div class="search-container" id="search-container">
+                    <div class="search-input-area">
+                         <textarea id="user-input" rows="1" placeholder="Ask anything..."></textarea>
+                    </div>
+                    <div class="search-actions">
+                        <div class="search-actions-left">
+                            <button class="action-btn" title="Focus">
+                                <i class="fa-solid fa-circle-dot"></i>
+                                <span>Focus</span>
+                            </button>
+                             <button class="action-btn" title="Attach file" id="upload-btn">
+                                <i class="fa-solid fa-paperclip"></i>
+                                <span>Attach</span>
+                            </button>
+                        </div>
+                        <div class="search-actions-right">
+                             <button class="mic-btn tooltip" data-tooltip="Speak your message" id="mic-btn" aria-label="Use Microphone">
+                               <i class="fa-solid fa-microphone"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="card-content">
-                        <p>Find clinics and hospitals near your location.</p>
-                        <button class="feature-btn" id="find-health-center-btn">Find Now</button>
-                    </div>
                 </div>
-                <div class="dashboard-card">
-                    <div class="panel-header">
-                        <div class="panel-header-left">
-                            <i class="fa-solid fa-prescription-bottle-medical"></i>
-                            <h3>Read Prescription</h3>
-                        </div>
-                    </div>
-                     <div class="card-content">
-                        <p>Upload a photo to understand your prescription.</p>
-                        <button class="feature-btn" id="read-prescription-btn">Upload Photo</button>
-                    </div>
-                </div>
-                 <div class="dashboard-card">
-                    <div class="panel-header">
-                        <div class="panel-header-left">
-                            <i class="fa-solid fa-shield-virus"></i>
-                            <h3>Vaccination Schedule</h3>
-                        </div>
-                    </div>
-                     <div class="card-content">
-                        <p>Get personalized reminders for your family.</p>
-                        <button class="feature-btn" id="vaccination-schedule-btn">Check Schedule</button>
-                    </div>
-                </div>
-                <div class="dashboard-card">
-                    <div class="panel-header">
-                         <div class="panel-header-left">
-                            <i class="fa-solid fa-tower-broadcast"></i>
-                            <h3>Local Health Alerts</h3>
-                        </div>
-                    </div>
-                     <div class="card-content">
-                        <p>Get alerts for health camps & disease outbreaks in your area.</p>
-                        <button class="feature-btn" id="local-alerts-btn">Enable Alerts</button>
-                    </div>
-                </div>
-                <div class="dashboard-card">
-                    <div class="panel-header">
-                        <div class="panel-header-left">
-                            <i class="fa-solid fa-award"></i>
-                            <h3>Health Quizzes</h3>
-                        </div>
-                    </div>
-                     <div class="card-content">
-                        <p>Learn about health topics and earn rewards.</p>
-                        <button class="feature-btn" id="health-quizzes-btn">Start Quiz</button>
-                    </div>
-                </div>
-                 <div class="dashboard-card">
-                    <div class="panel-header">
-                         <div class="panel-header-left">
-                            <i class="fa-solid fa-book-open-reader"></i>
-                            <h3>Information Hub</h3>
-                        </div>
-                    </div>
-                     <div class="card-content">
-                        <p>Watch videos and read articles on health.</p>
-                        <button class="feature-btn" id="info-hub-btn">Explore</button>
-                    </div>
-                </div>
-            </div>
-        </main>
-        
-        <footer class="main-footer">
-            <div class="footer-links">
-                <a href="#" class="footer-btn">Health Worker Login</a>
-                <a href="#" class="footer-btn">Government Login</a>
-            </div>
-        </footer>
+            </main>
+        </div>
     </div>
 
     <div class="auth-container">
@@ -207,9 +143,9 @@
                         <a href="#" class="google-login-btn" id="google-signup-btn"><i class="fab fa-google"></i> Sign up with Google</a>
                     </div>
                     <span>or use your email for registration</span>
-                    <input type="text" placeholder="Name" id="signup-name" required />
-                    <input type="email" id="signup-email" placeholder="Email" required />
-                    <input type="password" id="signup-password" placeholder="Password" required />
+                    <input type="text" placeholder="Name" name="signup-name" id="signup-name" required />
+                    <input type="email" id="signup-email" name="signup-email" placeholder="Email" required />
+                    <input type="password" id="signup-password" name="signup-password" placeholder="Password" required />
                     <button type="submit">Sign Up</button>
                      <p class="mobile-switch-link">Already have an account? <a href="#" id="signInMobile">Sign In</a></p>
                 </form>
@@ -221,17 +157,14 @@
                          <a href="#" class="google-login-btn" id="google-signin-btn"><i class="fab fa-google"></i> Sign in with Google</a>
                     </div>
                     <span>or use your account</span>
-                    <input type="email" id="signin-email" placeholder="Email" required />
-                    <input type="password" id="signin-password" placeholder="Password" required />
+                    <input type="email" id="signin-email" name="signin-email" placeholder="Email" required />
+                    <input type="password" id="signin-password" name="signin-password" placeholder="Password" required />
                     <a href="#">Forgot your password?</a>
                     <button type="submit">Sign In</button>
                      <p class="mobile-switch-link">Don't have an account? <a href="#" id="signUpMobile">Sign Up</a></p>
                 </form>
             </div>
-            
-            <!-- This is the new div for the mobile slider -->
             <div class="mobile-accent-slider"></div>
-
             <div class="overlay-container">
                 <div class="overlay">
                     <div class="overlay-panel overlay-left">
@@ -251,7 +184,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    
     <script src="Main.js"></script>
 </body>
 </html>
