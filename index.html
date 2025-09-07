@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Noto+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -22,19 +22,19 @@
                      </svg>
                 </a>
                 <nav class="sidebar-nav">
-                    <a href="#" class="nav-link active" title="Home">
+                    <a href="#" class="nav-link active" data-i18n-key="homeTooltip" data-i18n-attr="title" title="Home">
                         <i class="fa-solid fa-house fa-lg"></i>
                     </a>
-                    <a href="#" class="nav-link" title="Discover">
+                    <a href="#" class="nav-link" data-i18n-key="discoverTooltip" data-i18n-attr="title" title="Discover">
                          <i class="fa-solid fa-compass fa-lg"></i>
                     </a>
-                    <button class="nav-link" title="History" id="history-btn">
+                    <button class="nav-link" id="history-btn" data-i18n-key="historyTooltip" data-i18n-attr="title" title="History">
                         <i class="fa-solid fa-clock-rotate-left fa-lg"></i>
                     </button>
                 </nav>
             </div>
             <div class="sidebar-bottom">
-                 <button class="nav-link" title="New Thread">
+                 <button class="nav-link" data-i18n-key="newThreadTooltip" data-i18n-attr="title" title="New Thread">
                      <i class="fa-solid fa-plus fa-lg"></i>
                 </button>
             </div>
@@ -43,22 +43,22 @@
         <div class="main-content-wrapper">
             <header class="main-header">
                  <div class="header-controls">
-                    <button id="theme-toggle-btn" class="header-btn theme-toggle-btn" aria-label="Toggle Dark Mode">
+                    <button id="theme-toggle-btn" class="header-btn theme-toggle-btn" data-i18n-key="themeTooltip" data-i18n-attr="aria-label" aria-label="Toggle Dark Mode">
                         <i class="fa-solid fa-sun sun-icon"></i>
                         <i class="fa-solid fa-moon moon-icon"></i>
                     </button>
                     <div class="language-selector">
-                        <button id="lang-btn" class="header-btn lang-btn" aria-label="Select Language">
+                        <button id="lang-btn" class="header-btn lang-btn" data-i18n-key="langTooltip" data-i18n-attr="aria-label" aria-label="Select Language">
                             <span>EN</span>
                         </button>
                         <div id="lang-dropdown" class="dropdown-menu">
-                            <a href="#">English</a>
-                            <a href="#">ଓଡ଼ିଆ</a>
-                            <a href="#">हिन्दी</a>
+                            <a href="#" data-lang="en">English</a>
+                            <a href="#" data-lang="or">ଓଡ଼ିଆ</a>
+                            <a href="#" data-lang="hi">हिन्दी</a>
                         </div>
                     </div>
                     <div class="user-profile">
-                        <button id="profile-btn" class="header-btn profile-btn" aria-label="User Profile">
+                        <button id="profile-btn" class="header-btn profile-btn" data-i18n-key="profileTooltip" data-i18n-attr="aria-label" aria-label="User Profile">
                             <div class="profile-avatar" id="profile-avatar-capsule">
                                 <i class="fa-solid fa-user-circle"></i>
                             </div>
@@ -69,13 +69,13 @@
                                <div class="dropdown-header">
                                     <i class="fa-solid fa-user-circle fa-2x"></i>
                                     <div class="user-info">
-                                        <strong>Welcome</strong>
-                                        <small>Sign in or create an account</small>
+                                        <strong data-i18n-key="welcome">Welcome</strong>
+                                        <small data-i18n-key="signInOrCreate">Sign in or create an account</small>
                                     </div>
                                 </div>
                                 <div class="dropdown-footer">
-                                    <button class="login-btn" id="login-btn-dropdown">Login</button>
-                                    <button class="signup-btn" id="signup-btn-dropdown">Sign Up</button>
+                                    <button class="login-btn" id="login-btn-dropdown" data-i18n-key="login">Login</button>
+                                    <button class="signup-btn" id="signup-btn-dropdown" data-i18n-key="signUp">Sign Up</button>
                                 </div>
                             </div>
                             <div class="logged-in-view" style="display: none;">
@@ -89,11 +89,11 @@
                                     </div>
                                 </div>
                                 <div class="dropdown-links">
-                                    <a href="#"><i class="fa-solid fa-users fa-fw"></i><span>My Family</span></a>
-                                    <a href="#"><i class="fa-solid fa-bell fa-fw"></i><span>Health Reminders</span></a>
+                                    <a href="#"><i class="fa-solid fa-users fa-fw"></i><span data-i18n-key="myFamily">My Family</span></a>
+                                    <a href="#"><i class="fa-solid fa-bell fa-fw"></i><span data-i18n-key="healthReminders">Health Reminders</span></a>
                                 </div>
                                 <hr>
-                                <a href="#" class="logout-link" id="logout-link"><i class="fa-solid fa-arrow-right-from-bracket fa-fw"></i><span>Logout</span></a>
+                                <a href="#" class="logout-link" id="logout-link"><i class="fa-solid fa-arrow-right-from-bracket fa-fw"></i><span data-i18n-key="logout">Logout</span></a>
                             </div>
                         </div>
                     </div>
@@ -105,31 +105,59 @@
                     </div>
 
                  <div class="search-starter" id="search-starter">
-                    <h1 class="main-title">Remedi</h1>
+                    <h1 class="main-title" data-i18n-key="mainTitle">Remedi</h1>
                 </div>
 
                 <div class="search-container" id="search-container">
                     <div class="search-input-area">
-                         <textarea id="user-input" rows="1" placeholder="Ask anything..."></textarea>
+                         <textarea id="user-input" rows="1" data-i18n-key="askAnythingPlaceholder" data-i18n-attr="placeholder" placeholder="Ask anything..."></textarea>
                     </div>
                     <div class="search-actions">
                         <div class="search-actions-left">
-                            <button class="action-btn" title="Focus">
+                            <button class="action-btn" data-i18n-key="focusTooltip" data-i18n-attr="title" title="Focus">
                                 <i class="fa-solid fa-circle-dot"></i>
-                                <span>Focus</span>
+                                <span data-i18n-key="focusAction">Focus</span>
                             </button>
-                             <button class="action-btn" title="Attach file" id="upload-btn">
+                             <button class="action-btn" id="upload-btn" data-i18n-key="attachTooltip" data-i18n-attr="title" title="Attach file">
                                 <i class="fa-solid fa-paperclip"></i>
-                                <span>Attach</span>
+                                <span data-i18n-key="attachAction">Attach</span>
                             </button>
                         </div>
                         <div class="search-actions-right">
-                             <button class="mic-btn tooltip" data-tooltip="Speak your message" id="mic-btn" aria-label="Use Microphone">
+                             <button class="mic-btn tooltip" id="mic-btn" data-i18n-key="micTooltip" data-i18n-attr="data-tooltip" data-tooltip="Speak your message" aria-label="Use Microphone">
                                <i class="fa-solid fa-microphone"></i>
                             </button>
                         </div>
                     </div>
                 </div>
+                
+                <div class="explore-section" id="explore-section">
+                    <div class="explore-card" data-query="Find clinics and hospitals near Burla">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span data-i18n-key="exploreHealthCenters">Nearby Health Centers</span>
+                    </div>
+                    <div class="explore-card" data-feature="Read Prescription">
+                        <i class="fa-solid fa-prescription-bottle-medical"></i>
+                        <span data-i18n-key="exploreReadPrescription">Read Prescription</span>
+                    </div>
+                    <div class="explore-card" data-feature="Vaccination Schedule">
+                        <i class="fa-solid fa-shield-virus"></i>
+                        <span data-i18n-key="exploreVaccination">Vaccination Schedule</span>
+                    </div>
+                    <div class="explore-card" data-feature="Local Health Alerts">
+                        <i class="fa-solid fa-tower-broadcast"></i>
+                        <span data-i18n-key="exploreHealthAlerts">Local Health Alerts</span>
+                    </div>
+                    <div class="explore-card" data-feature="Health Quizzes">
+                         <i class="fa-solid fa-ribbon"></i>
+                        <span data-i18n-key="exploreHealthQuizzes">Health Quizzes</span>
+                    </div>
+                    <div class="explore-card" data-query="Show me articles and videos on health topics">
+                         <i class="fa-solid fa-book-open-reader"></i>
+                        <span data-i18n-key="exploreInfoHub">Information Hub</span>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
@@ -138,44 +166,44 @@
         <div class="auth-card" id="auth-card">
             <div class="form-container sign-up-container">
                 <form action="#" id="signup-form">
-                    <h1>Create Account</h1>
+                    <h1 data-i18n-key="createAccount">Create Account</h1>
                     <div class="social-container">
-                        <a href="#" class="google-login-btn" id="google-signup-btn"><i class="fab fa-google"></i> Sign up with Google</a>
+                        <a href="#" class="google-login-btn" id="google-signup-btn"><i class="fab fa-google"></i> <span data-i18n-key="googleSignUp">Sign up with Google</span></a>
                     </div>
-                    <span>or use your email for registration</span>
-                    <input type="text" placeholder="Name" name="signup-name" id="signup-name" required />
-                    <input type="email" id="signup-email" name="signup-email" placeholder="Email" required />
-                    <input type="password" id="signup-password" name="signup-password" placeholder="Password" required />
-                    <button type="submit">Sign Up</button>
-                     <p class="mobile-switch-link">Already have an account? <a href="#" id="signInMobile">Sign In</a></p>
+                    <span data-i18n-key="emailRegistration">or use your email for registration</span>
+                    <input type="text" data-i18n-key="namePlaceholder" data-i18n-attr="placeholder" placeholder="Name" name="signup-name" id="signup-name" required />
+                    <input type="email" id="signup-email" name="signup-email" data-i18n-key="emailPlaceholder" data-i18n-attr="placeholder" placeholder="Email" required />
+                    <input type="password" id="signup-password" name="signup-password" data-i18n-key="passwordPlaceholder" data-i18n-attr="placeholder" placeholder="Password" required />
+                    <button type="submit" data-i18n-key="signUp">Sign Up</button>
+                     <p class="mobile-switch-link"><span data-i18n-key="signInMobileLink">Already have an account?</span> <a href="#" id="signInMobile" data-i18n-key="signInAction">Sign In</a></p>
                 </form>
             </div>
             <div class="form-container sign-in-container">
                 <form action="#" id="signin-form">
-                    <h1>Sign in</h1>
+                    <h1 data-i18n-key="signInTitle">Sign in</h1>
                     <div class="social-container">
-                         <a href="#" class="google-login-btn" id="google-signin-btn"><i class="fab fa-google"></i> Sign in with Google</a>
+                         <a href="#" class="google-login-btn" id="google-signin-btn"><i class="fab fa-google"></i> <span data-i18n-key="googleSignIn">Sign in with Google</span></a>
                     </div>
-                    <span>or use your account</span>
-                    <input type="email" id="signin-email" name="signin-email" placeholder="Email" required />
-                    <input type="password" id="signin-password" name="signin-password" placeholder="Password" required />
-                    <a href="#">Forgot your password?</a>
-                    <button type="submit">Sign In</button>
-                     <p class="mobile-switch-link">Don't have an account? <a href="#" id="signUpMobile">Sign Up</a></p>
+                    <span data-i18n-key="useYourAccount">or use your account</span>
+                    <input type="email" id="signin-email" name="signin-email" data-i18n-key="emailPlaceholder" data-i18n-attr="placeholder" placeholder="Email" required />
+                    <input type="password" id="signin-password" name="signin-password" data-i18n-key="passwordPlaceholder" data-i18n-attr="placeholder" placeholder="Password" required />
+                    <a href="#" data-i18n-key="forgotPassword">Forgot your password?</a>
+                    <button type="submit" data-i18n-key="signInAction">Sign In</button>
+                     <p class="mobile-switch-link"><span data-i18n-key="signUpMobileLink">Don't have an account?</span> <a href="#" id="signUpMobile" data-i18n-key="signUp">Sign Up</a></p>
                 </form>
             </div>
             <div class="mobile-accent-slider"></div>
             <div class="overlay-container">
                 <div class="overlay">
                     <div class="overlay-panel overlay-left">
-                        <h1>Welcome Back!</h1>
-                        <p>To keep connected with us please login with your personal info</p>
-                        <button class="ghost" id="signIn">Sign In</button>
+                        <h1 data-i18n-key="overlayWelcome">Welcome Back!</h1>
+                        <p data-i18n-key="overlayLoginInfo">To keep connected with us please login with your personal info</p>
+                        <button class="ghost" id="signIn" data-i18n-key="signInAction">Sign In</button>
                     </div>
                     <div class="overlay-panel overlay-right">
-                        <h1>Hello, Welcome!</h1>
-                        <p>Enter your personal details and start your journey with us</p>
-                        <button class="ghost" id="signUp">Sign Up</button>
+                        <h1 data-i18n-key="overlayHello">Hello, Welcome!</h1>
+                        <p data-i18n-key="overlayStartJourney">Enter your personal details and start your journey with us</p>
+                        <button class="ghost" id="signUp" data-i18n-key="signUp">Sign Up</button>
                     </div>
                 </div>
             </div>
@@ -184,6 +212,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="translations.js"></script>
     <script src="Main.js"></script>
 </body>
 </html>
+

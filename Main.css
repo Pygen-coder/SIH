@@ -251,7 +251,7 @@ body.light-mode .theme-toggle-btn .moon-icon {
     transition: justify-content 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 0;
     height: 100%;
-    padding: 0 16px 25vh 16px;
+    padding: 0 16px 15vh 16px; /* Adjusted padding */
 }
 
 .main-interface.chat-active {
@@ -277,6 +277,73 @@ body.light-mode .theme-toggle-btn .moon-icon {
     font-weight: 700;
     margin-bottom: 24px;
 }
+
+
+/* --- NEW: Explore Section --- */
+.explore-section {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 32px;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.main-interface.chat-active .explore-section {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+    position: absolute;
+    visibility: hidden;
+}
+
+.explore-card {
+    background-color: var(--dm-bg-secondary);
+    border: 1px solid var(--dm-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    text-align: center;
+    width: 150px;
+    height: 120px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+body.light-mode .explore-card {
+    background-color: var(--lm-bg-secondary);
+    border-color: var(--lm-border);
+}
+
+.explore-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-primary);
+    box-shadow: 0 8px 20px -5px var(--dm-shadow-dark);
+}
+
+body.light-mode .explore-card:hover {
+    box-shadow: 0 8px 20px -5px var(--dm-shadow-light);
+}
+
+.explore-card i {
+    font-size: 1.5rem;
+    color: var(--accent-primary);
+}
+
+.explore-card span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--dm-text-primary);
+}
+
+body.light-mode .explore-card span {
+    color: var(--lm-text-primary);
+}
+
 
 /* --- Search Container / Input Form --- */
 .search-container {
@@ -542,6 +609,18 @@ body.light-mode .dropdown-menu {
     .main-title { font-size: 2rem; }
     .main-content-wrapper { border-radius: 0; border-left: none; box-shadow: none; }
     body.light-mode .main-content-wrapper { border-left-color: transparent; }
+
+    .explore-section {
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    .explore-card {
+        width: calc(50% - 6px);
+        height: 100px;
+        padding: 12px;
+    }
+
     .auth-card{width:90vw;max-width:400px;min-height:580px;height:90vh;max-height:650px;position:relative;overflow:hidden;box-shadow:0 10px 20px rgba(0,0,0,.2)}.overlay-container{display:none}.mobile-switch-link{display:block}.form-container{position:absolute;top:0;left:0;width:100%;height:100%;transition:opacity .6s ease-in-out;transform:none!important}.sign-in-container{opacity:1;pointer-events:auto;z-index:2}.sign-up-container{opacity:0;pointer-events:none;z-index:1}.auth-card.right-panel-active .sign-in-container{opacity:0;pointer-events:none;z-index:1}.auth-card.right-panel-active .sign-up-container{opacity:1;pointer-events:auto;z-index:2;animation:none}.mobile-accent-slider{display:block;position:absolute;top:0;left:0;height:100%;width:100%;background:linear-gradient(90deg,var(--accent-secondary),var(--accent-primary));z-index:3;transform:translateY(100%);pointer-events:none}.mobile-accent-slider.is-animating{animation:slide-up-and-out .9s cubic-bezier(.76,0,.24,1)}@keyframes slide-up-and-out{0%{transform:translateY(100%)}45%,55%{transform:translateY(0)}100%{transform:translateY(-100%)}}
 }
 

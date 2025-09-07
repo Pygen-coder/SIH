@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
+    let currentLanguage = 'en';
+
     const mainInterface = document.getElementById('main-interface');
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
@@ -24,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const micIcon = micBtn.querySelector('i');
     const profileBtnText = document.getElementById('profile-btn-text');
+    const exploreCards = document.querySelectorAll('.explore-card');
 
     const loggedOutView = profileDropdown.querySelector('.logged-out-view');
     const loggedInView = profileDropdown.querySelector('.logged-in-view');
@@ -47,6 +50,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_KEY = "AIzaSyBolo_dfR-aHyjmvNpTSuAZb2D3LfQi-48";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+    const updateUIText = (lang) => {
+        currentLanguage = lang;
+        document.documentElement.lang = lang;
+        const elements = document.querySelectorAll('[data-i18n-key]');
+        elements.forEach(el => {
+            const key = el.dataset.i18nKey;
+            const attr = el.dataset.i18nAttr;
+            const translation = translations[lang][key];
+            if (attr) {
+                el.setAttribute(attr, translation);
+            } else {
+                el.textContent = translation;
+            }
+        });
+        updateMicIcon();
+    };
 
     function renderMarkdown(text) {
         let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -75,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isListening) return;
         isListening = false;
         micBtn.classList.remove('listening');
-        userInput.placeholder = "Ask anything...";
+        userInput.placeholder = translations[currentLanguage].askAnythingPlaceholder;
         clearTimeout(silenceTimeout);
         updateMicIcon();
     };
@@ -83,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
         recognition.continuous = true;
-        recognition.lang = 'en-US';
         recognition.interimResults = true;
 
         const resetSilenceTimer = () => {
@@ -92,15 +111,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isListening) {
                     recognition.stop();
                 }
-            }, 3000); // Stop after 3 seconds of silence
+            }, 3000);
         };
 
         recognition.onstart = () => {
             isListening = true;
             micBtn.classList.add('listening');
             micIcon.className = 'fa-solid fa-stop';
-            micBtn.setAttribute('data-tooltip', 'Stop listening');
-            userInput.placeholder = "Listening... please speak clearly.";
+            micBtn.setAttribute('data-tooltip', translations[currentLanguage].micStopTooltip);
+            userInput.placeholder = translations[currentLanguage].listeningPlaceholder;
             userInput.focus();
             resetSilenceTimer();
         };
@@ -135,28 +154,39 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    const langLinks = langDropdown.querySelectorAll('a');
-    langLinks.forEach(link => {
+    const setLanguage = (lang) => {
+        const langBtnSpan = langBtn.querySelector('span');
+        let langCodeForSpeech;
+
+        if (lang === 'or') {
+            langBtnSpan.textContent = 'OR';
+            langCodeForSpeech = 'or-IN';
+        } else if (lang === 'hi') {
+            langBtnSpan.textContent = 'HI';
+            langCodeForSpeech = 'hi-IN';
+        } else {
+            lang = 'en';
+            langBtnSpan.textContent = 'EN';
+            langCodeForSpeech = 'en-US';
+        }
+        
+        if (recognition) {
+            recognition.lang = langCodeForSpeech;
+        }
+
+        updateUIText(lang);
+        localStorage.setItem('remediLang', lang);
+
+        if (!auth.currentUser) {
+            profileBtnText.textContent = translations[lang].profileSignIn;
+        }
+    };
+
+    langDropdown.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            const selectedLangText = e.target.textContent;
-            const langBtnSpan = langBtn.querySelector('span');
-            let newLang = 'en-US';
-
-            if (selectedLangText === 'ଓଡ଼ିଆ') {
-                newLang = 'or-IN';
-                langBtnSpan.textContent = 'OR';
-            } else if (selectedLangText === 'हिन्दी') {
-                newLang = 'hi-IN';
-                langBtnSpan.textContent = 'HI';
-            } else {
-                newLang = 'en-US';
-                langBtnSpan.textContent = 'EN';
-            }
-
-            if (recognition) {
-                recognition.lang = newLang;
-            }
+            const selectedLang = e.target.dataset.lang;
+            setLanguage(selectedLang);
             langDropdown.classList.remove('show');
         });
     });
@@ -201,20 +231,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const needsAnimation = isSignUp !== authCard.classList.contains("right-panel-active");
             if (needsAnimation && mobileSlider) {
                 mobileSlider.classList.add('is-animating');
-                mobileSlider.addEventListener('animationend', () => mobileSlider.classList.remove('is-animating'), {
-                    once: true
-                });
+                mobileSlider.addEventListener('animationend', () => mobileSlider.classList.remove('is-animating'), { once: true });
             }
             authCard.classList.toggle("right-panel-active", isSignUp);
         }
-        signInMobileLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleMobilePanel(false);
-        });
-        signUpMobileLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleMobilePanel(true);
-        });
+        signInMobileLink.addEventListener('click', (e) => { e.preventDefault(); toggleMobilePanel(false); });
+        signUpMobileLink.addEventListener('click', (e) => { e.preventDefault(); toggleMobilePanel(true); });
         authContainer.addEventListener('click', (event) => {
             if (event.target === authContainer) authContainer.classList.remove('show');
         });
@@ -225,14 +247,8 @@ document.addEventListener('DOMContentLoaded', () => {
         authCard.classList.toggle("right-panel-active", showSignUp);
         authContainer.classList.add('show');
     }
-    loginBtnDropdown.addEventListener('click', () => {
-        openAuthModal(false);
-        profileDropdown.classList.remove('show');
-    });
-    signupBtnDropdown.addEventListener('click', () => {
-        openAuthModal(true);
-        profileDropdown.classList.remove('show');
-    });
+    loginBtnDropdown.addEventListener('click', () => { openAuthModal(false); profileDropdown.classList.remove('show'); });
+    signupBtnDropdown.addEventListener('click', () => { openAuthModal(true); profileDropdown.classList.remove('show'); });
 
     function updateUserProfileUI(user) {
         const avatarCapsule = document.getElementById('profile-avatar-capsule');
@@ -261,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             loggedOutView.style.display = 'block';
             loggedInView.style.display = 'none';
-            profileBtnText.textContent = 'Sign in';
+            profileBtnText.textContent = translations[currentLanguage].profileSignIn;
             avatarCapsule.innerHTML = '<i class="fa-solid fa-user-circle"></i>';
             avatarDropdown.innerHTML = '<i class="fa-solid fa-user-circle fa-2x"></i>';
         }
@@ -282,20 +298,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         auth.createUserWithEmailAndPassword(email, password)
             .then(cred => {
-                return cred.user.updateProfile({
-                    displayName: name
-                }).then(() => {
-                    updateUserProfileUI(auth.currentUser);
-                });
+                return cred.user.updateProfile({ displayName: name })
+                    .then(() => {
+                        updateUserProfileUI(auth.currentUser);
+                    });
             })
-            .then(() => {
-                signupForm.reset();
-            })
-            .catch(err => {
-                alert(err.message);
-            });
+            .then(() => { signupForm.reset(); })
+            .catch(err => { alert(err.message); });
     });
-
 
     signinForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -311,10 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     googleSignupBtn.addEventListener('click', handleGoogleSignIn);
     googleSigninBtn.addEventListener('click', handleGoogleSignIn);
-    logoutLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        auth.signOut();
-    });
+    logoutLink.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
 
     function addMessage(text, sender) {
         const messageElement = document.createElement('div');
@@ -346,37 +353,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function getBotResponse(userText) {
-        const systemPrompt = `
-            You are an AI Personal Health Companion for rural citizens of Odisha, India.
+        let langInstruction = '';
+        if (currentLanguage === 'hi') {
+            langInstruction = 'IMPORTANT: You must respond in Hindi.';
+        } else if (currentLanguage === 'or') {
+            langInstruction = 'IMPORTANT: You must respond in Odia.';
+        }
 
+        const systemPrompt = `
+            ${langInstruction}
+            You are an AI Personal Health Companion for rural citizens of Odisha, India.
             **Your Persona & Style:**
             1.  **Warm and Empathetic:** Your tone must be caring, friendly, and human-like. When a user mentions they are feeling unwell, ALWAYS start with an empathetic response first.
             2.  **Detailed and Clear:** Always give detailed explanations. When you list symptoms or advice, don't just state the point. Explain it in a simple, easy-to-understand sentence. For example, instead of just "Fever," say "1. **Fever:** You might feel hotter than usual as this is your body's natural way of fighting off an infection."
             3.  **Structured Formatting:** Use clean, numbered lists (1., 2., 3., etc.) for advice or symptoms. **Crucially, add an extra line break between each number** to ensure there is clear spacing, making the list very easy to read.
             4.  **Subtle Emojis:** Use emojis sparingly to add a touch of friendliness to your conversation. **Do not use emojis as bullet points for lists.** The numbered list format is what you should use.
-
             **Core Guidelines (Safety First!):**
-            1.  **Primary Focus on Health**: Your main purpose is to answer health-related questions. You can also discuss topics closely related to wellness, such as nutrition, hygiene, exercise, and mental well-being.
-            2.  **Handling Off-Topic Questions**: If the user asks about something completely unrelated to health (like politics, sports, etc.), politely decline with a friendly touch. You can say something like: "My purpose is to help with health and wellness questions, so I can't really help with that. Is there a health topic I can assist you with? 😊"
+            1.  **Primary Focus on Health**: Your main purpose is to answer health-related questions.
+            2.  **Handling Off-Topic Questions**: If the user asks about something unrelated to health, politely decline.
             3.  **Disclaimer is Crucial**: ALWAYS include this clear, bold disclaimer at the beginning of any detailed health advice: "**Disclaimer: This information is for educational purposes only and is not a substitute for professional medical advice. Please consult a qualified doctor for any health concerns.**"
-            4.  **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages. You can mention general over-the-counter options (like paracetamol for fever) but must immediately state that it's essential to follow packaging directions and check with a doctor or pharmacist first.
-            5.  **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center or consult with a healthcare professional for a proper diagnosis.
+            4.  **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages.
+            5.  **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center.
         `;
         const payload = {
             contents: [{
-                parts: [{
-                    text: systemPrompt
-                }, {
-                    text: `User's question: "${userText}"`
-                }]
+                parts: [{ text: systemPrompt }, { text: `User's question: "${userText}"` }]
             }]
         };
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
             if (!response.ok) {
@@ -432,11 +439,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userInput.value.trim().length > 0) {
             micIcon.className = 'fa-solid fa-paper-plane';
             micBtn.classList.add('send-mode');
-            micBtn.setAttribute('data-tooltip', 'Send message');
+            micBtn.setAttribute('data-tooltip', translations[currentLanguage].sendTooltip);
         } else {
             micIcon.className = 'fa-solid fa-microphone';
             micBtn.classList.remove('send-mode');
-            micBtn.setAttribute('data-tooltip', 'Speak your message');
+            micBtn.setAttribute('data-tooltip', translations[currentLanguage].micTooltip);
         }
     }
 
@@ -456,5 +463,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     uploadBtn.addEventListener('click', () => alert("Image upload is coming soon!"));
     historyBtn.addEventListener('click', () => alert("Chat history is coming soon!"));
+    
+    exploreCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const query = card.dataset.query;
+            const feature = card.dataset.feature;
+
+            if (query) {
+                userInput.value = query;
+                handleSendMessage();
+            } else if (feature) {
+                alert(`The "${feature}" feature is coming soon!`);
+            }
+        });
+    });
+
+    const savedLang = localStorage.getItem('remediLang') || 'en';
+    setLanguage(savedLang);
 });
 
