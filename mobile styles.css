@@ -48,9 +48,7 @@
         height: 60px;
     }
     .main-interface {
-        /* --- START: Modified Rule --- */
-        padding-top: 20px; /* Reduced from 70px to lessen initial gap */
-        /* --- END: Modified Rule --- */
+        padding-top: 20px; 
         padding-bottom: 220px;
     }
     .sidebar-logo {
@@ -66,11 +64,9 @@
         justify-content: space-around;
         gap: 16px;
     }
-
     .chat-messages {
-        padding-top: 60px;
+        padding-top: 70px;
     }
-
     .profile-btn #profile-btn-text {
         display: none;
     }
@@ -181,64 +177,69 @@
         gap: 0;
         font-size: 1.1rem;
     }
+
     .auth-card {
         width: 90vw;
-        max-width: 400px;
-        min-height: 580px;
-        height: 90vh;
-        max-height: 650px;
+        max-width: 380px; 
+        min-height: 520px; 
+        height: auto;
+        max-height: 580px;
         position: relative;
         overflow: hidden;
         box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+        perspective: 1500px; 
     }
+
     .overlay-container {
         display: none;
     }
+
     .mobile-switch-link {
         display: block;
     }
+
     .form-container {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        transition: opacity .6s ease-in-out;
-        transform: none!important;
+        transition: transform 0.7s ease-in-out, opacity 0.7s ease-in-out; 
+        backface-visibility: hidden; 
     }
+
     .sign-in-container {
         opacity: 1;
         pointer-events: auto;
         z-index: 2;
     }
+
     .sign-up-container {
         opacity: 0;
         pointer-events: none;
         z-index: 1;
+        transform: rotateY(180deg); 
     }
+
     .auth-card.right-panel-active .sign-in-container {
         opacity: 0;
         pointer-events: none;
         z-index: 1;
+        transform: rotateY(-180deg); 
     }
+
     .auth-card.right-panel-active .sign-up-container {
         opacity: 1;
         pointer-events: auto;
         z-index: 2;
+        transform: rotateY(0deg); 
         animation: none;
     }
+    /* This rule hides the blue slider element */
     .mobile-accent-slider {
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 100%;
-        background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
-        z-index: 3;
-        transform: translateY(100%);
-        pointer-events: none;
+        display: none;
     }
+
     .mobile-accent-slider.is-animating {
         animation: slide-up-and-out .9s cubic-bezier(.76, 0, .24, 1);
     }
