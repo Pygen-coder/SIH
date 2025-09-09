@@ -8,8 +8,14 @@
         width: 100vw;
         height: 60px;
         padding: 0;
+        -webkit-flex-direction: row;
+        -ms-flex-direction: row;
         flex-direction: row;
+        -webkit-justify-content: center;
+        -ms-flex-pack: center;
         justify-content: center;
+        -webkit-align-items: center;
+        -ms-flex-align: center;
         align-items: center;
         position: fixed;
         bottom: 0;
@@ -59,8 +65,12 @@
         gap: 0;
     }
     .sidebar-nav {
+        -webkit-flex-direction: row;
+        -ms-flex-direction: row;
         flex-direction: row;
         width: 100%;
+        -webkit-justify-content: space-around;
+        -ms-flex-pack: distribute;
         justify-content: space-around;
         gap: 16px;
     }
@@ -81,6 +91,8 @@
         border-radius: 0;
         border-left: none;
         box-shadow: none;
+        height: 100vh;
+        overflow-y: auto;
     }
     body.light-mode .main-content-wrapper {
         border-left-color: transparent;
@@ -92,6 +104,8 @@
         left: 0;
         width: 100%;
         z-index: 50;
+        display: -webkit-flex;
+        display: -ms-flexbox;
         display: flex;
         overflow-x: auto;
         gap: 12px;
@@ -107,6 +121,8 @@
         display: none;
     }
     .explore-card {
+        -webkit-flex: 0 0 130px;
+        -ms-flex: 0 0 130px;
         flex: 0 0 130px;
         min-height: 100px;
     }
@@ -155,8 +171,14 @@
         left: 0;
         width: 100%;
         height: 70%;
+        display: -webkit-flex;
+        display: -ms-flexbox;
         display: flex;
+        -webkit-justify-content: space-between;
+        -ms-flex-pack: justify;
         justify-content: space-between;
+        -webkit-align-items: center;
+        -ms-flex-align: center;
         align-items: center;
         padding: 0 20px;
         box-sizing: border-box;
@@ -180,22 +202,17 @@
 
     .auth-card {
         width: 90vw;
-        max-width: 380px; 
-        min-height: 520px; 
+        max-width: 380px;
+        min-height: 520px;
         height: auto;
         max-height: 580px;
         position: relative;
         overflow: hidden;
         box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
-        perspective: 1500px; 
-    }
-
-    .overlay-container {
-        display: none;
-    }
-
-    .mobile-switch-link {
-        display: block;
+        -webkit-perspective: 1500px;
+        perspective: 1500px;
+        -webkit-transform-style: preserve-3d;
+        transform-style: preserve-3d;
     }
 
     .form-container {
@@ -204,8 +221,19 @@
         left: 0;
         width: 100%;
         height: 100%;
-        transition: transform 0.7s ease-in-out, opacity 0.7s ease-in-out; 
-        backface-visibility: hidden; 
+        -webkit-transition: -webkit-transform 0.7s ease-in-out, opacity 0.7s ease-in-out;
+        transition: transform 0.7s ease-in-out, opacity 0.7s ease-in-out;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        will-change: transform, opacity;
+    }
+
+    .overlay-container {
+        display: none;
+    }
+
+    .mobile-switch-link {
+        display: block;
     }
 
     .sign-in-container {
@@ -218,6 +246,7 @@
         opacity: 0;
         pointer-events: none;
         z-index: 1;
+        -webkit-transform: rotateY(180deg);
         transform: rotateY(180deg); 
     }
 
@@ -225,6 +254,7 @@
         opacity: 0;
         pointer-events: none;
         z-index: 1;
+        -webkit-transform: rotateY(-180deg);
         transform: rotateY(-180deg); 
     }
 
@@ -232,17 +262,27 @@
         opacity: 1;
         pointer-events: auto;
         z-index: 2;
+        -webkit-transform: rotateY(0deg);
         transform: rotateY(0deg); 
+        -webkit-animation: none;
         animation: none;
     }
-    /* This rule hides the blue slider element */
+    
     .mobile-accent-slider {
         display: none;
     }
 
     .mobile-accent-slider.is-animating {
+        -webkit-animation: slide-up-and-out .9s cubic-bezier(.76, 0, .24, 1);
         animation: slide-up-and-out .9s cubic-bezier(.76, 0, .24, 1);
     }
+
+    @-webkit-keyframes slide-up-and-out {
+        0% { -webkit-transform: translateY(100%); transform: translateY(100%); }
+        45%, 55% { -webkit-transform: translateY(0); transform: translateY(0); }
+        100% { -webkit-transform: translateY(-100%); transform: translateY(-100%); }
+    }
+
     @keyframes slide-up-and-out {
         0% { transform: translateY(100%); }
         45%, 55% { transform: translateY(0); }
