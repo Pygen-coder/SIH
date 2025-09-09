@@ -11,7 +11,7 @@ const translations = {
     micTooltip: "Speak your message",
     micStopTooltip: "Stop listening",
     sendTooltip: "Send message",
-    focusTooltip: "Focus",
+    cameraTooltip: "Use Camera",
     attachTooltip: "Attach file",
     // Profile Dropdown
     profileSignIn: "Sign in",
@@ -44,7 +44,7 @@ const translations = {
     mainTitle: "Remedi",
     askAnythingPlaceholder: "Ask anything...",
     listeningPlaceholder: "Listening... please speak clearly.",
-    focusAction: "Focus",
+    cameraAction: "Camera",
     attachAction: "Attach",
     // Explore Cards
     exploreHealthCenters: "Nearby Health Centers",
@@ -66,7 +66,7 @@ const translations = {
     micTooltip: "अपना संदेश बोलें",
     micStopTooltip: "सुनना बंद करो",
     sendTooltip: "संदेश भेजें",
-    focusTooltip: "फोकस",
+    cameraTooltip: "कैमरा का प्रयोग करें",
     attachTooltip: "फ़ाइल संलग्न करें",
     // Profile Dropdown
     profileSignIn: "साइन इन करें",
@@ -99,7 +99,7 @@ const translations = {
     mainTitle: "रेमेडी",
     askAnythingPlaceholder: "कुछ भी पूछें...",
     listeningPlaceholder: "सुन रहा हूँ... कृपया स्पष्ट बोलें।",
-    focusAction: "फोकस",
+    cameraAction: "कैमरा",
     attachAction: "संलग्न करें",
     // Explore Cards
     exploreHealthCenters: "आस-पास के स्वास्थ्य केंद्र",
@@ -121,7 +121,7 @@ const translations = {
     micTooltip: "ଆପଣଙ୍କ ସନ୍ଦେଶ କୁହନ୍ତୁ",
     micStopTooltip: "ଶୁଣିବା ବନ୍ଦ କରନ୍ତୁ",
     sendTooltip: "ସନ୍ଦେଶ ପଠାନ୍ତୁ",
-    focusTooltip: "ଫୋକସ୍",
+    cameraTooltip: "କ୍ୟାମେରା ବ୍ୟବହାର କରନ୍ତୁ",
     attachTooltip: "ଫାଇଲ୍ ସଂଲଗ୍ନ କରନ୍ତୁ",
     // Profile Dropdown
     profileSignIn: "ସାଇନ୍ ଇନ୍ କରନ୍ତୁ",
@@ -154,7 +154,7 @@ const translations = {
     mainTitle: "ରେମେଡି",
     askAnythingPlaceholder: "କିଛି ପଚାରନ୍ତୁ...",
     listeningPlaceholder: "ଶୁଣୁଛି... ଦୟାକରି ସ୍ପଷ୍ଟ ଭାବରେ କୁହନ୍ତୁ।",
-    focusAction: "ଫୋକସ୍",
+    cameraAction: "କ୍ୟାମେରା",
     attachAction: "ସଂଲଗ୍ନ କରନ୍ତୁ",
     // Explore Cards
     exploreHealthCenters: "ନିକଟସ୍ଥ ସ୍ୱାସ୍ଥ୍ୟ କେନ୍ଦ୍ର",

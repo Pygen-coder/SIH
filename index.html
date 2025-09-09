@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remedi - Health Companion</title>
+    <title>Remedi</title>
     <link rel="stylesheet" href="Main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -112,11 +112,12 @@
                     <div class="search-input-area">
                          <textarea id="user-input" rows="1" data-i18n-key="askAnythingPlaceholder" data-i18n-attr="placeholder" placeholder="Ask anything..."></textarea>
                     </div>
+                    <div id="file-preview-container"></div>
                     <div class="search-actions">
                         <div class="search-actions-left">
-                            <button class="action-btn" data-i18n-key="focusTooltip" data-i18n-attr="title" title="Focus">
-                                <i class="fa-solid fa-circle-dot"></i>
-                                <span data-i18n-key="focusAction">Focus</span>
+                            <button class="action-btn" id="camera-btn" data-i18n-key="cameraTooltip" data-i18n-attr="title" title="Use Camera">
+                                <i class="fa-solid fa-camera"></i>
+                                <span data-i18n-key="cameraAction">Camera</span>
                             </button>
                              <button class="action-btn" id="upload-btn" data-i18n-key="attachTooltip" data-i18n-attr="title" title="Attach file">
                                 <i class="fa-solid fa-paperclip"></i>
@@ -133,32 +134,43 @@
                 
                 <div class="explore-section" id="explore-section">
                     <div class="explore-card" data-query="Find clinics and hospitals near Burla">
-                        <i class="fa-solid fa-location-dot"></i>
+                        <i class="fa-solid fa-location-dot icon-blue"></i>
                         <span data-i18n-key="exploreHealthCenters">Nearby Health Centers</span>
                     </div>
                     <div class="explore-card" data-feature="Read Prescription">
-                        <i class="fa-solid fa-prescription-bottle-medical"></i>
+                        <i class="fa-solid fa-prescription-bottle-medical icon-teal"></i>
                         <span data-i18n-key="exploreReadPrescription">Read Prescription</span>
                     </div>
                     <div class="explore-card" data-feature="Vaccination Schedule">
-                        <i class="fa-solid fa-shield-virus"></i>
+                        <i class="fa-solid fa-shield-virus icon-green"></i>
                         <span data-i18n-key="exploreVaccination">Vaccination Schedule</span>
                     </div>
                     <div class="explore-card" data-feature="Local Health Alerts">
-                        <i class="fa-solid fa-tower-broadcast"></i>
+                        <i class="fa-solid fa-tower-broadcast icon-orange"></i>
                         <span data-i18n-key="exploreHealthAlerts">Local Health Alerts</span>
                     </div>
                     <div class="explore-card" data-feature="Health Quizzes">
-                         <i class="fa-solid fa-ribbon"></i>
+                         <i class="fa-solid fa-ribbon icon-purple"></i>
                         <span data-i18n-key="exploreHealthQuizzes">Health Quizzes</span>
                     </div>
                     <div class="explore-card" data-query="Show me articles and videos on health topics">
-                         <i class="fa-solid fa-book-open-reader"></i>
+                         <i class="fa-solid fa-book-open-reader icon-indigo"></i>
                         <span data-i18n-key="exploreInfoHub">Information Hub</span>
                     </div>
                 </div>
 
             </main>
+        </div>
+    </div>
+    
+    <input type="file" id="file-input" style="display: none;" accept="image/*,application/pdf">
+
+    <div id="camera-modal" class="camera-modal">
+        <video id="camera-view" autoplay playsinline></video>
+        <canvas id="camera-canvas"></canvas>
+        <div class="camera-controls">
+            <button id="close-camera-btn" class="close-camera-btn" title="Close Camera">&times;</button>
+            <button id="capture-btn" class="capture-btn" title="Take Picture"></button>
         </div>
     </div>
 
@@ -216,4 +228,3 @@
     <script src="Main.js"></script>
 </body>
 </html>
-

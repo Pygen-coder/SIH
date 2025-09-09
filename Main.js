@@ -12,12 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const auth = firebase.auth();
 
     let currentLanguage = 'en';
+    let attachedFile = null;
+    let cameraStream = null;
 
     const mainInterface = document.getElementById('main-interface');
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const micBtn = document.getElementById('mic-btn');
     const uploadBtn = document.getElementById('upload-btn');
+    const cameraBtn = document.getElementById('camera-btn');
+    const fileInput = document.getElementById('file-input');
+    const filePreviewContainer = document.getElementById('file-preview-container');
     const historyBtn = document.getElementById('history-btn');
     const profileBtn = document.getElementById('profile-btn');
     const profileDropdown = document.getElementById('profile-dropdown');
@@ -27,6 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const micIcon = micBtn.querySelector('i');
     const profileBtnText = document.getElementById('profile-btn-text');
     const exploreCards = document.querySelectorAll('.explore-card');
+
+    const cameraModal = document.getElementById('camera-modal');
+    const cameraView = document.getElementById('camera-view');
+    const cameraCanvas = document.getElementById('camera-canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const closeCameraBtn = document.getElementById('close-camera-btn');
 
     const loggedOutView = profileDropdown.querySelector('.logged-out-view');
     const loggedInView = profileDropdown.querySelector('.logged-in-view');
@@ -90,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let recognition;
     let isListening = false;
     let silenceTimeout;
+    let baseText = '';
 
     const stopListening = () => {
         if (!isListening) return;
@@ -105,14 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.continuous = true;
         recognition.interimResults = true;
 
-        const resetSilenceTimer = () => {
-            clearTimeout(silenceTimeout);
-            silenceTimeout = setTimeout(() => {
-                if (isListening) {
-                    recognition.stop();
-                }
-            }, 3000);
-        };
+        const resetSilenceTimer = () => { /* Silence timer disabled */ };
 
         recognition.onstart = () => {
             isListening = true;
@@ -121,21 +126,31 @@ document.addEventListener('DOMContentLoaded', () => {
             micBtn.setAttribute('data-tooltip', translations[currentLanguage].micStopTooltip);
             userInput.placeholder = translations[currentLanguage].listeningPlaceholder;
             userInput.focus();
+            baseText = userInput.value ? userInput.value.trim() + ' ' : '';
             resetSilenceTimer();
         };
 
         recognition.onresult = (event) => {
+            const finalTranscriptParts = [];
             let interimTranscript = '';
-            let finalTranscript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
+            for (let i = 0; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
                 if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
+                    finalTranscriptParts.push(transcript.trim());
                 } else {
-                    interimTranscript += event.results[i][0].transcript;
+                    interimTranscript = transcript;
                 }
             }
-            userInput.value = finalTranscript + interimTranscript;
-            if (finalTranscript.trim()) {
+            const finalTranscript = finalTranscriptParts.join(' ');
+            let fullTranscript = baseText + finalTranscript;
+            if (interimTranscript) {
+                if (finalTranscript) {
+                    fullTranscript += ' ';
+                }
+                fullTranscript += interimTranscript;
+            }
+            userInput.value = fullTranscript;
+            if (finalTranscript.trim() || interimTranscript.trim()) {
                 updateMicIcon();
                 userInput.dispatchEvent(new Event('input'));
             }
@@ -149,7 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         recognition.onend = () => {
             if (isListening) {
+                userInput.value = userInput.value.trim();
                 stopListening();
+                userInput.dispatchEvent(new Event('input'));
             }
         };
     }
@@ -157,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const setLanguage = (lang) => {
         const langBtnSpan = langBtn.querySelector('span');
         let langCodeForSpeech;
-
         if (lang === 'or') {
             langBtnSpan.textContent = 'OR';
             langCodeForSpeech = 'or-IN';
@@ -169,14 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
             langBtnSpan.textContent = 'EN';
             langCodeForSpeech = 'en-US';
         }
-        
         if (recognition) {
             recognition.lang = langCodeForSpeech;
         }
-
         updateUIText(lang);
         localStorage.setItem('remediLang', lang);
-
         if (!auth.currentUser) {
             profileBtnText.textContent = translations[lang].profileSignIn;
         }
@@ -323,18 +336,58 @@ document.addEventListener('DOMContentLoaded', () => {
     googleSigninBtn.addEventListener('click', handleGoogleSignIn);
     logoutLink.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
 
-    function addMessage(text, sender) {
+    function addMessage(text, sender, file = null) {
         const messageElement = document.createElement('div');
         messageElement.className = `message ${sender}-message`;
-        const p = document.createElement('p');
-        if (sender === 'bot') {
-            p.innerHTML = renderMarkdown(text);
-        } else {
-            p.innerText = text;
+
+        let contentHTML = '';
+
+        if (file && sender === 'user') {
+            const isImage = file.mimeType.startsWith('image/');
+            const thumbnailContent = isImage 
+                ? `<img src="${file.previewUrl}" alt="preview" class="chat-file-thumbnail">`
+                : `<div class="chat-file-thumbnail"><i class="fa-solid fa-file-pdf"></i></div>`;
+            
+            contentHTML += `
+                <div class="chat-file-preview">
+                    ${thumbnailContent}
+                    <span class="chat-file-name">${file.name}</span>
+                </div>
+            `;
         }
+        
+        const p = document.createElement('p');
+        if (sender === 'user' && text) {
+            p.textContent = text;
+        }
+        
+        messageElement.innerHTML = contentHTML;
         messageElement.appendChild(p);
+
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        return messageElement;
+    }
+
+    function typeWriter(element, text, speed = 20, callback) {
+        let i = 0;
+        let currentText = '';
+        const cursor = '<span class="typing-cursor">▋</span>';
+
+        function type() {
+            if (i < text.length) {
+                currentText += text.charAt(i);
+                element.innerHTML = renderMarkdown(currentText) + cursor;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                i++;
+                setTimeout(type, speed);
+            } else {
+                element.innerHTML = renderMarkdown(currentText); // Remove cursor at the end
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                if (callback) callback();
+            }
+        }
+        type();
     }
 
     function showTypingIndicator() {
@@ -352,13 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (indicator) indicator.remove();
     }
 
-    async function getBotResponse(userText) {
+    async function getBotResponse(userText, file = null) {
         let langInstruction = '';
-        if (currentLanguage === 'hi') {
-            langInstruction = 'IMPORTANT: You must respond in Hindi.';
-        } else if (currentLanguage === 'or') {
-            langInstruction = 'IMPORTANT: You must respond in Odia.';
-        }
+        if (currentLanguage === 'hi') langInstruction = 'IMPORTANT: You must respond in Hindi.';
+        else if (currentLanguage === 'or') langInstruction = 'IMPORTANT: You must respond in Odia.';
 
         const systemPrompt = `
             ${langInstruction}
@@ -375,11 +425,25 @@ document.addEventListener('DOMContentLoaded', () => {
             4.  **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages.
             5.  **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center.
         `;
-        const payload = {
-            contents: [{
-                parts: [{ text: systemPrompt }, { text: `User's question: "${userText}"` }]
-            }]
-        };
+        
+        const textPart = userText || (file ? "Please analyze this file." : "");
+        
+        const parts = [
+            { text: systemPrompt },
+            { text: `User's question: "${textPart}"` }
+        ];
+        
+        if (file) {
+            parts.push({
+                inlineData: {
+                    mimeType: file.mimeType,
+                    data: file.data
+                }
+            });
+        }
+
+        const payload = { contents: [{ parts }] };
+        
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -391,9 +455,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `Error: ${response.statusText}. Please check your API key and network.`;
             }
             const data = await response.json();
-            if (data.candidates && data.candidates[0]) {
+            if (data.candidates && data.candidates[0].content) {
                 return data.candidates[0].content.parts[0].text;
             } else {
+                console.log("No valid candidate in API response:", data);
                 return "I'm sorry, I couldn't generate a response. Please try again.";
             }
         } catch (error) {
@@ -402,28 +467,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function clearAttachedFile() {
+        if(attachedFile && attachedFile.previewUrl) {
+            URL.revokeObjectURL(attachedFile.previewUrl);
+        }
+        attachedFile = null;
+        fileInput.value = '';
+        filePreviewContainer.innerHTML = '';
+    }
+
     async function handleSendMessage() {
         if (isListening) recognition.stop();
         const text = userInput.value.trim();
-        if (!text) return;
+        
+        if (!text && !attachedFile) return;
 
         activateChatView();
-        addMessage(text, 'user');
+        
+        const fileToSend = attachedFile;
+        addMessage(text, 'user', fileToSend);
+
         userInput.value = '';
         userInput.dispatchEvent(new Event('input'));
+        clearAttachedFile();
+        updateMicIcon();
 
         showTypingIndicator();
         userInput.disabled = true;
         micBtn.disabled = true;
 
-        const botResponse = await getBotResponse(text);
+        const botResponse = await getBotResponse(text, fileToSend);
 
         removeTypingIndicator();
-        addMessage(botResponse, 'bot');
+        const botMessageBubble = addMessage('', 'bot');
+        const p_element = botMessageBubble.querySelector('p');
 
-        userInput.disabled = false;
-        micBtn.disabled = false;
-        userInput.focus();
+        typeWriter(p_element, botResponse, 20, () => {
+            // This code runs when typing is finished
+            userInput.disabled = false;
+            micBtn.disabled = false;
+            userInput.focus();
+        });
     }
 
     userInput.addEventListener('keyup', (event) => {
@@ -435,8 +519,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateMicIcon() {
         if (isListening) return;
-
-        if (userInput.value.trim().length > 0) {
+        const hasContent = userInput.value.trim().length > 0 || attachedFile;
+        if (hasContent) {
             micIcon.className = 'fa-solid fa-paper-plane';
             micBtn.classList.add('send-mode');
             micBtn.setAttribute('data-tooltip', translations[currentLanguage].sendTooltip);
@@ -460,15 +544,112 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Voice input is not supported in your browser.");
         }
     });
+    
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+        });
+    }
 
-    uploadBtn.addEventListener('click', () => alert("Image upload is coming soon!"));
+    function displayFilePreview(file, objectURL) {
+        const isImage = file.type.startsWith('image/');
+        const thumbnailContent = isImage 
+            ? `<img src="${objectURL}" alt="preview" class="file-thumbnail">`
+            : `<div class="file-thumbnail"><i class="fa-solid fa-file-pdf"></i></div>`;
+
+        filePreviewContainer.innerHTML = `
+            <div class="file-preview-item">
+                ${thumbnailContent}
+                <span class="file-info">${file.name}</span>
+                <button class="remove-file-btn" title="Remove file">&times;</button>
+            </div>
+        `;
+
+        filePreviewContainer.querySelector('.remove-file-btn').addEventListener('click', () => {
+            clearAttachedFile();
+            updateMicIcon();
+        });
+    }
+
+    async function handleFile(file) {
+        if (!file) return;
+
+        const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+        if (file.size > MAX_SIZE) {
+            alert(`File is too large. Maximum size is ${MAX_SIZE / 1024 / 1024}MB.`);
+            clearAttachedFile();
+            return;
+        }
+        
+        try {
+            const base64Data = await fileToBase64(file);
+            const objectURL = URL.createObjectURL(file);
+            attachedFile = {
+                name: file.name,
+                mimeType: file.type,
+                data: base64Data,
+                previewUrl: objectURL
+            };
+            displayFilePreview(file, objectURL);
+            updateMicIcon();
+        } catch (error) {
+            console.error("Error reading file:", error);
+            alert("Could not process the file.");
+            clearAttachedFile();
+        }
+    }
+
+    uploadBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+    
+    async function openCamera() {
+        if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+            alert("Your browser does not support camera access.");
+            return;
+        }
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            cameraView.srcObject = cameraStream;
+            cameraModal.style.display = 'flex';
+        } catch (err) {
+            console.error("Error accessing camera:", err);
+            alert("Could not access the camera. Please check permissions.");
+        }
+    }
+
+    function closeCamera() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+        }
+        cameraModal.style.display = 'none';
+    }
+
+    function takePicture() {
+        const context = cameraCanvas.getContext('2d');
+        cameraCanvas.width = cameraView.videoWidth;
+        cameraCanvas.height = cameraView.videoHeight;
+        context.drawImage(cameraView, 0, 0, cameraCanvas.width, cameraCanvas.height);
+        
+        cameraCanvas.toBlob((blob) => {
+            const imageFile = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+            handleFile(imageFile);
+            closeCamera();
+        }, 'image/jpeg');
+    }
+
+    cameraBtn.addEventListener('click', openCamera);
+    closeCameraBtn.addEventListener('click', closeCamera);
+    captureBtn.addEventListener('click', takePicture);
+
     historyBtn.addEventListener('click', () => alert("Chat history is coming soon!"));
     
     exploreCards.forEach(card => {
         card.addEventListener('click', () => {
             const query = card.dataset.query;
             const feature = card.dataset.feature;
-
             if (query) {
                 userInput.value = query;
                 handleSendMessage();
@@ -481,4 +662,3 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedLang = localStorage.getItem('remediLang') || 'en';
     setLanguage(savedLang);
 });
-
