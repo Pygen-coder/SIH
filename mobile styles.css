@@ -1,0 +1,250 @@
+@media (max-width: 768px) {
+    /* Removes the blue highlight on tap for interactive elements */
+    button, a, .nav-link, .explore-card, .action-btn {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .sidebar {
+        width: 100vw;
+        height: 60px;
+        padding: 0;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        background-color: var(--dm-bg-secondary);
+        border-top: 1px solid var(--dm-border);
+        z-index: 100;
+    }
+    body.light-mode .sidebar {
+        background-color: var(--lm-bg-secondary);
+        border-top-color: var(--lm-border);
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    }
+    .sidebar-bottom {
+        margin-top: 0;
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        z-index: 30;
+    }
+    .sidebar-bottom .nav-link {
+        background-color: var(--dm-bg-tertiary);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    body.light-mode .sidebar-bottom .nav-link {
+        background-color: var(--lm-bg-secondary);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .nav-link,
+    .sidebar-bottom .nav-link {
+        width: 48px;
+        height: 48px;
+    }
+    .main-header {
+        padding: 12px;
+        height: 60px;
+    }
+    .main-interface {
+        /* --- START: Modified Rule --- */
+        padding-top: 20px; /* Reduced from 70px to lessen initial gap */
+        /* --- END: Modified Rule --- */
+        padding-bottom: 220px;
+    }
+    .sidebar-logo {
+        display: none;
+    }
+    .sidebar-top {
+        width: 100%;
+        gap: 0;
+    }
+    .sidebar-nav {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-around;
+        gap: 16px;
+    }
+
+    .chat-messages {
+        padding-top: 60px;
+    }
+
+    .profile-btn #profile-btn-text {
+        display: none;
+    }
+    .profile-btn {
+        padding: 4px;
+        width: 40px;
+    }
+    .main-title {
+        font-size: 2rem;
+    }
+    .main-content-wrapper {
+        border-radius: 0;
+        border-left: none;
+        box-shadow: none;
+    }
+    body.light-mode .main-content-wrapper {
+        border-left-color: transparent;
+    }
+
+    .explore-section {
+        position: fixed;
+        bottom: 300px;
+        left: 0;
+        width: 100%;
+        z-index: 50;
+        display: flex;
+        overflow-x: auto;
+        gap: 12px;
+        padding: 12px 16px;
+        box-sizing: border-box;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+    }
+    .explore-section::-webkit-scrollbar {
+        display: none;
+    }
+    .explore-card {
+        flex: 0 0 130px;
+        min-height: 100px;
+    }
+    
+    .search-container {
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        z-index: 50;
+        padding: 8px 6px;
+        box-sizing: border-box;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+    
+    .search-input-area {
+        position: relative;
+        width: 100%;
+        border: none;
+        background: none;
+        padding: 0;
+    }
+    #user-input {
+        display: block;
+        width: 100%;
+        height: 48px;
+        border-radius: 24px;
+        border: 1px solid var(--dm-border);
+        background-color: var(--dm-bg-secondary);
+        padding: 8px 50px;
+        box-sizing: border-box;
+        line-height: 1.5;
+        resize: none;
+    }
+    body.light-mode #user-input {
+        background-color: var(--lm-bg-tertiary);
+    }
+    .search-container:focus-within #user-input {
+        border-color: var(--accent-primary);
+    }
+    .search-actions {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 70%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        box-sizing: border-box;
+        pointer-events: none;
+        border: none;
+    }
+    .search-actions-left,
+    .search-actions-right {
+        pointer-events: auto;
+    }
+    #camera-btn {
+        display: none;
+    }
+    .action-btn span {
+        display: none;
+    }
+    .action-btn {
+        gap: 0;
+        font-size: 1.1rem;
+    }
+    .auth-card {
+        width: 90vw;
+        max-width: 400px;
+        min-height: 580px;
+        height: 90vh;
+        max-height: 650px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    }
+    .overlay-container {
+        display: none;
+    }
+    .mobile-switch-link {
+        display: block;
+    }
+    .form-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transition: opacity .6s ease-in-out;
+        transform: none!important;
+    }
+    .sign-in-container {
+        opacity: 1;
+        pointer-events: auto;
+        z-index: 2;
+    }
+    .sign-up-container {
+        opacity: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+    .auth-card.right-panel-active .sign-in-container {
+        opacity: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+    .auth-card.right-panel-active .sign-up-container {
+        opacity: 1;
+        pointer-events: auto;
+        z-index: 2;
+        animation: none;
+    }
+    .mobile-accent-slider {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+        z-index: 3;
+        transform: translateY(100%);
+        pointer-events: none;
+    }
+    .mobile-accent-slider.is-animating {
+        animation: slide-up-and-out .9s cubic-bezier(.76, 0, .24, 1);
+    }
+    @keyframes slide-up-and-out {
+        0% { transform: translateY(100%); }
+        45%, 55% { transform: translateY(0); }
+        100% { transform: translateY(-100%); }
+    }
+}
