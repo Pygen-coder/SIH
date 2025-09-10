@@ -23,19 +23,22 @@
                      </svg>
                 </a>
                 <nav class="sidebar-nav">
-                    <a href="#" class="nav-link active" data-i18n-key="homeTooltip" data-i18n-attr="title" title="Home">
+                    <a href="#" class="nav-link active" data-i18n-key="homeTooltip" data-i18n-attr="title" title="Home" id="home-btn">
                         <i class="fa-solid fa-house fa-lg"></i>
                     </a>
-                    <a href="#" class="nav-link" data-i18n-key="discoverTooltip" data-i18n-attr="title" title="Discover">
+                    <a href="#" id="discover-btn" class="nav-link" data-i18n-key="discoverTooltip" data-i18n-attr="title" title="Discover">
                          <i class="fa-solid fa-compass fa-lg"></i>
                     </a>
                     <button class="nav-link" id="history-btn" data-i18n-key="historyTooltip" data-i18n-attr="title" title="History">
                         <i class="fa-solid fa-clock-rotate-left fa-lg"></i>
                     </button>
+                    <button class="nav-link" id="notification-btn" title="Notifications">
+                        <i class="fa-solid fa-bell fa-lg"></i>
+                    </button>
                 </nav>
             </div>
             <div class="sidebar-bottom">
-                 <button class="nav-link" data-i18n-key="newThreadTooltip" data-i18n-attr="title" title="New Thread">
+                 <button class="nav-link" id="new-thread-btn" data-i18n-key="newThreadTooltip" data-i18n-attr="title" title="New Thread">
                      <i class="fa-solid fa-plus fa-lg"></i>
                 </button>
             </div>
@@ -161,6 +164,13 @@
                 </div>
 
             </main>
+
+            <section class="history-section" id="history-section">
+                <h2 data-i18n-key="historyTooltip">Chat History</h2>
+                <div class="history-list" id="history-list">
+                    <p>Log in to see your chat history.</p>
+                </div>
+            </section>
         </div>
     </div>
     
@@ -223,9 +233,29 @@
         </div>
     </div>
 
+    <div class="welcome-modal-overlay hidden" id="welcome-modal-overlay">
+        <div class="welcome-modal">
+            <button class="close-welcome-modal" id="close-welcome-modal">&times;</button>
+            <h2 data-i18n-key="welcomeModalTitle">Welcome to Remedi!</h2>
+            <p data-i18n-key="welcomeModalBody1">Sign in to get the most out of your personal health companion.</p>
+            <ul>
+                <li><i class="fa-solid fa-check-circle"></i> <span data-i18n-key="welcomeModalBenefit1">Save and review your chat history</span></li>
+                <li><i class="fa-solid fa-check-circle"></i> <span data-i18n-key="welcomeModalBenefit2">Set personalized health reminders</span></li>
+                <li><i class="fa-solid fa-check-circle"></i> <span data-i18n-key="welcomeModalBenefit3">Track vaccination schedules for your family</span></li>
+            </ul>
+            <div class="welcome-modal-actions">
+                <button class="btn-secondary" id="dismiss-welcome-modal" data-i18n-key="welcomeModalDismiss">Maybe Later</button>
+                <button class="btn-primary" id="signup-welcome-modal" data-i18n-key="signUp">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="translations.js"></script>
     <script src="Main.js"></script>
 </body>
 </html>
+
+

@@ -4,51 +4,95 @@
         -webkit-tap-highlight-color: transparent;
     }
 
+    /* --- START: UPDATED NAVIGATION BAR --- */
+
+    /* 1. Establish the empty bottom bar background. */
     .sidebar {
-        width: 100vw;
-        height: 60px;
-        padding: 0;
-        -webkit-flex-direction: row;
-        -ms-flex-direction: row;
-        flex-direction: row;
-        -webkit-justify-content: center;
-        -ms-flex-pack: center;
-        justify-content: center;
-        -webkit-align-items: center;
-        -ms-flex-align: center;
-        align-items: center;
         position: fixed;
         bottom: 0;
         left: 0;
+        width: 100vw;
+        height: 60px;
         background-color: var(--dm-bg-secondary);
         border-top: 1px solid var(--dm-border);
         z-index: 100;
+    }
+    /* Make the original containers invisible, but keep them in the DOM */
+    .sidebar > * {
+        visibility: hidden;
     }
     body.light-mode .sidebar {
         background-color: var(--lm-bg-secondary);
         border-top-color: var(--lm-border);
         box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
     }
-    .sidebar-bottom {
-        margin-top: 0;
-        position: fixed;
-        top: 8px;
-        left: 8px;
-        z-index: 30;
-    }
+
+    /* 2. Define a consistent style for the icons that are part of the bottom bar. */
+    .sidebar-nav .nav-link,
     .sidebar-bottom .nav-link {
-        background-color: var(--dm-bg-tertiary);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    body.light-mode .sidebar-bottom .nav-link {
-        background-color: var(--lm-bg-secondary);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .nav-link,
-    .sidebar-bottom .nav-link {
+        visibility: visible; /* Make the icons themselves visible again */
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 48px;
         height: 48px;
+        position: fixed; /* Position relative to the screen */
+        bottom: 6px;
+        z-index: 101;
+        border-radius: 12px;
+        background: transparent;
+        border: none;
+        padding: 0;
+        box-shadow: none;
+        color: var(--dm-text-secondary);
     }
+    body.light-mode .sidebar-nav .nav-link,
+    body.light-mode .sidebar-bottom .nav-link {
+        color: var(--lm-text-secondary);
+    }
+
+    /* 3. Manually place each of the 5 icons in its correct position. */
+
+    /* Icon 1: Home (Active) */
+    .sidebar-nav a.nav-link:first-child {
+        left: 10%;
+        transform: translateX(-50%);
+        color: var(--accent-primary);
+    }
+    /* Icon 2: Discover */
+    .sidebar-nav a.nav-link:nth-child(2) {
+        left: 30%;
+        transform: translateX(-50%);
+    }
+    /* Icon 3: New Thread (Highlighted) */
+    .sidebar-bottom .nav-link {
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--accent-primary);
+        color: white;
+        border-radius: 16px;
+    }
+    /* Icon 4: History */
+    .sidebar-nav #history-btn {
+        left: 70%;
+        transform: translateX(-50%);
+    }
+    /* Icon 5: Notification Button (New) */
+    .sidebar-nav #notification-btn {
+        left: 90%;
+        transform: translateX(-50%);
+    }
+
+    /* --- END: UPDATED NAVIGATION BAR --- */
+    
+    .main-content-wrapper {
+        border-radius: 0;
+        border-left: none;
+        box-shadow: none;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
     .main-header {
         padding: 12px;
         height: 60px;
@@ -57,26 +101,17 @@
         padding-top: 20px; 
         padding-bottom: 220px;
     }
+     .main-interface.chat-active {
+        padding-bottom: 120px;
+    }
     .sidebar-logo {
         display: none;
     }
-    .sidebar-top {
-        width: 100%;
-        gap: 0;
-    }
-    .sidebar-nav {
-        -webkit-flex-direction: row;
-        -ms-flex-direction: row;
-        flex-direction: row;
-        width: 100%;
-        -webkit-justify-content: space-around;
-        -ms-flex-pack: distribute;
-        justify-content: space-around;
-        gap: 16px;
-    }
     .chat-messages {
-        padding-top: 70px;
+       padding-top: 50px;
     }
+
+    /* Restore original mobile styles for the profile button in the header */
     .profile-btn #profile-btn-text {
         display: none;
     }
@@ -84,28 +119,19 @@
         padding: 4px;
         width: 40px;
     }
+
     .main-title {
         font-size: 2rem;
-    }
-    .main-content-wrapper {
-        border-radius: 0;
-        border-left: none;
-        box-shadow: none;
-        height: 100vh;
-        overflow-y: auto;
     }
     body.light-mode .main-content-wrapper {
         border-left-color: transparent;
     }
-
     .explore-section {
         position: fixed;
-        bottom: 300px;
+        bottom: 145px;
         left: 0;
         width: 100%;
         z-index: 50;
-        display: -webkit-flex;
-        display: -ms-flexbox;
         display: flex;
         overflow-x: auto;
         gap: 12px;
@@ -117,19 +143,14 @@
         background: transparent;
         box-shadow: none;
     }
-    .explore-section::-webkit-scrollbar {
-        display: none;
-    }
+    .explore-section::-webkit-scrollbar { display: none; }
     .explore-card {
-        -webkit-flex: 0 0 130px;
-        -ms-flex: 0 0 130px;
         flex: 0 0 130px;
         min-height: 100px;
     }
-    
     .search-container {
         position: fixed;
-        bottom: 20px;
+        bottom: 25px;
         left: 0;
         width: 100%;
         z-index: 50;
@@ -139,7 +160,6 @@
         border: none;
         box-shadow: none;
     }
-    
     .search-input-area {
         position: relative;
         width: 100%;
@@ -159,47 +179,26 @@
         line-height: 1.5;
         resize: none;
     }
-    body.light-mode #user-input {
-        background-color: var(--lm-bg-tertiary);
-    }
-    .search-container:focus-within #user-input {
-        border-color: var(--accent-primary);
-    }
+    body.light-mode #user-input { background-color: var(--lm-bg-tertiary); }
+    .search-container:focus-within #user-input { border-color: var(--accent-primary); }
     .search-actions {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 70%;
-        display: -webkit-flex;
-        display: -ms-flexbox;
         display: flex;
-        -webkit-justify-content: space-between;
-        -ms-flex-pack: justify;
         justify-content: space-between;
-        -webkit-align-items: center;
-        -ms-flex-align: center;
         align-items: center;
         padding: 0 20px;
         box-sizing: border-box;
         pointer-events: none;
         border: none;
     }
-    .search-actions-left,
-    .search-actions-right {
-        pointer-events: auto;
-    }
-    #camera-btn {
-        display: none;
-    }
-    .action-btn span {
-        display: none;
-    }
-    .action-btn {
-        gap: 0;
-        font-size: 1.1rem;
-    }
-
+    .search-actions-left, .search-actions-right { pointer-events: auto; }
+    #camera-btn { display: none; }
+    .action-btn span { display: none; }
+    .action-btn { gap: 0; font-size: 1.1rem; }
     .auth-card {
         width: 90vw;
         max-width: 380px;
@@ -209,80 +208,49 @@
         position: relative;
         overflow: hidden;
         box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
-        -webkit-perspective: 1500px;
         perspective: 1500px;
-        -webkit-transform-style: preserve-3d;
         transform-style: preserve-3d;
     }
-
     .form-container {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        -webkit-transition: -webkit-transform 0.7s ease-in-out, opacity 0.7s ease-in-out;
         transition: transform 0.7s ease-in-out, opacity 0.7s ease-in-out;
-        -webkit-backface-visibility: hidden;
         backface-visibility: hidden;
         will-change: transform, opacity;
     }
-
-    .overlay-container {
-        display: none;
-    }
-
-    .mobile-switch-link {
-        display: block;
-    }
-
+    .overlay-container { display: none; }
+    .mobile-switch-link { display: block; }
     .sign-in-container {
         opacity: 1;
         pointer-events: auto;
         z-index: 2;
     }
-
     .sign-up-container {
         opacity: 0;
         pointer-events: none;
         z-index: 1;
-        -webkit-transform: rotateY(180deg);
         transform: rotateY(180deg); 
     }
-
     .auth-card.right-panel-active .sign-in-container {
         opacity: 0;
         pointer-events: none;
         z-index: 1;
-        -webkit-transform: rotateY(-180deg);
         transform: rotateY(-180deg); 
     }
-
     .auth-card.right-panel-active .sign-up-container {
         opacity: 1;
         pointer-events: auto;
         z-index: 2;
-        -webkit-transform: rotateY(0deg);
         transform: rotateY(0deg); 
-        -webkit-animation: none;
         animation: none;
     }
-    
-    .mobile-accent-slider {
-        display: none;
-    }
-
+    .mobile-accent-slider { display: none; }
     .mobile-accent-slider.is-animating {
-        -webkit-animation: slide-up-and-out .9s cubic-bezier(.76, 0, .24, 1);
         animation: slide-up-and-out .9s cubic-bezier(.76, 0, .24, 1);
     }
-
-    @-webkit-keyframes slide-up-and-out {
-        0% { -webkit-transform: translateY(100%); transform: translateY(100%); }
-        45%, 55% { -webkit-transform: translateY(0); transform: translateY(0); }
-        100% { -webkit-transform: translateY(-100%); transform: translateY(-100%); }
-    }
-
     @keyframes slide-up-and-out {
         0% { transform: translateY(100%); }
         45%, 55% { transform: translateY(0); }

@@ -22,6 +22,13 @@ const translations = {
     myFamily: "My Family",
     healthReminders: "Health Reminders",
     logout: "Logout",
+    // Welcome Modal
+    welcomeModalTitle: "Welcome to Remedi!",
+    welcomeModalBody1: "Sign in to get the most out of your personal health companion.",
+    welcomeModalBenefit1: "Save and review your chat history",
+    welcomeModalBenefit2: "Set personalized health reminders",
+    welcomeModalBenefit3: "Track vaccination schedules for your family",
+    welcomeModalDismiss: "Maybe Later",
     // Auth Modal
     createAccount: "Create Account",
     googleSignUp: "Sign up with Google",
@@ -77,6 +84,13 @@ const translations = {
     myFamily: "मेरा परिवार",
     healthReminders: "स्वास्थ्य अनुस्मारक",
     logout: "लॉग आउट",
+    // Welcome Modal
+    welcomeModalTitle: "रेमेडी में आपका स्वागत है!",
+    welcomeModalBody1: "अपने व्यक्तिगत स्वास्थ्य साथी का अधिकतम लाभ उठाने के लिए साइन इन करें।",
+    welcomeModalBenefit1: "अपनी चैट हिस्ट्री सहेजें और समीक्षा करें",
+    welcomeModalBenefit2: "व्यक्तिगत स्वास्थ्य अनुस्मारक सेट करें",
+    welcomeModalBenefit3: "अपने परिवार के लिए टीकाकरण कार्यक्रम ट्रैक करें",
+    welcomeModalDismiss: "शायद बाद में",
     // Auth Modal
     createAccount: "खाता बनाएं",
     googleSignUp: "Google से साइन अप करें",
@@ -132,6 +146,13 @@ const translations = {
     myFamily: "ମୋ ପରିବାର",
     healthReminders: "ସ୍ୱାସ୍ଥ୍ୟ ସ୍ମାରକ",
     logout: "ଲଗ୍ ଆଉଟ୍",
+    // Welcome Modal
+    welcomeModalTitle: "ରେମେଡିକୁ ସ୍ୱାଗତ!",
+    welcomeModalBody1: "ଆପଣଙ୍କ ବ୍ୟକ୍ତିଗତ ସ୍ୱାସ୍ଥ୍ୟ ସାଥୀରୁ ସର୍ବାଧିକ ଲାଭ ପାଇବା ପାଇଁ ସାଇନ୍ ଇନ୍ କରନ୍ତୁ।",
+    welcomeModalBenefit1: "ଆପଣଙ୍କର ଚାଟ୍ ଇତିହାସ ସେଭ୍ ଏବଂ ସମୀକ୍ଷା କରନ୍ତୁ",
+    welcomeModalBenefit2: "ବ୍ୟକ୍ତିଗତ ସ୍ୱାସ୍ଥ୍ୟ ସ୍ମାରକ ସେଟ୍ କରନ୍ତୁ",
+    welcomeModalBenefit3: "ଆପଣଙ୍କ ପରିବାର ପାଇଁ ଟୀକାକରଣ କାର୍ଯ୍ୟସୂଚୀ ଟ୍ରାକ୍ କରନ୍ତୁ",
+    welcomeModalDismiss: "ପରେ ଦେଖିବା",
     // Auth Modal
     createAccount: "ଖାତା ତିଆରି କରନ୍ତୁ",
     googleSignUp: "Google ସହିତ ସାଇନ୍ ଅପ୍ କରନ୍ତୁ",
@@ -165,3 +186,4 @@ const translations = {
     exploreInfoHub: "ସୂଚନା କେନ୍ଦ୍ର",
   },
 };
+

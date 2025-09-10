@@ -10,10 +10,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
     let currentLanguage = 'en';
     let attachedFile = null;
     let cameraStream = null;
+    let currentChatId = null;
+    let unsubscribeHistory = null;
+    let conversationHistory = []; // Holds the full current conversation for the API
+
 
     const mainInterface = document.getElementById('main-interface');
     const chatMessages = document.getElementById('chat-messages');
@@ -24,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
     const filePreviewContainer = document.getElementById('file-preview-container');
     const historyBtn = document.getElementById('history-btn');
+    const notificationBtn = document.getElementById('notification-btn');
+    const discoverBtn = document.getElementById('discover-btn');
     const profileBtn = document.getElementById('profile-btn');
     const profileDropdown = document.getElementById('profile-dropdown');
     const langBtn = document.getElementById('lang-btn');
@@ -32,12 +39,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const micIcon = micBtn.querySelector('i');
     const profileBtnText = document.getElementById('profile-btn-text');
     const exploreCards = document.querySelectorAll('.explore-card');
+    const newThreadBtn = document.getElementById('new-thread-btn');
+    const homeBtn = document.getElementById('home-btn');
+
 
     const cameraModal = document.getElementById('camera-modal');
     const cameraView = document.getElementById('camera-view');
     const cameraCanvas = document.getElementById('camera-canvas');
     const captureBtn = document.getElementById('capture-btn');
     const closeCameraBtn = document.getElementById('close-camera-btn');
+
+    const historySection = document.getElementById('history-section');
+    const historyList = document.getElementById('history-list');
+
+    const customAlertOverlay = document.getElementById('custom-alert-overlay');
+    const customAlertTitle = document.getElementById('custom-alert-title');
+    const customAlertMessage = document.getElementById('custom-alert-message');
+    const customAlertOkBtn = document.getElementById('custom-alert-ok');
+
+    const welcomeModalOverlay = document.getElementById('welcome-modal-overlay');
+    const closeWelcomeModalBtn = document.getElementById('close-welcome-modal');
+    const dismissWelcomeModalBtn = document.getElementById('dismiss-welcome-modal');
+    const signupWelcomeModalBtn = document.getElementById('signup-welcome-modal');
 
     const loggedOutView = profileDropdown.querySelector('.logged-out-view');
     const loggedInView = profileDropdown.querySelector('.logged-in-view');
@@ -131,26 +154,18 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         recognition.onresult = (event) => {
-            const finalTranscriptParts = [];
+            let finalTranscript = '';
             let interimTranscript = '';
             for (let i = 0; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript;
                 if (event.results[i].isFinal) {
-                    finalTranscriptParts.push(transcript.trim());
+                    finalTranscript += transcript;
                 } else {
-                    interimTranscript = transcript;
+                    interimTranscript += transcript;
                 }
             }
-            const finalTranscript = finalTranscriptParts.join(' ');
-            let fullTranscript = baseText + finalTranscript;
-            if (interimTranscript) {
-                if (finalTranscript) {
-                    fullTranscript += ' ';
-                }
-                fullTranscript += interimTranscript;
-            }
-            userInput.value = fullTranscript;
-            if (finalTranscript.trim() || interimTranscript.trim()) {
+            userInput.value = baseText + finalTranscript + interimTranscript;
+            if (finalTranscript || interimTranscript) {
                 updateMicIcon();
                 userInput.dispatchEvent(new Event('input'));
             }
@@ -263,6 +278,51 @@ document.addEventListener('DOMContentLoaded', () => {
     loginBtnDropdown.addEventListener('click', () => { openAuthModal(false); profileDropdown.classList.remove('show'); });
     signupBtnDropdown.addEventListener('click', () => { openAuthModal(true); profileDropdown.classList.remove('show'); });
 
+    let onAlertOk = null;
+
+    function showCustomAlert(titleKey, messageKey, onOkCallback) {
+        if (!customAlertOverlay) return;
+        
+        customAlertTitle.textContent = translations[currentLanguage][titleKey] || "Alert";
+        customAlertMessage.textContent = translations[currentLanguage][messageKey] || "";
+        onAlertOk = onOkCallback;
+
+        customAlertOverlay.classList.remove('hidden');
+        customAlertOverlay.classList.add('visible');
+    }
+
+    function hideCustomAlert() {
+        if (!customAlertOverlay) return;
+        customAlertOverlay.classList.remove('visible');
+        setTimeout(() => {
+            customAlertOverlay.classList.add('hidden');
+        }, 300);
+        if (typeof onAlertOk === 'function') {
+            onAlertOk();
+            onAlertOk = null; // Reset callback
+        }
+    }
+
+    if (customAlertOkBtn) {
+        customAlertOkBtn.addEventListener('click', hideCustomAlert);
+    }
+
+    function showWelcomeModal() {
+        if (!welcomeModalOverlay) return;
+        welcomeModalOverlay.classList.remove('hidden');
+        welcomeModalOverlay.classList.add('visible');
+    }
+
+    function hideWelcomeModal() {
+        if (!welcomeModalOverlay) return;
+        welcomeModalOverlay.classList.remove('visible');
+        setTimeout(() => {
+            welcomeModalOverlay.classList.add('hidden');
+        }, 300);
+        localStorage.setItem('welcomeMessageShown', 'true');
+    }
+
+
     function updateUserProfileUI(user) {
         const avatarCapsule = document.getElementById('profile-avatar-capsule');
         const avatarDropdown = document.getElementById('profile-avatar-dropdown');
@@ -287,12 +347,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 avatarCapsule.innerHTML = avatarHTML;
                 avatarDropdown.innerHTML = avatarHTML;
             }
+            fetchChatHistory(user.uid);
         } else {
             loggedOutView.style.display = 'block';
             loggedInView.style.display = 'none';
             profileBtnText.textContent = translations[currentLanguage].profileSignIn;
             avatarCapsule.innerHTML = '<i class="fa-solid fa-user-circle"></i>';
             avatarDropdown.innerHTML = '<i class="fa-solid fa-user-circle fa-2x"></i>';
+            if (unsubscribeHistory) unsubscribeHistory();
+            historyList.innerHTML = '<p>Log in to see your chat history.</p>';
+            startNewChat();
         }
     }
     auth.onAuthStateChanged(user => {
@@ -300,6 +364,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             profileDropdown.classList.remove('show');
             if (authContainer) authContainer.classList.remove('show');
+        } else {
+            if (!localStorage.getItem('welcomeMessageShown')) {
+                setTimeout(showWelcomeModal, 2000);
+            }
         }
     });
 
@@ -336,9 +404,10 @@ document.addEventListener('DOMContentLoaded', () => {
     googleSigninBtn.addEventListener('click', handleGoogleSignIn);
     logoutLink.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
 
-    function addMessage(text, sender, file = null) {
+    function addMessage(text, sender, file = null, shouldAnimate = true) {
         const messageElement = document.createElement('div');
         messageElement.className = `message ${sender}-message`;
+        if(!shouldAnimate) messageElement.style.animation = 'none';
 
         let contentHTML = '';
 
@@ -357,8 +426,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const p = document.createElement('p');
-        if (sender === 'user' && text) {
-            p.textContent = text;
+        if (text) {
+             if (sender === 'bot') {
+                p.innerHTML = renderMarkdown(text);
+            } else {
+                p.textContent = text;
+            }
         }
         
         messageElement.innerHTML = contentHTML;
@@ -382,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 i++;
                 setTimeout(type, speed);
             } else {
-                element.innerHTML = renderMarkdown(currentText); // Remove cursor at the end
+                element.innerHTML = renderMarkdown(currentText);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
                 if (callback) callback();
             }
@@ -404,8 +477,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const indicator = document.getElementById('typing-indicator');
         if (indicator) indicator.remove();
     }
+    
+    async function saveMessage(chatId, message) {
+        const user = auth.currentUser;
+        if (!user || !chatId) return;
 
-    async function getBotResponse(userText, file = null) {
+        const chatRef = db.collection('users').doc(user.uid).collection('chats').doc(chatId);
+        await chatRef.collection('messages').add(message);
+        await chatRef.set({
+            lastMessage: message.text.substring(0, 40),
+            timestamp: message.timestamp
+        }, { merge: true });
+    }
+
+    async function getBotResponse(chatHistory) {
         let langInstruction = '';
         if (currentLanguage === 'hi') langInstruction = 'IMPORTANT: You must respond in Hindi.';
         else if (currentLanguage === 'or') langInstruction = 'IMPORTANT: You must respond in Odia.';
@@ -426,23 +511,12 @@ document.addEventListener('DOMContentLoaded', () => {
             5.  **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center.
         `;
         
-        const textPart = userText || (file ? "Please analyze this file." : "");
-        
-        const parts = [
-            { text: systemPrompt },
-            { text: `User's question: "${textPart}"` }
-        ];
-        
-        if (file) {
-            parts.push({
-                inlineData: {
-                    mimeType: file.mimeType,
-                    data: file.data
-                }
-            });
-        }
-
-        const payload = { contents: [{ parts }] };
+        const payload = { 
+            contents: chatHistory,
+            systemInstruction: {
+                parts: [{ text: systemPrompt }]
+            },
+        };
         
         try {
             const response = await fetch(API_URL, {
@@ -475,17 +549,52 @@ document.addEventListener('DOMContentLoaded', () => {
         fileInput.value = '';
         filePreviewContainer.innerHTML = '';
     }
+    
+    function startNewChat() {
+        currentChatId = null;
+        chatMessages.innerHTML = '';
+        conversationHistory = [];
+        mainInterface.classList.remove('chat-active');
+    }
 
     async function handleSendMessage() {
         if (isListening) recognition.stop();
         const text = userInput.value.trim();
+        const user = auth.currentUser;
         
         if (!text && !attachedFile) return;
+
+        if (user && !currentChatId) {
+            const newChatRef = await db.collection('users').doc(user.uid).collection('chats').add({
+                started: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            currentChatId = newChatRef.id;
+        }
 
         activateChatView();
         
         const fileToSend = attachedFile;
         addMessage(text, 'user', fileToSend);
+        
+        const userMessageParts = [{ text }];
+        if (fileToSend) {
+            userMessageParts.push({
+                inlineData: {
+                    mimeType: fileToSend.mimeType,
+                    data: fileToSend.data,
+                },
+            });
+        }
+        conversationHistory.push({ role: 'user', parts: userMessageParts });
+        
+        if(user && currentChatId){
+            const userMessage = {
+                text: text,
+                sender: 'user',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            saveMessage(currentChatId, userMessage);
+        }
 
         userInput.value = '';
         userInput.dispatchEvent(new Event('input'));
@@ -496,14 +605,24 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.disabled = true;
         micBtn.disabled = true;
 
-        const botResponse = await getBotResponse(text, fileToSend);
+        const botResponse = await getBotResponse(conversationHistory);
+
+        conversationHistory.push({ role: 'model', parts: [{ text: botResponse }] });
+        
+        if(user && currentChatId){
+            const botMessage = {
+                text: botResponse,
+                sender: 'bot',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            saveMessage(currentChatId, botMessage);
+        }
 
         removeTypingIndicator();
         const botMessageBubble = addMessage('', 'bot');
         const p_element = botMessageBubble.querySelector('p');
 
         typeWriter(p_element, botResponse, 20, () => {
-            // This code runs when typing is finished
             userInput.disabled = false;
             micBtn.disabled = false;
             userInput.focus();
@@ -577,7 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleFile(file) {
         if (!file) return;
 
-        const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+        const MAX_SIZE = 10 * 1024 * 1024;
         if (file.size > MAX_SIZE) {
             alert(`File is too large. Maximum size is ${MAX_SIZE / 1024 / 1024}MB.`);
             clearAttachedFile();
@@ -644,7 +763,48 @@ document.addEventListener('DOMContentLoaded', () => {
     closeCameraBtn.addEventListener('click', closeCamera);
     captureBtn.addEventListener('click', takePicture);
 
-    historyBtn.addEventListener('click', () => alert("Chat history is coming soon!"));
+    if(welcomeModalOverlay) {
+        closeWelcomeModalBtn.addEventListener('click', hideWelcomeModal);
+        dismissWelcomeModalBtn.addEventListener('click', hideWelcomeModal);
+        signupWelcomeModalBtn.addEventListener('click', () => {
+            hideWelcomeModal();
+            openAuthModal(true);
+        });
+    }
+
+    historyBtn.addEventListener('click', () => {
+        if (auth.currentUser) {
+            mainInterface.classList.toggle('history-visible');
+            historySection.classList.toggle('visible');
+        } else {
+            showCustomAlert('signInRequiredTitle', 'signInToViewHistory', () => openAuthModal());
+        }
+    });
+
+    discoverBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (auth.currentUser) {
+            // For now, a simple alert. This can be expanded later.
+            showCustomAlert('Discover', 'The Discover feature is coming soon!');
+        } else {
+            showCustomAlert('signInRequiredTitle', 'signInToUseDiscover', () => openAuthModal());
+        }
+    });
+
+    notificationBtn.addEventListener('click', () => {
+        if (auth.currentUser) {
+            // For now, a simple alert. This can be expanded later.
+            showCustomAlert('Notifications', 'The Notifications feature is coming soon!');
+        } else {
+            showCustomAlert('signInRequiredTitle', 'signInToUseNotifications', () => openAuthModal());
+        }
+    });
+
+    homeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        mainInterface.classList.remove('history-visible');
+        historySection.classList.remove('visible');
+    });
     
     exploreCards.forEach(card => {
         card.addEventListener('click', () => {
@@ -654,11 +814,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 userInput.value = query;
                 handleSendMessage();
             } else if (feature) {
-                alert(`The "${feature}" feature is coming soon!`);
+                showCustomAlert('Coming Soon', `The "${feature}" feature is under development!`);
             }
         });
     });
 
+    newThreadBtn.addEventListener('click', startNewChat);
+
+    function fetchChatHistory(uid) {
+        if (unsubscribeHistory) unsubscribeHistory();
+
+        const historyQuery = db.collection('users').doc(uid).collection('chats').orderBy('timestamp', 'desc');
+
+        unsubscribeHistory = historyQuery.onSnapshot(snapshot => {
+            if (snapshot.empty) {
+                historyList.innerHTML = '<p>No chats yet. Start a conversation!</p>';
+                return;
+            }
+            historyList.innerHTML = '';
+            snapshot.forEach(doc => {
+                const chat = doc.data();
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.dataset.chatId = doc.id;
+                
+                const title = chat.lastMessage || 'New Chat';
+                const date = chat.timestamp ? chat.timestamp.toDate().toLocaleDateString() : '';
+
+                historyItem.innerHTML = `
+                    <p>${title}</p>
+                    <small>${date}</small>
+                `;
+                historyItem.addEventListener('click', () => loadChat(doc.id));
+                historyList.appendChild(historyItem);
+            });
+        }, err => {
+            console.error("Error fetching history:", err);
+            historyList.innerHTML = '<p>Could not load chat history.</p>';
+        });
+    }
+
+    async function loadChat(chatId) {
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        mainInterface.classList.remove('history-visible');
+        historySection.classList.remove('visible');
+        
+        startNewChat();
+        currentChatId = chatId;
+        activateChatView();
+
+        const messagesQuery = db.collection('users').doc(user.uid).collection('chats').doc(chatId).collection('messages').orderBy('timestamp', 'asc');
+        const snapshot = await messagesQuery.get();
+        
+        snapshot.forEach(doc => {
+            const msg = doc.data();
+            addMessage(msg.text, msg.sender, null, false);
+            conversationHistory.push({
+                role: msg.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.text }]
+            });
+        });
+    }
+
+
     const savedLang = localStorage.getItem('remediLang') || 'en';
     setLanguage(savedLang);
 });
+
