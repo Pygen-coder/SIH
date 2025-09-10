@@ -17,9 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let cameraStream = null;
     let currentChatId = null;
     let unsubscribeHistory = null;
-    let conversationHistory = []; // Holds the full current conversation for the API
+    let conversationHistory = [];
 
-
+    const sidebar = document.getElementById('sidebar');
     const mainInterface = document.getElementById('main-interface');
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
@@ -41,27 +41,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const exploreCards = document.querySelectorAll('.explore-card');
     const newThreadBtn = document.getElementById('new-thread-btn');
     const homeBtn = document.getElementById('home-btn');
-
-
     const cameraModal = document.getElementById('camera-modal');
     const cameraView = document.getElementById('camera-view');
     const cameraCanvas = document.getElementById('camera-canvas');
     const captureBtn = document.getElementById('capture-btn');
     const closeCameraBtn = document.getElementById('close-camera-btn');
-
     const historySection = document.getElementById('history-section');
     const historyList = document.getElementById('history-list');
-
+    const discoverSection = document.getElementById('discover-section');
+    const discoverItems = document.querySelectorAll('.discover-item');
     const customAlertOverlay = document.getElementById('custom-alert-overlay');
     const customAlertTitle = document.getElementById('custom-alert-title');
     const customAlertMessage = document.getElementById('custom-alert-message');
     const customAlertOkBtn = document.getElementById('custom-alert-ok');
-
     const welcomeModalOverlay = document.getElementById('welcome-modal-overlay');
     const closeWelcomeModalBtn = document.getElementById('close-welcome-modal');
     const dismissWelcomeModalBtn = document.getElementById('dismiss-welcome-modal');
     const signupWelcomeModalBtn = document.getElementById('signup-welcome-modal');
-
     const loggedOutView = profileDropdown.querySelector('.logged-out-view');
     const loggedInView = profileDropdown.querySelector('.logged-in-view');
     const loginBtnDropdown = document.getElementById('login-btn-dropdown');
@@ -69,14 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutLink = document.getElementById('logout-link');
     const userNameDropdown = document.getElementById('user-name-dropdown');
     const userEmailDropdown = document.getElementById('user-email-dropdown');
-
     const authContainer = document.querySelector('.auth-container');
     const authCard = document.getElementById('auth-card');
     const signUpBtnCard = document.getElementById('signUp');
     const signInBtnCard = document.getElementById('signIn');
     const signInMobileLink = document.getElementById('signInMobile');
     const signUpMobileLink = document.getElementById('signUpMobile');
-
     const signupForm = document.getElementById('signup-form');
     const signinForm = document.getElementById('signin-form');
     const googleSignupBtn = document.getElementById('google-signup-btn');
@@ -123,24 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     let isListening = false;
-    let silenceTimeout;
     let baseText = '';
-
-    const stopListening = () => {
-        if (!isListening) return;
-        isListening = false;
-        micBtn.classList.remove('listening');
-        userInput.placeholder = translations[currentLanguage].askAnythingPlaceholder;
-        clearTimeout(silenceTimeout);
-        updateMicIcon();
-    };
 
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-
-        const resetSilenceTimer = () => { /* Silence timer disabled */ };
 
         recognition.onstart = () => {
             isListening = true;
@@ -150,39 +132,42 @@ document.addEventListener('DOMContentLoaded', () => {
             userInput.placeholder = translations[currentLanguage].listeningPlaceholder;
             userInput.focus();
             baseText = userInput.value ? userInput.value.trim() + ' ' : '';
-            resetSilenceTimer();
         };
 
         recognition.onresult = (event) => {
             let finalTranscript = '';
             let interimTranscript = '';
             for (let i = 0; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
+                const result = event.results[i];
+                if (result.length > 0) {
+                    const transcriptPart = result[0].transcript;
+                    if (result.isFinal) {
+                        finalTranscript += transcriptPart;
+                    } else {
+                        interimTranscript += transcriptPart;
+                    }
                 }
             }
-            userInput.value = baseText + finalTranscript + interimTranscript;
-            if (finalTranscript || interimTranscript) {
-                updateMicIcon();
-                userInput.dispatchEvent(new Event('input'));
+            finalTranscript = finalTranscript.replace(/([\.?,])([^\s])/g, "$1 $2");
+            if (finalTranscript.trim().endsWith(interimTranscript.trim())) {
+                interimTranscript = '';
             }
-            resetSilenceTimer();
+            userInput.value = baseText + finalTranscript + interimTranscript;
+            userInput.dispatchEvent(new Event('input'));
         };
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            stopListening();
+            alert(`Sorry, a speech recognition error occurred: ${event.error}\n\nPlease check your microphone connection and browser permissions.`);
         };
 
         recognition.onend = () => {
-            if (isListening) {
-                userInput.value = userInput.value.trim();
-                stopListening();
-                userInput.dispatchEvent(new Event('input'));
-            }
+            isListening = false;
+            micBtn.classList.remove('listening');
+            userInput.placeholder = translations[currentLanguage].askAnythingPlaceholder;
+            userInput.value = userInput.value.trim();
+            updateMicIcon();
+            userInput.dispatchEvent(new Event('input'));
         };
     }
 
@@ -282,11 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showCustomAlert(titleKey, messageKey, onOkCallback) {
         if (!customAlertOverlay) return;
-        
         customAlertTitle.textContent = translations[currentLanguage][titleKey] || "Alert";
         customAlertMessage.textContent = translations[currentLanguage][messageKey] || "";
         onAlertOk = onOkCallback;
-
         customAlertOverlay.classList.remove('hidden');
         customAlertOverlay.classList.add('visible');
     }
@@ -299,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
         if (typeof onAlertOk === 'function') {
             onAlertOk();
-            onAlertOk = null; // Reset callback
+            onAlertOk = null;
         }
     }
 
@@ -321,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
         localStorage.setItem('welcomeMessageShown', 'true');
     }
-
 
     function updateUserProfileUI(user) {
         const avatarCapsule = document.getElementById('profile-avatar-capsule');
@@ -376,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = signupForm['signup-name'].value;
         const email = signupForm['signup-email'].value;
         const password = signupForm['signup-password'].value;
-
         auth.createUserWithEmailAndPassword(email, password)
             .then(cred => {
                 return cred.user.updateProfile({ displayName: name })
@@ -408,23 +389,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageElement = document.createElement('div');
         messageElement.className = `message ${sender}-message`;
         if(!shouldAnimate) messageElement.style.animation = 'none';
-
         let contentHTML = '';
-
         if (file && sender === 'user') {
             const isImage = file.mimeType.startsWith('image/');
             const thumbnailContent = isImage 
                 ? `<img src="${file.previewUrl}" alt="preview" class="chat-file-thumbnail">`
                 : `<div class="chat-file-thumbnail"><i class="fa-solid fa-file-pdf"></i></div>`;
-            
-            contentHTML += `
-                <div class="chat-file-preview">
-                    ${thumbnailContent}
-                    <span class="chat-file-name">${file.name}</span>
-                </div>
-            `;
+            contentHTML += `<div class="chat-file-preview">${thumbnailContent}<span class="chat-file-name">${file.name}</span></div>`;
         }
-        
         const p = document.createElement('p');
         if (text) {
              if (sender === 'bot') {
@@ -433,10 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.textContent = text;
             }
         }
-        
         messageElement.innerHTML = contentHTML;
         messageElement.appendChild(p);
-
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return messageElement;
@@ -446,7 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let i = 0;
         let currentText = '';
         const cursor = '<span class="typing-cursor">▋</span>';
-
         function type() {
             if (i < text.length) {
                 currentText += text.charAt(i);
@@ -481,7 +450,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function saveMessage(chatId, message) {
         const user = auth.currentUser;
         if (!user || !chatId) return;
-
         const chatRef = db.collection('users').doc(user.uid).collection('chats').doc(chatId);
         await chatRef.collection('messages').add(message);
         await chatRef.set({
@@ -494,29 +462,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let langInstruction = '';
         if (currentLanguage === 'hi') langInstruction = 'IMPORTANT: You must respond in Hindi.';
         else if (currentLanguage === 'or') langInstruction = 'IMPORTANT: You must respond in Odia.';
-
-        const systemPrompt = `
-            ${langInstruction}
-            You are an AI Personal Health Companion for rural citizens of Odisha, India.
-            **Your Persona & Style:**
-            1.  **Warm and Empathetic:** Your tone must be caring, friendly, and human-like. When a user mentions they are feeling unwell, ALWAYS start with an empathetic response first.
-            2.  **Detailed and Clear:** Always give detailed explanations. When you list symptoms or advice, don't just state the point. Explain it in a simple, easy-to-understand sentence. For example, instead of just "Fever," say "1. **Fever:** You might feel hotter than usual as this is your body's natural way of fighting off an infection."
-            3.  **Structured Formatting:** Use clean, numbered lists (1., 2., 3., etc.) for advice or symptoms. **Crucially, add an extra line break between each number** to ensure there is clear spacing, making the list very easy to read.
-            4.  **Subtle Emojis:** Use emojis sparingly to add a touch of friendliness to your conversation. **Do not use emojis as bullet points for lists.** The numbered list format is what you should use.
-            **Core Guidelines (Safety First!):**
-            1.  **Primary Focus on Health**: Your main purpose is to answer health-related questions.
-            2.  **Handling Off-Topic Questions**: If the user asks about something unrelated to health, politely decline.
-            3.  **Disclaimer is Crucial**: ALWAYS include this clear, bold disclaimer at the beginning of any detailed health advice: "**Disclaimer: This information is for educational purposes only and is not a substitute for professional medical advice. Please consult a qualified doctor for any health concerns.**"
-            4.  **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages.
-            5.  **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center.
-        `;
-        
-        const payload = { 
-            contents: chatHistory,
-            systemInstruction: {
-                parts: [{ text: systemPrompt }]
-            },
-        };
+        const systemPrompt = `${langInstruction} You are an AI Personal Health Companion for rural citizens of Odisha, India. **Your Persona & Style:** 1. **Warm and Empathetic:** Your tone must be caring, friendly, and human-like. When a user mentions they are feeling unwell, ALWAYS start with an empathetic response first. 2. **Detailed and Clear:** Always give detailed explanations. When you list symptoms or advice, don't just state the point. Explain it in a simple, easy-to-understand sentence. For example, instead of just "Fever," say "1. **Fever:** You might feel hotter than usual as this is your body's natural way of fighting off an infection." 3. **Structured Formatting:** Use clean, numbered lists (1., 2., 3., etc.) for advice or symptoms. **Crucially, add an extra line break between each number** to ensure there is clear spacing, making the list very easy to read. 4. **Subtle Emojis:** Use emojis sparingly to add a touch of friendliness to your conversation. **Do not use emojis as bullet points for lists.** The numbered list format is what you should use. **Core Guidelines (Safety First!):** 1. **Primary Focus on Health**: Your main purpose is to answer health-related questions. 2. **Handling Off-Topic Questions**: If the user asks about something unrelated to health, politely decline. 3. **Disclaimer is Crucial**: ALWAYS include this clear, bold disclaimer at the beginning of any detailed health advice: "**Disclaimer: This information is for educational purposes only and is not a substitute for professional medical advice. Please consult a qualified doctor for any health concerns.**" 4. **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages. 5. **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center.`;
+        const payload = { contents: chatHistory, systemInstruction: { parts: [{ text: systemPrompt }] } };
         
         try {
             const response = await fetch(API_URL, {
@@ -561,67 +508,46 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isListening) recognition.stop();
         const text = userInput.value.trim();
         const user = auth.currentUser;
-        
         if (!text && !attachedFile) return;
 
+        const isFirstMessage = !mainInterface.classList.contains('chat-active');
+        if (isFirstMessage) {
+            const mainTitle = document.querySelector('.main-title');
+            const headerTitle = document.getElementById('header-title');
+            if (mainTitle) mainTitle.classList.add('disappearing');
+            if (headerTitle) headerTitle.classList.add('visible');
+        }
+
         if (user && !currentChatId) {
-            const newChatRef = await db.collection('users').doc(user.uid).collection('chats').add({
-                started: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            const newChatRef = await db.collection('users').doc(user.uid).collection('chats').add({ started: firebase.firestore.FieldValue.serverTimestamp() });
             currentChatId = newChatRef.id;
         }
-
         activateChatView();
-        
         const fileToSend = attachedFile;
         addMessage(text, 'user', fileToSend);
-        
         const userMessageParts = [{ text }];
         if (fileToSend) {
-            userMessageParts.push({
-                inlineData: {
-                    mimeType: fileToSend.mimeType,
-                    data: fileToSend.data,
-                },
-            });
+            userMessageParts.push({ inlineData: { mimeType: fileToSend.mimeType, data: fileToSend.data } });
         }
         conversationHistory.push({ role: 'user', parts: userMessageParts });
-        
         if(user && currentChatId){
-            const userMessage = {
-                text: text,
-                sender: 'user',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            saveMessage(currentChatId, userMessage);
+            saveMessage(currentChatId, { text: text, sender: 'user', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         }
-
         userInput.value = '';
         userInput.dispatchEvent(new Event('input'));
         clearAttachedFile();
         updateMicIcon();
-
         showTypingIndicator();
         userInput.disabled = true;
         micBtn.disabled = true;
-
         const botResponse = await getBotResponse(conversationHistory);
-
         conversationHistory.push({ role: 'model', parts: [{ text: botResponse }] });
-        
         if(user && currentChatId){
-            const botMessage = {
-                text: botResponse,
-                sender: 'bot',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            saveMessage(currentChatId, botMessage);
+            saveMessage(currentChatId, { text: botResponse, sender: 'bot', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         }
-
         removeTypingIndicator();
         const botMessageBubble = addMessage('', 'bot');
         const p_element = botMessageBubble.querySelector('p');
-
         typeWriter(p_element, botResponse, 20, () => {
             userInput.disabled = false;
             micBtn.disabled = false;
@@ -675,18 +601,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayFilePreview(file, objectURL) {
         const isImage = file.type.startsWith('image/');
-        const thumbnailContent = isImage 
-            ? `<img src="${objectURL}" alt="preview" class="file-thumbnail">`
-            : `<div class="file-thumbnail"><i class="fa-solid fa-file-pdf"></i></div>`;
-
-        filePreviewContainer.innerHTML = `
-            <div class="file-preview-item">
-                ${thumbnailContent}
-                <span class="file-info">${file.name}</span>
-                <button class="remove-file-btn" title="Remove file">&times;</button>
-            </div>
-        `;
-
+        const thumbnailContent = isImage ? `<img src="${objectURL}" alt="preview" class="file-thumbnail">` : `<div class="file-thumbnail"><i class="fa-solid fa-file-pdf"></i></div>`;
+        filePreviewContainer.innerHTML = `<div class="file-preview-item">${thumbnailContent}<span class="file-info">${file.name}</span><button class="remove-file-btn" title="Remove file">&times;</button></div>`;
         filePreviewContainer.querySelector('.remove-file-btn').addEventListener('click', () => {
             clearAttachedFile();
             updateMicIcon();
@@ -695,23 +611,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleFile(file) {
         if (!file) return;
-
         const MAX_SIZE = 10 * 1024 * 1024;
         if (file.size > MAX_SIZE) {
             alert(`File is too large. Maximum size is ${MAX_SIZE / 1024 / 1024}MB.`);
             clearAttachedFile();
             return;
         }
-        
         try {
             const base64Data = await fileToBase64(file);
             const objectURL = URL.createObjectURL(file);
-            attachedFile = {
-                name: file.name,
-                mimeType: file.type,
-                data: base64Data,
-                previewUrl: objectURL
-            };
+            attachedFile = { name: file.name, mimeType: file.type, data: base64Data, previewUrl: objectURL };
             displayFilePreview(file, objectURL);
             updateMicIcon();
         } catch (error) {
@@ -751,7 +660,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cameraCanvas.width = cameraView.videoWidth;
         cameraCanvas.height = cameraView.videoHeight;
         context.drawImage(cameraView, 0, 0, cameraCanvas.width, cameraCanvas.height);
-        
         cameraCanvas.toBlob((blob) => {
             const imageFile = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
             handleFile(imageFile);
@@ -774,8 +682,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     historyBtn.addEventListener('click', () => {
         if (auth.currentUser) {
-            mainInterface.classList.toggle('history-visible');
-            historySection.classList.toggle('visible');
+            if (sidebar.classList.contains('showing-discover') || !sidebar.classList.contains('expanded')) {
+                sidebar.classList.remove('showing-discover');
+                sidebar.classList.add('showing-history');
+                sidebar.classList.add('expanded');
+            } else {
+                sidebar.classList.toggle('expanded');
+            }
         } else {
             showCustomAlert('signInRequiredTitle', 'signInToViewHistory', () => openAuthModal());
         }
@@ -784,8 +697,13 @@ document.addEventListener('DOMContentLoaded', () => {
     discoverBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (auth.currentUser) {
-            // For now, a simple alert. This can be expanded later.
-            showCustomAlert('Discover', 'The Discover feature is coming soon!');
+            if (sidebar.classList.contains('showing-history') || !sidebar.classList.contains('expanded')) {
+                sidebar.classList.remove('showing-history');
+                sidebar.classList.add('showing-discover');
+                sidebar.classList.add('expanded');
+            } else {
+                sidebar.classList.toggle('expanded');
+            }
         } else {
             showCustomAlert('signInRequiredTitle', 'signInToUseDiscover', () => openAuthModal());
         }
@@ -793,7 +711,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     notificationBtn.addEventListener('click', () => {
         if (auth.currentUser) {
-            // For now, a simple alert. This can be expanded later.
             showCustomAlert('Notifications', 'The Notifications feature is coming soon!');
         } else {
             showCustomAlert('signInRequiredTitle', 'signInToUseNotifications', () => openAuthModal());
@@ -802,17 +719,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     homeBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        mainInterface.classList.remove('history-visible');
-        historySection.classList.remove('visible');
+        sidebar.classList.remove('expanded');
     });
     
-    exploreCards.forEach(card => {
+    discoverItems.forEach(card => {
         card.addEventListener('click', () => {
             const query = card.dataset.query;
             const feature = card.dataset.feature;
             if (query) {
                 userInput.value = query;
                 handleSendMessage();
+                sidebar.classList.remove('expanded');
             } else if (feature) {
                 showCustomAlert('Coming Soon', `The "${feature}" feature is under development!`);
             }
@@ -823,9 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function fetchChatHistory(uid) {
         if (unsubscribeHistory) unsubscribeHistory();
-
         const historyQuery = db.collection('users').doc(uid).collection('chats').orderBy('timestamp', 'desc');
-
         unsubscribeHistory = historyQuery.onSnapshot(snapshot => {
             if (snapshot.empty) {
                 historyList.innerHTML = '<p>No chats yet. Start a conversation!</p>';
@@ -837,14 +752,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
                 historyItem.dataset.chatId = doc.id;
-                
                 const title = chat.lastMessage || 'New Chat';
                 const date = chat.timestamp ? chat.timestamp.toDate().toLocaleDateString() : '';
-
-                historyItem.innerHTML = `
-                    <p>${title}</p>
-                    <small>${date}</small>
-                `;
+                historyItem.innerHTML = `<p>${title}</p><small>${date}</small>`;
                 historyItem.addEventListener('click', () => loadChat(doc.id));
                 historyList.appendChild(historyItem);
             });
@@ -857,27 +767,18 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadChat(chatId) {
         const user = auth.currentUser;
         if (!user) return;
-        
-        mainInterface.classList.remove('history-visible');
-        historySection.classList.remove('visible');
-        
+        sidebar.classList.remove('expanded');
         startNewChat();
         currentChatId = chatId;
         activateChatView();
-
         const messagesQuery = db.collection('users').doc(user.uid).collection('chats').doc(chatId).collection('messages').orderBy('timestamp', 'asc');
         const snapshot = await messagesQuery.get();
-        
         snapshot.forEach(doc => {
             const msg = doc.data();
             addMessage(msg.text, msg.sender, null, false);
-            conversationHistory.push({
-                role: msg.sender === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.text }]
-            });
+            conversationHistory.push({ role: msg.sender === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] });
         });
     }
-
 
     const savedLang = localStorage.getItem('remediLang') || 'en';
     setLanguage(savedLang);

@@ -60,6 +60,13 @@ const translations = {
     exploreHealthAlerts: "Local Health Alerts",
     exploreHealthQuizzes: "Health Quizzes",
     exploreInfoHub: "Information Hub",
+    // Explore Card Descriptions
+    exploreHealthCentersDesc: "Find hospitals and clinics near you.",
+    exploreReadPrescriptionDesc: "Scan and understand your prescriptions.",
+    exploreVaccinationDesc: "Track vaccination for your family.",
+    exploreHealthAlertsDesc: "Get alerts about local health news.",
+    exploreHealthQuizzesDesc: "Test your health knowledge.",
+    exploreInfoHubDesc: "Browse health articles and videos.",
   },
   hi: {
     // Tooltips
@@ -122,6 +129,13 @@ const translations = {
     exploreHealthAlerts: "स्थानीय स्वास्थ्य चेतावनी",
     exploreHealthQuizzes: "स्वास्थ्य प्रश्नोत्तरी",
     exploreInfoHub: "सूचना केंद्र",
+    // Explore Card Descriptions
+    exploreHealthCentersDesc: "अपने आस-पास के अस्पताल और क्लीनिक खोजें।",
+    exploreReadPrescriptionDesc: "अपने नुस्खे स्कैन करें और समझें।",
+    exploreVaccinationDesc: "अपने परिवार के लिए टीकाकरण ट्रैक करें।",
+    exploreHealthAlertsDesc: "स्थानीय स्वास्थ्य समाचारों के बारे में अलर्ट प्राप्त करें।",
+    exploreHealthQuizzesDesc: "अपने स्वास्थ्य ज्ञान का परीक्षण करें।",
+    exploreInfoHubDesc: "स्वास्थ्य लेख और वीडियो ब्राउज़ करें।",
   },
   or: {
     // Tooltips
@@ -184,6 +198,12 @@ const translations = {
     exploreHealthAlerts: "ସ୍ଥାନୀୟ ସ୍ୱାସ୍ଥ୍ୟ ସତର୍କତା",
     exploreHealthQuizzes: "ସ୍ୱାସ୍ଥ୍ୟ କୁଇଜ୍",
     exploreInfoHub: "ସୂଚନା କେନ୍ଦ୍ର",
+    // Explore Card Descriptions
+    exploreHealthCentersDesc: "ଆପଣଙ୍କ ନିକଟବର୍ତ୍ତୀ ଡାକ୍ତରଖାନା ଏବଂ କ୍ଲିନିକ୍ ଖୋଜନ୍ତୁ।",
+    exploreReadPrescriptionDesc: "ଆପଣଙ୍କର ପ୍ରେସକ୍ରିପସନ୍ ସ୍କାନ୍ କରନ୍ତୁ ଏବଂ ବୁଝନ୍ତୁ।",
+    exploreVaccinationDesc: "ଆପଣଙ୍କ ପରିବାର ପାଇଁ ଟୀକାକରଣ ଟ୍ରାକ୍ କରନ୍ତୁ।",
+    exploreHealthAlertsDesc: "ସ୍ଥାନୀୟ ସ୍ୱାସ୍ଥ୍ୟ ସମ୍ବାଦ ବିଷୟରେ ସତର୍କତା ପାଆନ୍ତୁ।",
+    exploreHealthQuizzesDesc: "ଆପଣଙ୍କର ସ୍ୱାସ୍ଥ୍ୟ ଜ୍ଞାନ ପରୀକ୍ଷା କରନ୍ତୁ।",
+    exploreInfoHubDesc: "ସ୍ୱାସ୍ଥ୍ୟ ସମ୍ବନ୍ଧୀୟ ପ୍ରବନ୍ଧ ଏବଂ ଭିଡିଓ ବ୍ରାଉଜ୍ କରନ୍ତୁ।",
   },
 };
-

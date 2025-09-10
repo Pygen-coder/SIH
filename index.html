@@ -14,38 +14,97 @@
 <body>
 
     <div class="page-wrapper">
-        <aside class="sidebar">
-            <div class="sidebar-top">
-                <a href="index.html" class="sidebar-logo" title="Remedi">
-                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM12 20C7.589 20 4 16.411 4 12C4 7.589 7.589 4 12 4C16.411 4 20 7.589 20 12C20 16.411 16.411 20 12 20Z" fill="currentColor"/>
-                        <path d="M12 6C8.686 6 6 8.686 6 12C6 15.314 8.686 18 12 18V6Z" fill="currentColor"/>
-                     </svg>
-                </a>
-                <nav class="sidebar-nav">
-                    <a href="#" class="nav-link active" data-i18n-key="homeTooltip" data-i18n-attr="title" title="Home" id="home-btn">
-                        <i class="fa-solid fa-house fa-lg"></i>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-nav-container">
+                <div class="sidebar-top">
+                    <a href="index.html" class="sidebar-logo" title="Remedi">
+                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM12 20C7.589 20 4 16.411 4 12C4 7.589 7.589 4 12 4C16.411 4 20 7.589 20 12C20 16.411 16.411 20 12 20Z" fill="currentColor"/>
+                            <path d="M12 6C8.686 6 6 8.686 6 12C6 15.314 8.686 18 12 18V6Z" fill="currentColor"/>
+                         </svg>
                     </a>
-                    <a href="#" id="discover-btn" class="nav-link" data-i18n-key="discoverTooltip" data-i18n-attr="title" title="Discover">
-                         <i class="fa-solid fa-compass fa-lg"></i>
-                    </a>
-                    <button class="nav-link" id="history-btn" data-i18n-key="historyTooltip" data-i18n-attr="title" title="History">
-                        <i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+                    <nav class="sidebar-nav">
+                        <a href="#" class="nav-link active" data-i18n-key="homeTooltip" data-i18n-attr="title" title="Home" id="home-btn">
+                            <i class="fa-solid fa-house fa-lg"></i>
+                        </a>
+                        <a href="#" id="discover-btn" class="nav-link" data-i18n-key="discoverTooltip" data-i18n-attr="title" title="Discover">
+                             <i class="fa-solid fa-compass fa-lg"></i>
+                        </a>
+                        <button class="nav-link" id="history-btn" data-i18n-key="historyTooltip" data-i18n-attr="title" title="History">
+                            <i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+                        </button>
+                        <button class="nav-link" id="notification-btn" title="Notifications">
+                            <i class="fa-solid fa-bell fa-lg"></i>
+                        </button>
+                    </nav>
+                </div>
+                <div class="sidebar-bottom">
+                     <button class="nav-link" id="new-thread-btn" data-i18n-key="newThreadTooltip" data-i18n-attr="title" title="New Thread">
+                         <i class="fa-solid fa-plus fa-lg"></i>
                     </button>
-                    <button class="nav-link" id="notification-btn" title="Notifications">
-                        <i class="fa-solid fa-bell fa-lg"></i>
-                    </button>
-                </nav>
+                </div>
             </div>
-            <div class="sidebar-bottom">
-                 <button class="nav-link" id="new-thread-btn" data-i18n-key="newThreadTooltip" data-i18n-attr="title" title="New Thread">
-                     <i class="fa-solid fa-plus fa-lg"></i>
-                </button>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-panel">
+                 <section class="history-section panel-section" id="history-section">
+                    <h2 data-i18n-key="historyTooltip">Chat History</h2>
+                    <div class="history-list" id="history-list">
+                        <p>Log in to see your chat history.</p>
+                    </div>
+                </section>
+                <section class="discover-section panel-section" id="discover-section">
+                    <h2 data-i18n-key="discoverTooltip">Discover</h2>
+                    <div class="discover-list" id="discover-list">
+                        <div class="discover-item" data-query="Find clinics and hospitals near Burla">
+                            <i class="fa-solid fa-location-dot icon-blue"></i>
+                            <div class="discover-item-text">
+                                <span data-i18n-key="exploreHealthCenters">Nearby Health Centers</span>
+                                <small data-i18n-key="exploreHealthCentersDesc">Find hospitals and clinics near you.</small>
+                            </div>
+                        </div>
+                        <div class="discover-item" data-feature="Read Prescription">
+                            <i class="fa-solid fa-prescription-bottle-medical icon-teal"></i>
+                             <div class="discover-item-text">
+                                <span data-i18n-key="exploreReadPrescription">Read Prescription</span>
+                                <small data-i18n-key="exploreReadPrescriptionDesc">Scan and understand your prescriptions.</small>
+                            </div>
+                        </div>
+                        <div class="discover-item" data-feature="Vaccination Schedule">
+                            <i class="fa-solid fa-shield-virus icon-green"></i>
+                             <div class="discover-item-text">
+                                <span data-i18n-key="exploreVaccination">Vaccination Schedule</span>
+                                <small data-i18n-key="exploreVaccinationDesc">Track vaccination for your family.</small>
+                            </div>
+                        </div>
+                        <div class="discover-item" data-feature="Local Health Alerts">
+                            <i class="fa-solid fa-tower-broadcast icon-orange"></i>
+                             <div class="discover-item-text">
+                                <span data-i18n-key="exploreHealthAlerts">Local Health Alerts</span>
+                                <small data-i18n-key="exploreHealthAlertsDesc">Get alerts about local health news.</small>
+                            </div>
+                        </div>
+                        <div class="discover-item" data-feature="Health Quizzes">
+                             <i class="fa-solid fa-ribbon icon-purple"></i>
+                             <div class="discover-item-text">
+                                <span data-i18n-key="exploreHealthQuizzes">Health Quizzes</span>
+                                <small data-i18n-key="exploreHealthQuizzesDesc">Test your health knowledge.</small>
+                            </div>
+                        </div>
+                        <div class="discover-item" data-query="Show me articles and videos on health topics">
+                             <i class="fa-solid fa-book-open-reader icon-indigo"></i>
+                             <div class="discover-item-text">
+                                <span data-i18n-key="exploreInfoHub">Information Hub</span>
+                                <small data-i18n-key="exploreInfoHubDesc">Browse health articles and videos.</small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </aside>
 
-        <div class="main-content-wrapper">
+        <div class="main-content-wrapper" id="main-content-wrapper">
             <header class="main-header">
+                 <h1 class="header-title" id="header-title" data-i18n-key="mainTitle">Remedi</h1>
                  <div class="header-controls">
                     <button id="theme-toggle-btn" class="header-btn theme-toggle-btn" data-i18n-key="themeTooltip" data-i18n-attr="aria-label" aria-label="Toggle Dark Mode">
                         <i class="fa-solid fa-sun sun-icon"></i>
@@ -137,40 +196,10 @@
                 </div>
                 
                 <div class="explore-section" id="explore-section">
-                    <div class="explore-card" data-query="Find clinics and hospitals near Burla">
-                        <i class="fa-solid fa-location-dot icon-blue"></i>
-                        <span data-i18n-key="exploreHealthCenters">Nearby Health Centers</span>
-                    </div>
-                    <div class="explore-card" data-feature="Read Prescription">
-                        <i class="fa-solid fa-prescription-bottle-medical icon-teal"></i>
-                        <span data-i18n-key="exploreReadPrescription">Read Prescription</span>
-                    </div>
-                    <div class="explore-card" data-feature="Vaccination Schedule">
-                        <i class="fa-solid fa-shield-virus icon-green"></i>
-                        <span data-i18n-key="exploreVaccination">Vaccination Schedule</span>
-                    </div>
-                    <div class="explore-card" data-feature="Local Health Alerts">
-                        <i class="fa-solid fa-tower-broadcast icon-orange"></i>
-                        <span data-i18n-key="exploreHealthAlerts">Local Health Alerts</span>
-                    </div>
-                    <div class="explore-card" data-feature="Health Quizzes">
-                         <i class="fa-solid fa-ribbon icon-purple"></i>
-                        <span data-i18n-key="exploreHealthQuizzes">Health Quizzes</span>
-                    </div>
-                    <div class="explore-card" data-query="Show me articles and videos on health topics">
-                         <i class="fa-solid fa-book-open-reader icon-indigo"></i>
-                        <span data-i18n-key="exploreInfoHub">Information Hub</span>
-                    </div>
+                     <!-- This section is now populated dynamically or removed -->
                 </div>
 
             </main>
-
-            <section class="history-section" id="history-section">
-                <h2 data-i18n-key="historyTooltip">Chat History</h2>
-                <div class="history-list" id="history-list">
-                    <p>Log in to see your chat history.</p>
-                </div>
-            </section>
         </div>
     </div>
     
@@ -257,5 +286,3 @@
     <script src="Main.js"></script>
 </body>
 </html>
-
-
