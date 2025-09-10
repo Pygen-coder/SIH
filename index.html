@@ -30,11 +30,11 @@
                         <a href="#" id="discover-btn" class="nav-link" data-i18n-key="discoverTooltip" data-i18n-attr="title" title="Discover">
                              <i class="fa-solid fa-compass fa-lg"></i>
                         </a>
-                        <button class="nav-link" id="history-btn" data-i18n-key="historyTooltip" data-i18n-attr="title" title="History">
-                            <i class="fa-solid fa-clock-rotate-left fa-lg"></i>
-                        </button>
                         <button class="nav-link" id="notification-btn" title="Notifications">
                             <i class="fa-solid fa-bell fa-lg"></i>
+                        </button>
+                        <button class="nav-link" id="history-btn" data-i18n-key="historyTooltip" data-i18n-attr="title" title="History">
+                            <i class="fa-solid fa-clock-rotate-left fa-lg"></i>
                         </button>
                     </nav>
                 </div>
@@ -118,7 +118,9 @@
 
         <div class="main-content-wrapper" id="main-content-wrapper">
             <header class="main-header">
-                 <h1 class="header-title" id="header-title" data-i18n-key="mainTitle">Remedi</h1>
+                 <a href="index.html" class="header-title-link">
+                    <h1 class="header-title" id="header-title" data-i18n-key="mainTitle">Remedi</h1>
+                 </a>
                  <div class="header-controls">
                     <button id="theme-toggle-btn" class="header-btn theme-toggle-btn" data-i18n-key="themeTooltip" data-i18n-attr="aria-label" aria-label="Toggle Dark Mode">
                         <i class="fa-solid fa-sun sun-icon"></i>
@@ -297,10 +299,12 @@
             <h2 id="custom-alert-title">Alert</h2>
             <p id="custom-alert-message"></p>
             <div class="custom-alert-actions">
-                <button class="btn-primary" id="custom-alert-ok">OK</button>
+                <button class="btn-secondary" id="custom-alert-cancel" data-i18n-key="cancelAction">Cancel</button>
+                <button class="btn-danger" id="custom-alert-delete" data-i18n-key="deleteAction">Delete</button>
             </div>
         </div>
     </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>

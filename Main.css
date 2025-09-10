@@ -220,10 +220,15 @@ body.light-mode .main-header {
     background: linear-gradient(to bottom, #FEFBF6 70%, transparent 100%);
 }
 
+.header-title-link {
+    text-decoration: none;
+    color: inherit;
+    margin-right: auto;
+}
+
 .header-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 1.5rem;
-    margin-right: auto;
     opacity: 0;
     transform: translateY(-20px);
     transition: opacity 0.5s ease-out 0.3s, transform 0.5s ease-out 0.3s;
@@ -1637,18 +1642,23 @@ body.light-mode .discover-section h2 {
     overflow-y: auto;
 }
 
-.history-item {
+.history-item-main {
+    flex-grow: 1;
+    cursor: pointer;
     padding: 12px;
     border-radius: 8px;
-    margin-bottom: 8px;
-    cursor: pointer;
     transition: background-color 0.2s;
+    min-width: 0;
 }
-.history-item:hover {
+.history-item-main:hover {
     background-color: var(--dm-bg-tertiary);
 }
-body.light-mode .history-item:hover {
+body.light-mode .history-item-main:hover {
     background-color: var(--lm-bg-tertiary);
+}
+
+.history-item-main p, .history-item-main small {
+    pointer-events: none;
 }
 
 .history-item p {
@@ -1721,8 +1731,6 @@ body.light-mode .discover-item:hover {
     font-size: 0.85rem;
 }
 
-
-/* --- START: NEW HISTORY DROPDOWN STYLES --- */
 .panel-header {
     display: flex;
     justify-content: space-between;
@@ -1785,7 +1793,7 @@ body.light-mode .panel-header-btn:hover {
 .delete-all-link:hover i {
      color: #dc3545 !important;
 }
-/* --- START: NEW CUSTOM ALERT STYLES --- */
+
 .custom-alert-overlay {
     position: fixed;
     top: 0;
@@ -1847,23 +1855,46 @@ body.light-mode .custom-alert p {
 .custom-alert-actions {
     display: flex;
     justify-content: flex-end;
+    gap: 12px;
     margin-top: 24px;
 }
 
-.custom-alert-actions .btn-primary {
-    background: var(--accent-primary);
-    border: 1px solid var(--accent-primary);
-    color: white;
-    padding: 10px 24px;
+.custom-alert-actions .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--dm-border);
+    color: var(--dm-text-primary);
+    padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
     transition: background-color 0.2s;
 }
-.custom-alert-actions .btn-primary:hover {
-    background: var(--accent-secondary);
+body.light-mode .custom-alert-actions .btn-secondary {
+    border-color: var(--lm-border);
+    color: var(--lm-text-primary);
 }
-/* --- Add these styles for the individual history item --- */
+.custom-alert-actions .btn-secondary:hover {
+     background-color: var(--dm-bg-tertiary);
+}
+body.light-mode .custom-alert-actions .btn-secondary:hover {
+     background-color: var(--lm-bg-tertiary);
+}
+
+.custom-alert-actions .btn-danger {
+    background: #dc3545;
+    border: 1px solid #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+.custom-alert-actions .btn-danger:hover {
+    background: #c82333;
+}
+
+
 .history-item {
     display: flex;
     justify-content: space-between;
@@ -1871,38 +1902,20 @@ body.light-mode .custom-alert p {
     gap: 8px;
 }
 
-.history-item-main {
-    flex-grow: 1;
-    cursor: pointer;
-    padding: 12px;
-    border-radius: 8px;
-    transition: background-color 0.2s;
-    /* To make sure the text part is still clickable */
-    min-width: 0; /* Prevents flexbox overflow issues */
-}
-
-.history-item-main:hover {
-    background-color: var(--dm-bg-tertiary);
-}
-
-body.light-mode .history-item-main:hover {
-    background-color: var(--lm-bg-tertiary);
-}
-
 .delete-chat-btn {
     background: none;
     border: none;
     color: var(--dm-text-secondary);
     cursor: pointer;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.2s, color 0.2s, opacity 0.2s;
     opacity: 0.5;
 }
 
@@ -1912,27 +1925,11 @@ body.light-mode .history-item-main:hover {
 
 .delete-chat-btn:hover {
     background-color: var(--dm-bg-tertiary);
-    color: #ef4444; /* Red color for delete action */
+    color: #ef4444;
 }
 
 body.light-mode .delete-chat-btn:hover {
     background-color: var(--lm-bg-tertiary);
-}
-
-/* --- Adjust the old history-item style to avoid conflicts --- */
-.history-item-main p, .history-item-main small {
-    pointer-events: none; /* Make sure clicking on text doesn't block the parent's click */
-}
-
-.history-item p {
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-weight: 500;
-}
-.history-item small {
-    color: var(--dm-text-secondary);
 }
 
 

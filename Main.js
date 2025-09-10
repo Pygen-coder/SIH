@@ -53,7 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const customAlertOverlay = document.getElementById('custom-alert-overlay');
     const customAlertTitle = document.getElementById('custom-alert-title');
     const customAlertMessage = document.getElementById('custom-alert-message');
-    const customAlertOkBtn = document.getElementById('custom-alert-ok');
+    const customAlertCancelBtn = document.getElementById('custom-alert-cancel');
+    const customAlertDeleteBtn = document.getElementById('custom-alert-delete');
     const welcomeModalOverlay = document.getElementById('welcome-modal-overlay');
     const closeWelcomeModalBtn = document.getElementById('close-welcome-modal');
     const dismissWelcomeModalBtn = document.getElementById('dismiss-welcome-modal');
@@ -77,6 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const googleSigninBtn = document.getElementById('google-signin-btn');
     const deleteHistoryBtn = document.getElementById('delete-history-btn');
     const deleteHistoryDropdown = document.getElementById('delete-history-dropdown');
+    const genderModalOverlay = document.getElementById('gender-modal-overlay');
+    const genderModalForm = document.getElementById('gender-modal-form');
 
     const API_KEY = "AIzaSyBolo_dfR-aHyjmvNpTSuAZb2D3LfQi-48";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
@@ -285,20 +288,25 @@ document.addEventListener('DOMContentLoaded', () => {
         customAlertOverlay.classList.add('visible');
     }
 
-    function hideCustomAlert() {
+    function closeCustomAlert() {
         if (!customAlertOverlay) return;
         customAlertOverlay.classList.remove('visible');
         setTimeout(() => {
             customAlertOverlay.classList.add('hidden');
         }, 300);
-        if (typeof onAlertOk === 'function') {
-            onAlertOk();
-            onAlertOk = null;
-        }
+        onAlertOk = null; // Always clear callback on close
     }
 
-    if (customAlertOkBtn) {
-        customAlertOkBtn.addEventListener('click', hideCustomAlert);
+    if (customAlertCancelBtn) {
+        customAlertCancelBtn.addEventListener('click', closeCustomAlert);
+    }
+    if (customAlertDeleteBtn) {
+        customAlertDeleteBtn.addEventListener('click', () => {
+            if (typeof onAlertOk === 'function') {
+                onAlertOk();
+            }
+            closeCustomAlert();
+        });
     }
 
     function showWelcomeModal() {
@@ -514,7 +522,6 @@ document.addEventListener('DOMContentLoaded', () => {
         conversationHistory = [];
         mainInterface.classList.remove('chat-active');
         
-        // BUG FIX: Reset main and header titles to their initial state
         const mainTitle = document.querySelector('.main-title');
         const headerTitle = document.getElementById('header-title');
         if (mainTitle) mainTitle.classList.remove('disappearing');
@@ -773,7 +780,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const title = chat.lastMessage || 'New Chat';
                 const date = chat.timestamp ? chat.timestamp.toDate().toLocaleDateString() : '';
 
-                // NEW: HTML structure with delete button
                 historyItem.innerHTML = `
                     <div class="history-item-main">
                         <p>${title}</p>
@@ -791,13 +797,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // NEW: Delegated event listener for the entire history list
     historyList.addEventListener('click', (e) => {
         const deleteBtn = e.target.closest('.delete-chat-btn');
         const historyItemMain = e.target.closest('.history-item-main');
     
         if (deleteBtn) {
-            e.stopPropagation(); // Prevent the main item click from firing
+            e.stopPropagation();
             const chatId = deleteBtn.dataset.chatId;
             showCustomAlert('confirmSingleDeletionTitle', 'confirmSingleDeletionMessage', () => {
                 deleteSingleChat(chatId);
@@ -817,7 +822,6 @@ document.addEventListener('DOMContentLoaded', () => {
             await deleteSubcollection(chatRef, 'messages');
             await chatRef.delete();
 
-            // If the deleted chat was the one currently open, reset the view
             if (currentChatId === chatId) {
                 startNewChat();
             }

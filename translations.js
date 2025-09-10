@@ -38,6 +38,7 @@ const translations = {
     passwordPlaceholder: "Password",
     signInMobileLink: "Already have an account?",
     signInAction: "Sign In",
+    verifyAndSignIn: "Verify & Sign In",
     signInTitle: "Sign in",
     googleSignIn: "Sign in with Google",
     useYourAccount: "or use your account",
@@ -84,6 +85,10 @@ const translations = {
     signInToViewHistory: "Please sign in to view your chat history.",
     signInToUseDiscover: "Please sign in to use the Discover features.",
     signInToUseNotifications: "Please sign in to receive notifications.",
+    deleteAction: "Delete",
+    cancelAction: "Cancel",
+    confirmSingleDeletionTitle: "Delete Chat",
+    confirmSingleDeletionMessage: "Are you sure you want to permanently delete this chat? This action cannot be undone.",
   },
   hi: {
     // Tooltips
@@ -124,6 +129,7 @@ const translations = {
     passwordPlaceholder: "पासवर्ड",
     signInMobileLink: "क्या आपके पास पहले से एक खाता मौजूद है?",
     signInAction: "साइन इन करें",
+    verifyAndSignIn: "सत्यापित करें और साइन इन करें",
     signInTitle: "साइन इन करें",
     googleSignIn: "Google से साइन इन करें",
     useYourAccount: "या अपने खाते का उपयोग करें",
@@ -170,6 +176,10 @@ const translations = {
     signInToViewHistory: "कृपया अपनी चैट इतिहास देखने के लिए साइन इन करें।",
     signInToUseDiscover: "कृपया डिस्कवर सुविधाओं का उपयोग करने के लिए साइन इन करें।",
     signInToUseNotifications: "सूचनाएं प्राप्त करने के लिए कृपया साइन इन करें।",
+    deleteAction: "हटाएं",
+    cancelAction: "रद्द करें",
+    confirmSingleDeletionTitle: "चैट हटाएं",
+    confirmSingleDeletionMessage: "क्या आप वाकई इस चैट को स्थायी रूप से हटाना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।",
   },
   or: {
     // Tooltips
@@ -210,6 +220,7 @@ const translations = {
     passwordPlaceholder: "ପାସୱାର୍ଡ",
     signInMobileLink: "ପୂର୍ବରୁ ଏକ ଆକାଉଣ୍ଟ୍ ଅଛି କି?",
     signInAction: "ସାଇନ୍ ଇନ୍",
+    verifyAndSignIn: "ସତ୍ୟାପନ କରନ୍ତୁ ଏବଂ ସାଇନ୍ ଇନ୍ କରନ୍ତୁ",
     signInTitle: "ସାଇନ୍ ଇନ୍ କରନ୍ତୁ",
     googleSignIn: "Google ସହିତ ସାଇନ୍ ଇନ୍ କରନ୍ତୁ",
     useYourAccount: "କିମ୍ବା ଆପଣଙ୍କ ଆକାଉଣ୍ଟ୍ ବ୍ୟବହାର କରନ୍ତୁ",
@@ -256,5 +267,9 @@ const translations = {
     signInToViewHistory: "ଆପଣଙ୍କର ଚାଟ୍ ଇତିହାସ ଦେଖିବା ପାଇଁ ଦୟାକରି ସାଇନ୍ ଇନ୍ କରନ୍ତୁ।",
     signInToUseDiscover: "ଆବିଷ୍କାର ବୈଶିଷ୍ଟ୍ୟଗୁଡିକ ବ୍ୟବହାର କରିବାକୁ ଦୟାକରି ସାଇନ୍ ଇନ୍ କରନ୍ତୁ।",
     signInToUseNotifications: "ବିଜ୍ଞପ୍ତି ଗ୍ରହଣ କରିବାକୁ ଦୟାକରି ସାଇନ୍ ଇନ୍ କରନ୍ତୁ।",
+    deleteAction: "ବିଲୋପ କରନ୍ତୁ",
+    cancelAction: "ବାତିଲ୍ କରନ୍ତୁ",
+    confirmSingleDeletionTitle: "ଚାଟ୍ ବିଲୋପ କରନ୍ତୁ",
+    confirmSingleDeletionMessage: "ଆପଣ ନିଶ୍ଚିତ କି ଯେ ଆପଣ ଏହି ଚାଟ୍ ସବୁଦିନ ପାଇଁ ବିଲୋପ କରିବାକୁ ଚାହୁଁଛନ୍ତି? ଏହି କାର୍ଯ୍ୟକୁ ପୂର୍ବବତ୍ କରାଯାଇପାରିବ ନାହିଁ।",
   },
 };
