@@ -75,6 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const signinForm = document.getElementById('signin-form');
     const googleSignupBtn = document.getElementById('google-signup-btn');
     const googleSigninBtn = document.getElementById('google-signin-btn');
+    const deleteHistoryBtn = document.getElementById('delete-history-btn');
+    const deleteHistoryDropdown = document.getElementById('delete-history-dropdown');
 
     const API_KEY = "AIzaSyBolo_dfR-aHyjmvNpTSuAZb2D3LfQi-48";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
@@ -216,13 +218,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleDropdown(dropdown) {
-        if (dropdown === profileDropdown) {
-            langDropdown.classList.remove('show');
-        } else {
-            profileDropdown.classList.remove('show');
-        }
+        document.querySelectorAll('.dropdown-menu.show').forEach(openDropdown => {
+            if (openDropdown !== dropdown) {
+                openDropdown.classList.remove('show');
+            }
+        });
         dropdown.classList.toggle('show');
     }
+
     profileBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         toggleDropdown(profileDropdown);
@@ -231,9 +234,17 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation();
         toggleDropdown(langDropdown);
     });
-    window.addEventListener('click', () => {
-        profileDropdown.classList.remove('show');
-        langDropdown.classList.remove('show');
+    deleteHistoryBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown(deleteHistoryDropdown);
+    });
+
+    window.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target)) profileDropdown.classList.remove('show');
+        if (!langBtn.contains(e.target)) langDropdown.classList.remove('show');
+        if (deleteHistoryBtn && !deleteHistoryBtn.contains(e.target)) {
+            deleteHistoryDropdown.classList.remove('show');
+        }
     });
 
     if (authContainer) {
@@ -502,6 +513,12 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.innerHTML = '';
         conversationHistory = [];
         mainInterface.classList.remove('chat-active');
+        
+        // BUG FIX: Reset main and header titles to their initial state
+        const mainTitle = document.querySelector('.main-title');
+        const headerTitle = document.getElementById('header-title');
+        if (mainTitle) mainTitle.classList.remove('disappearing');
+        if (headerTitle) headerTitle.classList.remove('visible');
     }
 
     async function handleSendMessage() {
@@ -752,10 +769,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
                 historyItem.dataset.chatId = doc.id;
+                
                 const title = chat.lastMessage || 'New Chat';
                 const date = chat.timestamp ? chat.timestamp.toDate().toLocaleDateString() : '';
-                historyItem.innerHTML = `<p>${title}</p><small>${date}</small>`;
-                historyItem.addEventListener('click', () => loadChat(doc.id));
+
+                // NEW: HTML structure with delete button
+                historyItem.innerHTML = `
+                    <div class="history-item-main">
+                        <p>${title}</p>
+                        <small>${date}</small>
+                    </div>
+                    <button class="delete-chat-btn" data-chat-id="${doc.id}" title="Delete chat">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
                 historyList.appendChild(historyItem);
             });
         }, err => {
@@ -763,6 +790,43 @@ document.addEventListener('DOMContentLoaded', () => {
             historyList.innerHTML = '<p>Could not load chat history.</p>';
         });
     }
+
+    // NEW: Delegated event listener for the entire history list
+    historyList.addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-chat-btn');
+        const historyItemMain = e.target.closest('.history-item-main');
+    
+        if (deleteBtn) {
+            e.stopPropagation(); // Prevent the main item click from firing
+            const chatId = deleteBtn.dataset.chatId;
+            showCustomAlert('confirmSingleDeletionTitle', 'confirmSingleDeletionMessage', () => {
+                deleteSingleChat(chatId);
+            });
+        } else if (historyItemMain) {
+            const chatId = historyItemMain.parentElement.dataset.chatId;
+            loadChat(chatId);
+        }
+    });
+
+    async function deleteSingleChat(chatId) {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        try {
+            const chatRef = db.collection('users').doc(user.uid).collection('chats').doc(chatId);
+            await deleteSubcollection(chatRef, 'messages');
+            await chatRef.delete();
+
+            // If the deleted chat was the one currently open, reset the view
+            if (currentChatId === chatId) {
+                startNewChat();
+            }
+        } catch (error) {
+            console.error("Error deleting chat:", error);
+            showCustomAlert('Error', 'Could not delete the chat. Please try again.');
+        }
+    }
+
 
     async function loadChat(chatId) {
         const user = auth.currentUser;
@@ -780,7 +844,90 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    deleteHistoryDropdown.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = e.target.closest('a');
+        if (target && target.dataset.period) {
+            const period = target.dataset.period;
+            const messageKey = 'confirmDelete' + period.charAt(0).toUpperCase() + period.slice(1);
+
+            showCustomAlert('confirmDeletionTitle', messageKey, () => {
+                deleteChatHistory(period);
+            });
+
+            deleteHistoryDropdown.classList.remove('show');
+        }
+    });
+
+    async function deleteChatHistory(period) {
+        const user = auth.currentUser;
+        if (!user) {
+            showCustomAlert('Error', 'You must be logged in to delete history.');
+            return;
+        }
+
+        const chatsRef = db.collection('users').doc(user.uid).collection('chats');
+        let query;
+        const now = new Date();
+        let startDate;
+
+        switch (period) {
+            case 'day':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                query = chatsRef.where('timestamp', '>=', startDate);
+                break;
+            case 'week':
+                startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                query = chatsRef.where('timestamp', '>=', startDate);
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                query = chatsRef.where('timestamp', '>=', startDate);
+                break;
+            case 'all':
+                query = chatsRef;
+                break;
+            default:
+                console.error("Invalid period for deletion");
+                return;
+        }
+
+        try {
+            const snapshot = await query.get();
+            if (snapshot.empty) {
+                return; 
+            }
+            
+            const deletePromises = [];
+            snapshot.forEach(doc => {
+                const messageDeletionPromise = deleteSubcollection(doc.ref, 'messages');
+                deletePromises.push(messageDeletionPromise.then(() => doc.ref.delete()));
+            });
+
+            await Promise.all(deletePromises);
+
+            if (currentChatId && snapshot.docs.some(doc => doc.id === currentChatId)) {
+                startNewChat();
+            }
+
+        } catch (error) {
+            console.error("Error deleting chat history: ", error);
+            showCustomAlert('Error', 'Could not delete chat history. Please try again.');
+        }
+    }
+
+    async function deleteSubcollection(parentRef, subcollectionName) {
+        const subcollectionRef = parentRef.collection(subcollectionName);
+        const snapshot = await subcollectionRef.get();
+        if (snapshot.empty) return;
+        
+        const deletePromises = [];
+        snapshot.forEach(doc => {
+            deletePromises.push(doc.ref.delete());
+        });
+        await Promise.all(deletePromises);
+    }
+
     const savedLang = localStorage.getItem('remediLang') || 'en';
     setLanguage(savedLang);
 });
-

@@ -47,7 +47,21 @@
             <div class="sidebar-divider"></div>
             <div class="sidebar-panel">
                  <section class="history-section panel-section" id="history-section">
-                    <h2 data-i18n-key="historyTooltip">Chat History</h2>
+                    <div class="panel-header">
+                        <h2 data-i18n-key="historyTooltip">Chat History</h2>
+                        <div class="history-actions">
+                            <button id="delete-history-btn" class="panel-header-btn" data-i18n-key="deleteHistoryTitle" data-i18n-attr="title" title="Delete history">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+                            <div id="delete-history-dropdown" class="dropdown-menu">
+                                <a href="#" data-period="day" data-i18n-key="deleteToday">Delete today's chats</a>
+                                <a href="#" data-period="week" data-i18n-key="deleteWeek">Delete last 7 days</a>
+                                <a href="#" data-period="month" data-i18n-key="deleteMonth">Delete this month's</a>
+                                <hr>
+                                <a href="#" data-period="all" class="delete-all-link" data-i18n-key="deleteAll">Delete all history</a>
+                            </div>
+                        </div>
+                    </div>
                     <div class="history-list" id="history-list">
                         <p>Log in to see your chat history.</p>
                     </div>
@@ -196,8 +210,7 @@
                 </div>
                 
                 <div class="explore-section" id="explore-section">
-                     <!-- This section is now populated dynamically or removed -->
-                </div>
+                     </div>
 
             </main>
         </div>
@@ -279,6 +292,15 @@
         </div>
     </div>
 
+    <div class="custom-alert-overlay hidden" id="custom-alert-overlay">
+        <div class="custom-alert">
+            <h2 id="custom-alert-title">Alert</h2>
+            <p id="custom-alert-message"></p>
+            <div class="custom-alert-actions">
+                <button class="btn-primary" id="custom-alert-ok">OK</button>
+            </div>
+        </div>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
