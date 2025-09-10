@@ -1894,6 +1894,19 @@ body.light-mode .custom-alert-actions .btn-secondary:hover {
     background: #c82333;
 }
 
+.custom-alert-actions .btn-primary {
+    background: var(--accent-primary);
+    border: 1px solid var(--accent-primary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+.custom-alert-actions .btn-primary:hover {
+    background: var(--accent-secondary);
+}
 
 .history-item {
     display: flex;

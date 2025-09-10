@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const customAlertTitle = document.getElementById('custom-alert-title');
     const customAlertMessage = document.getElementById('custom-alert-message');
     const customAlertCancelBtn = document.getElementById('custom-alert-cancel');
-    const customAlertDeleteBtn = document.getElementById('custom-alert-delete');
+    const customAlertOkBtn = document.getElementById('custom-alert-ok');
     const welcomeModalOverlay = document.getElementById('welcome-modal-overlay');
     const closeWelcomeModalBtn = document.getElementById('close-welcome-modal');
     const dismissWelcomeModalBtn = document.getElementById('dismiss-welcome-modal');
@@ -279,11 +279,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let onAlertOk = null;
 
-    function showCustomAlert(titleKey, messageKey, onOkCallback) {
+    function showCustomAlert(titleKey, messageKey, onOkCallback, options = {}) {
         if (!customAlertOverlay) return;
+
+        const {
+            okTextKey = 'deleteAction',
+            okBtnClass = 'btn-danger'
+        } = options;
+
         customAlertTitle.textContent = translations[currentLanguage][titleKey] || "Alert";
         customAlertMessage.textContent = translations[currentLanguage][messageKey] || "";
-        onAlertOk = onOkCallback;
+
+        customAlertOkBtn.textContent = translations[currentLanguage][okTextKey];
+        customAlertOkBtn.className = okBtnClass;
+
+        if (onOkCallback) {
+            onAlertOk = onOkCallback;
+            customAlertOkBtn.style.display = 'inline-block';
+        } else {
+            onAlertOk = null;
+            customAlertOkBtn.style.display = 'none';
+        }
+
         customAlertOverlay.classList.remove('hidden');
         customAlertOverlay.classList.add('visible');
     }
@@ -294,14 +311,14 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             customAlertOverlay.classList.add('hidden');
         }, 300);
-        onAlertOk = null; // Always clear callback on close
+        onAlertOk = null;
     }
 
     if (customAlertCancelBtn) {
         customAlertCancelBtn.addEventListener('click', closeCustomAlert);
     }
-    if (customAlertDeleteBtn) {
-        customAlertDeleteBtn.addEventListener('click', () => {
+    if (customAlertOkBtn) {
+        customAlertOkBtn.addEventListener('click', () => {
             if (typeof onAlertOk === 'function') {
                 onAlertOk();
             }
@@ -321,7 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             welcomeModalOverlay.classList.add('hidden');
         }, 300);
-        localStorage.setItem('welcomeMessageShown', 'true');
     }
 
     function updateUserProfileUI(user) {
@@ -366,9 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
             profileDropdown.classList.remove('show');
             if (authContainer) authContainer.classList.remove('show');
         } else {
-            if (!localStorage.getItem('welcomeMessageShown')) {
-                setTimeout(showWelcomeModal, 2000);
-            }
+            setTimeout(showWelcomeModal, 2000);
         }
     });
 
@@ -714,7 +728,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 sidebar.classList.toggle('expanded');
             }
         } else {
-            showCustomAlert('signInRequiredTitle', 'signInToViewHistory', () => openAuthModal());
+            showCustomAlert('signInRequiredTitle', 'signInToViewHistory', () => openAuthModal(), {
+                okTextKey: 'signInAction', 
+                okBtnClass: 'btn-primary'
+            });
         }
     });
 
@@ -729,7 +746,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 sidebar.classList.toggle('expanded');
             }
         } else {
-            showCustomAlert('signInRequiredTitle', 'signInToUseDiscover', () => openAuthModal());
+            showCustomAlert('signInRequiredTitle', 'signInToUseDiscover', () => openAuthModal(), {
+                okTextKey: 'signInAction',
+                okBtnClass: 'btn-primary'
+            });
         }
     });
 
@@ -737,7 +757,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (auth.currentUser) {
             showCustomAlert('Notifications', 'The Notifications feature is coming soon!');
         } else {
-            showCustomAlert('signInRequiredTitle', 'signInToUseNotifications', () => openAuthModal());
+            showCustomAlert('signInRequiredTitle', 'signInToUseNotifications', () => openAuthModal(), {
+                okTextKey: 'signInAction',
+                okBtnClass: 'btn-primary'
+            });
         }
     });
 
