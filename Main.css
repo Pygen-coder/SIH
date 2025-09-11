@@ -737,10 +737,46 @@ body.light-mode .file-info {
     align-self: flex-start;
     border-bottom-left-radius: 4px;
     max-width: 100%;
+    position: relative;
+    padding-bottom: 35px;
 }
 
 body.light-mode .bot-message {
     background-color: var(--lm-bg-tertiary);
+    color: var(--lm-text-primary);
+}
+
+.copy-btn {
+    position: absolute;
+    bottom: 5px;
+    left: 8px;
+    background: none;
+    border: none;
+    color: var(--dm-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    font-size: 0.8rem;
+    opacity: 1;
+    transition: color 0.2s;
+    z-index: 1;
+}
+
+.copy-btn:hover {
+    color: var(--dm-text-primary);
+}
+
+.copy-btn .fa-check {
+    color: #22C55E;
+}
+
+body.light-mode .copy-btn {
+    color: var(--lm-text-secondary);
+}
+
+body.light-mode .copy-btn:hover {
     color: var(--lm-text-primary);
 }
 
@@ -1338,16 +1374,17 @@ body.light-mode .auth-card input {
     position: absolute;
     top: 0;
     transition: all .5s cubic-bezier(.76, 0, .24, 1);
-    width: 50%
 }
 
 .sign-in-container {
     left: 0;
+    width: 50%;
     z-index: 2
 }
 
 .sign-up-container {
     left: 0;
+    width: 50%;
     opacity: 0;
     z-index: 1;
     pointer-events: none
@@ -1436,11 +1473,11 @@ body.light-mode .google-login-btn:hover {
     font-size: 18px
 }
 
+/* --- Panel Switching Logic --- */
+
 .auth-card.right-panel-active .sign-in-container {
     transform: translateX(100%);
     opacity: 0;
-    z-index: 1;
-    pointer-events: none
 }
 
 .auth-card.right-panel-active .sign-up-container {
@@ -1477,7 +1514,7 @@ body.light-mode .google-login-btn:hover {
     display: none
 }
 
-.welcome-modal-overlay {
+.welcome-modal-overlay, .profile-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -1495,12 +1532,12 @@ body.light-mode .google-login-btn:hover {
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.welcome-modal-overlay.visible {
+.welcome-modal-overlay.visible, .profile-modal-overlay.visible {
     opacity: 1;
     visibility: visible;
 }
 
-.welcome-modal {
+.welcome-modal, .profile-modal {
     background-color: var(--dm-bg-secondary);
     padding: 24px 32px;
     border-radius: 16px;
@@ -1512,17 +1549,19 @@ body.light-mode .google-login-btn:hover {
     transform: scale(0.95);
     transition: transform 0.3s ease;
 }
-.welcome-modal-overlay.visible .welcome-modal {
+.welcome-modal-overlay.visible .welcome-modal, 
+.profile-modal-overlay.visible .profile-modal {
     transform: scale(1);
 }
 
-body.light-mode .welcome-modal {
+body.light-mode .welcome-modal, 
+body.light-mode .profile-modal {
     background-color: var(--lm-bg-secondary);
     border-color: var(--lm-border);
     box-shadow: 0 10px 30px var(--dm-shadow-light);
 }
 
-.close-welcome-modal {
+.close-welcome-modal, .close-profile-modal {
     position: absolute;
     top: 12px;
     right: 12px;
@@ -1533,7 +1572,7 @@ body.light-mode .welcome-modal {
     cursor: pointer;
 }
 
-.welcome-modal h2 {
+.welcome-modal h2, .profile-modal h2 {
     margin-top: 0;
     font-family: 'Montserrat', sans-serif;
 }
@@ -1593,7 +1632,7 @@ body.light-mode .welcome-modal-actions .btn-secondary:hover {
      background-color: var(--lm-bg-tertiary);
 }
 
-.welcome-modal-actions .btn-primary {
+.welcome-modal-actions .btn-primary, .profile-form .btn-primary {
     background: var(--accent-primary);
     border: 1px solid var(--accent-primary);
     color: white;
@@ -1602,13 +1641,97 @@ body.light-mode .welcome-modal-actions .btn-secondary:hover {
     cursor: pointer;
     font-weight: 500;
     transition: background-color 0.2s;
+    width: 100%;
 }
-.welcome-modal-actions .btn-primary:hover {
+.welcome-modal-actions .btn-primary:hover, .profile-form .btn-primary:hover {
     background: var(--accent-secondary);
+}
+.profile-form .btn-primary {
+    margin-top: 16px;
+    padding: 12px 20px;
+    font-size: 1rem;
 }
 
 .hidden {
     display: none;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.profile-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-form .form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.profile-form .form-row .form-group {
+    flex: 1;
+}
+
+.profile-form label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--dm-text-secondary);
+}
+
+body.light-mode .profile-form label {
+     color: var(--lm-text-secondary);
+}
+
+.profile-form input, .profile-form select {
+    background-color: var(--dm-bg-primary);
+    border: 1px solid var(--dm-border);
+    color: var(--dm-text-primary);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+.profile-form input:disabled {
+    background-color: var(--dm-bg-tertiary);
+    cursor: not-allowed;
+}
+
+body.light-mode .profile-form input, body.light-mode .profile-form select {
+    background-color: var(--lm-bg-tertiary);
+    border-color: var(--lm-border);
+    color: var(--lm-text-primary);
+}
+
+/* Hide arrows from number input */
+.profile-form input[type=number]::-webkit-inner-spin-button,
+.profile-form input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.profile-form input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Custom styling for select dropdown */
+.profile-form select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em;
+    padding-right: 2.5rem;
+}
+
+body.light-mode .profile-form select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
 }
 
 .panel-section {
@@ -1945,6 +2068,90 @@ body.light-mode .delete-chat-btn:hover {
     background-color: var(--lm-bg-tertiary);
 }
 
+.action-btn-floating {
+    position: absolute;
+    bottom: 20px;
+    left: -300px; /* 64px sidebar + 20px margin */
+    width: auto;
+    height: 44px;
+    border-radius: 9999px; /* Pill shape */
+    background-color: var(--dm-bg-tertiary);
+    color: var(--dm-text-secondary);
+    border: 1px solid var(--dm-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px var(--dm-shadow-dark);
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s, border-color 0.2s;
+    z-index: 50;
+}
+
+.action-btn-floating:hover {
+    transform: translateY(-2px);
+    background-color: var(--dm-bg-primary);
+    color: var(--dm-text-primary);
+    border-color: var(--accent-primary);
+}
+
+body.light-mode .action-btn-floating {
+    background-color: var(--lm-bg-tertiary);
+    color: var(--lm-text-secondary);
+    border-color: var(--lm-border);
+    box-shadow: 0 4px 12px var(--dm-shadow-light);
+}
+
+body.light-mode .action-btn-floating:hover {
+    background-color: #fff;
+    color: var(--lm-text-primary);
+    border-color: var(--accent-primary);
+}
+
+.action-btn-floating.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* PDF Export Styles */
+.pdf-export-mode {
+    background-color: #ffffff !important;
+}
+
+.pdf-export-mode .message {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0;
+}
+
+.pdf-export-mode .bot-message {
+    background-color: #f1f5f9 !important;
+    color: #1f2937 !important;
+}
+
+.pdf-export-mode .user-message {
+    background-color: #dbeafe !important;
+    color: #1e40af !important;
+}
+
+.pdf-export-mode .user-message .chat-file-preview {
+    background-color: rgba(30, 64, 175, 0.1) !important;
+}
+
+.pdf-export-mode .user-message .chat-file-name,
+.pdf-export-mode .user-message .chat-file-thumbnail i {
+    color: #1e40af !important;
+}
+
+.no-print {
+    display: none !important;
+}
 
 @media (max-width: 960px) {
     .explore-section {
@@ -1962,4 +2169,8 @@ body.light-mode .delete-chat-btn:hover {
     .sidebar.expanded .sidebar-divider, .sidebar.expanded .sidebar-panel {
         display: none;
     }
+    .action-btn-floating {
+        bottom: 140px;
+    }
 }
+

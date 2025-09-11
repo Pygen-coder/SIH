@@ -195,6 +195,14 @@
         pointer-events: none;
         border: none;
     }
+
+    .action-btn-floating {
+        bottom: 85px;
+        left: 16px;
+        width: auto;
+        height: 44px;
+        font-size: 0.9rem;
+    }
     .search-actions-left, .search-actions-right { pointer-events: auto; }
     #camera-btn { display: none; }
     .action-btn span { display: none; }
@@ -223,30 +231,35 @@
     }
     .overlay-container { display: none; }
     .mobile-switch-link { display: block; }
+
     .sign-in-container {
         opacity: 1;
         pointer-events: auto;
         z-index: 2;
+        transform: rotateY(0deg);
     }
-    .sign-up-container {
+    .sign-up-container, .otp-container {
         opacity: 0;
         pointer-events: none;
         z-index: 1;
         transform: rotateY(180deg); 
     }
-    .auth-card.right-panel-active .sign-in-container {
+    .auth-card.right-panel-active .sign-in-container,
+    .auth-card.otp-active .sign-in-container {
         opacity: 0;
         pointer-events: none;
         z-index: 1;
         transform: rotateY(-180deg); 
     }
-    .auth-card.right-panel-active .sign-up-container {
+    .auth-card.right-panel-active .sign-up-container,
+    .auth-card.otp-active .otp-container {
         opacity: 1;
         pointer-events: auto;
         z-index: 2;
         transform: rotateY(0deg); 
         animation: none;
     }
+
     .mobile-accent-slider { display: none; }
     .mobile-accent-slider.is-animating {
         animation: slide-up-and-out .9s cubic-bezier(.76, 0, .24, 1);

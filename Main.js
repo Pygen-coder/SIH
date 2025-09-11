@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let unsubscribeHistory = null;
     let conversationHistory = [];
 
+    // --- DOM Element Selectors ---
     const sidebar = document.getElementById('sidebar');
     const mainInterface = document.getElementById('main-interface');
     const chatMessages = document.getElementById('chat-messages');
@@ -38,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const micIcon = micBtn.querySelector('i');
     const profileBtnText = document.getElementById('profile-btn-text');
-    const exploreCards = document.querySelectorAll('.explore-card');
     const newThreadBtn = document.getElementById('new-thread-btn');
     const homeBtn = document.getElementById('home-btn');
     const cameraModal = document.getElementById('camera-modal');
@@ -46,9 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cameraCanvas = document.getElementById('camera-canvas');
     const captureBtn = document.getElementById('capture-btn');
     const closeCameraBtn = document.getElementById('close-camera-btn');
-    const historySection = document.getElementById('history-section');
     const historyList = document.getElementById('history-list');
-    const discoverSection = document.getElementById('discover-section');
     const discoverItems = document.querySelectorAll('.discover-item');
     const customAlertOverlay = document.getElementById('custom-alert-overlay');
     const customAlertTitle = document.getElementById('custom-alert-title');
@@ -78,8 +76,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const googleSigninBtn = document.getElementById('google-signin-btn');
     const deleteHistoryBtn = document.getElementById('delete-history-btn');
     const deleteHistoryDropdown = document.getElementById('delete-history-dropdown');
-    const genderModalOverlay = document.getElementById('gender-modal-overlay');
-    const genderModalForm = document.getElementById('gender-modal-form');
+    const myProfileLink = document.getElementById('my-profile-link');
+    const workerLoginLink = document.getElementById('worker-login-link');
+    const profileModalOverlay = document.getElementById('profile-modal-overlay');
+    const closeProfileModalBtn = document.getElementById('close-profile-modal');
+    const profileForm = document.getElementById('profile-form');
+    const profileNameInput = document.getElementById('profile-name');
+    const profileEmailInput = document.getElementById('profile-email');
+    const profilePhoneInput = document.getElementById('profile-phone');
+    const profileAgeInput = document.getElementById('profile-age');
+    const profileGenderInput = document.getElementById('profile-gender');
+    const shareChatBtn = document.getElementById('share-chat-btn');
 
     const API_KEY = "AIzaSyBolo_dfR-aHyjmvNpTSuAZb2D3LfQi-48";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
@@ -95,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (attr) {
                 el.setAttribute(attr, translation);
             } else {
-                el.textContent = translation;
+                if(translation) el.textContent = translation;
             }
         });
         updateMicIcon();
@@ -110,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const activateChatView = () => {
         if (!mainInterface.classList.contains('chat-active')) {
             mainInterface.classList.add('chat-active');
+            shareChatBtn.classList.remove('hidden');
         }
     };
 
@@ -117,6 +125,147 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.style.height = 'auto';
         userInput.style.height = `${userInput.scrollHeight}px`;
         updateMicIcon();
+    });
+    
+    // --- Profile Modal Logic ---
+    const openProfileModal = async () => {
+        const user = auth.currentUser;
+        if (!user || !profileModalOverlay) return;
+
+        profileNameInput.value = user.displayName || '';
+        profileEmailInput.value = user.email || '';
+
+        const userDocRef = db.collection('users').doc(user.uid);
+        const userDoc = await userDocRef.get();
+        if (userDoc.exists) {
+            const data = userDoc.data();
+            profilePhoneInput.value = data.phone || '';
+            profileAgeInput.value = data.age || '';
+            profileGenderInput.value = data.gender || 'male';
+        }
+
+        profileModalOverlay.classList.remove('hidden');
+        profileModalOverlay.classList.add('visible');
+    };
+
+    const closeProfileModal = () => {
+        if (!profileModalOverlay) return;
+        profileModalOverlay.classList.remove('visible');
+        setTimeout(() => {
+            profileModalOverlay.classList.add('hidden');
+        }, 300);
+    };
+
+    const handleProfileFormSubmit = async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const name = profileNameInput.value;
+        const phone = profilePhoneInput.value;
+        const age = profileAgeInput.value;
+        const gender = profileGenderInput.value;
+
+        try {
+            if (user.displayName !== name) {
+                await user.updateProfile({ displayName: name });
+            }
+
+            const userDocRef = db.collection('users').doc(user.uid);
+            await userDocRef.set({
+                displayName: name,
+                email: user.email,
+                phone: phone,
+                age: age,
+                gender: gender
+            }, { merge: true });
+
+            updateUserProfileUI(auth.currentUser);
+            closeProfileModal();
+            showCustomAlert('myProfileTitle', 'profileUpdatedMessage', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
+
+        } catch (error) {
+            console.error("Error updating profile: ", error);
+            showCustomAlert('Error', 'Failed to update profile. Please try again.');
+        }
+    };
+
+    myProfileLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        openProfileModal();
+        profileDropdown.classList.remove('show');
+    });
+    closeProfileModalBtn.addEventListener('click', closeProfileModal);
+    profileForm.addEventListener('submit', handleProfileFormSubmit);
+
+    let onAlertOk = null;
+
+    function showCustomAlert(titleKey, messageKey, onOkCallback, options = {}) {
+        if (!customAlertOverlay) return;
+
+        const {
+            okTextKey = 'deleteAction',
+            okBtnClass = 'btn-danger'
+        } = options;
+
+        customAlertTitle.textContent = translations[currentLanguage][titleKey] || titleKey;
+        customAlertMessage.textContent = translations[currentLanguage][messageKey] || messageKey;
+        
+        const okText = translations[currentLanguage][okTextKey] || okTextKey;
+        customAlertOkBtn.textContent = okText;
+        customAlertOkBtn.className = '';
+        customAlertOkBtn.classList.add(okBtnClass);
+
+        if (onOkCallback) {
+            onAlertOk = onOkCallback;
+            customAlertOkBtn.style.display = 'inline-block';
+            customAlertCancelBtn.style.display = 'inline-block';
+        } else {
+            onAlertOk = null;
+            customAlertOkBtn.style.display = 'inline-block';
+            customAlertCancelBtn.style.display = 'none';
+        }
+
+        customAlertOverlay.classList.remove('hidden');
+        customAlertOverlay.classList.add('visible');
+    }
+
+    function closeCustomAlert() {
+        if (!customAlertOverlay) return;
+        customAlertOverlay.classList.remove('visible');
+        setTimeout(() => {
+            customAlertOverlay.classList.add('hidden');
+            customAlertOkBtn.style.display = 'inline-block';
+            customAlertCancelBtn.style.display = 'inline-block';
+        }, 300);
+        onAlertOk = null;
+    }
+
+    if (customAlertCancelBtn) {
+        customAlertCancelBtn.addEventListener('click', closeCustomAlert);
+    }
+    if (customAlertOkBtn) {
+        customAlertOkBtn.addEventListener('click', () => {
+            if (typeof onAlertOk === 'function') {
+                onAlertOk();
+            }
+            closeCustomAlert();
+        });
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+        updateUserProfileUI(user);
+        if (user) {
+            profileDropdown.classList.remove('show');
+            if (authContainer) authContainer.classList.remove('show');
+
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (!userDoc.exists || !userDoc.data().age || !userDoc.data().gender) {
+                setTimeout(openProfileModal, 1500);
+            }
+        } else {
+            setTimeout(showWelcomeModal, 2000);
+        }
     });
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -277,55 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loginBtnDropdown.addEventListener('click', () => { openAuthModal(false); profileDropdown.classList.remove('show'); });
     signupBtnDropdown.addEventListener('click', () => { openAuthModal(true); profileDropdown.classList.remove('show'); });
 
-    let onAlertOk = null;
-
-    function showCustomAlert(titleKey, messageKey, onOkCallback, options = {}) {
-        if (!customAlertOverlay) return;
-
-        const {
-            okTextKey = 'deleteAction',
-            okBtnClass = 'btn-danger'
-        } = options;
-
-        customAlertTitle.textContent = translations[currentLanguage][titleKey] || "Alert";
-        customAlertMessage.textContent = translations[currentLanguage][messageKey] || "";
-
-        customAlertOkBtn.textContent = translations[currentLanguage][okTextKey];
-        customAlertOkBtn.className = okBtnClass;
-
-        if (onOkCallback) {
-            onAlertOk = onOkCallback;
-            customAlertOkBtn.style.display = 'inline-block';
-        } else {
-            onAlertOk = null;
-            customAlertOkBtn.style.display = 'none';
-        }
-
-        customAlertOverlay.classList.remove('hidden');
-        customAlertOverlay.classList.add('visible');
-    }
-
-    function closeCustomAlert() {
-        if (!customAlertOverlay) return;
-        customAlertOverlay.classList.remove('visible');
-        setTimeout(() => {
-            customAlertOverlay.classList.add('hidden');
-        }, 300);
-        onAlertOk = null;
-    }
-
-    if (customAlertCancelBtn) {
-        customAlertCancelBtn.addEventListener('click', closeCustomAlert);
-    }
-    if (customAlertOkBtn) {
-        customAlertOkBtn.addEventListener('click', () => {
-            if (typeof onAlertOk === 'function') {
-                onAlertOk();
-            }
-            closeCustomAlert();
-        });
-    }
-
     function showWelcomeModal() {
         if (!welcomeModalOverlay) return;
         welcomeModalOverlay.classList.remove('hidden');
@@ -376,16 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
             startNewChat();
         }
     }
-    auth.onAuthStateChanged(user => {
-        updateUserProfileUI(user);
-        if (user) {
-            profileDropdown.classList.remove('show');
-            if (authContainer) authContainer.classList.remove('show');
-        } else {
-            setTimeout(showWelcomeModal, 2000);
-        }
-    });
-
+    
     signupForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = signupForm['signup-name'].value;
@@ -440,6 +531,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         messageElement.innerHTML = contentHTML;
         messageElement.appendChild(p);
+        
+        if (sender === 'bot') {
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.title = 'Copy message';
+            const copyText = translations[currentLanguage].copyAction || 'Copy';
+            copyBtn.innerHTML = `<i class="fa-solid fa-copy"></i><span>${copyText}</span>`;
+            
+            copyBtn.addEventListener('click', () => {
+                const textToCopy = messageElement.querySelector('p').innerText;
+                const copiedText = translations[currentLanguage].copiedAction || 'Copied';
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    copyBtn.innerHTML = `<i class="fa-solid fa-check"></i><span>${copiedText}</span>`;
+                    setTimeout(() => {
+                        copyBtn.innerHTML = `<i class="fa-solid fa-copy"></i><span>${copyText}</span>`;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            });
+            messageElement.appendChild(copyBtn);
+        }
+        
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return messageElement;
@@ -535,6 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.innerHTML = '';
         conversationHistory = [];
         mainInterface.classList.remove('chat-active');
+        shareChatBtn.classList.add('hidden');
         
         const mainTitle = document.querySelector('.main-title');
         const headerTitle = document.getElementById('header-title');
@@ -755,13 +870,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     notificationBtn.addEventListener('click', () => {
         if (auth.currentUser) {
-            showCustomAlert('Notifications', 'The Notifications feature is coming soon!');
+            showCustomAlert('Notifications', 'The Notifications feature is coming soon!', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
         } else {
             showCustomAlert('signInRequiredTitle', 'signInToUseNotifications', () => openAuthModal(), {
                 okTextKey: 'signInAction',
                 okBtnClass: 'btn-primary'
             });
         }
+    });
+
+    workerLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showCustomAlert('Coming Soon', 'The "Worker Login" portal is under development!', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
     });
 
     homeBtn.addEventListener('click', (e) => {
@@ -778,7 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleSendMessage();
                 sidebar.classList.remove('expanded');
             } else if (feature) {
-                showCustomAlert('Coming Soon', `The "${feature}" feature is under development!`);
+                showCustomAlert('Coming Soon', `The "${feature}" feature is under development!`, null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
             }
         });
     });
@@ -954,7 +1074,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         await Promise.all(deletePromises);
     }
+    
+    const shareChatAsPDF = async () => {
+        const chatContainer = document.getElementById('chat-messages');
+        if (chatContainer.children.length === 0) return;
 
-    const savedLang = localStorage.getItem('remediLang') || 'en';
-    setLanguage(savedLang);
+        const originalIcon = shareChatBtn.innerHTML;
+        shareChatBtn.innerHTML = '<i class="fa-solid fa-spinner"></i>';
+        shareChatBtn.classList.add('loading');
+        shareChatBtn.disabled = true;
+
+        chatContainer.classList.add('pdf-export-mode');
+        document.querySelectorAll('.copy-btn').forEach(btn => btn.classList.add('no-print'));
+
+        try {
+            const options = {
+                margin:       [0.5, 0.5, 0.5, 0.5],
+                filename:     `Remedi-Chat-${new Date().toISOString().split('T')[0]}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            const pdfBlob = await html2pdf().from(chatContainer).set(options).output('blob');
+            const pdfFile = new File([pdfBlob], options.filename, { type: 'application/pdf' });
+            
+            if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                await navigator.share({
+                    title: 'Remedi Chat History',
+                    text: 'Here is my chat history from Remedi.',
+                    files: [pdfFile]
+                });
+            } else {
+                html2pdf().from(chatContainer).set(options).save();
+            }
+        } catch (error) {
+            console.error('Error generating or sharing PDF:', error);
+            const options = {
+                margin:       [0.5, 0.5, 0.5, 0.5],
+                filename:     `Remedi-Chat-${new Date().toISOString().split('T')[0]}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(chatContainer).set(options).save();
+        } finally {
+            shareChatBtn.innerHTML = originalIcon;
+            shareChatBtn.classList.remove('loading');
+            shareChatBtn.disabled = false;
+            chatContainer.classList.remove('pdf-export-mode');  
+            document.querySelectorAll('.copy-btn').forEach(btn => btn.classList.remove('no-print'));
+        }
+    };
+    
+    shareChatBtn.addEventListener('click', shareChatAsPDF);
 });
