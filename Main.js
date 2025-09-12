@@ -87,6 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileAgeInput = document.getElementById('profile-age');
     const profileGenderInput = document.getElementById('profile-gender');
     const shareChatBtn = document.getElementById('share-chat-btn');
+    const preChatSuggestions = document.getElementById('pre-chat-suggestions');
+    const suggestionCardsContainer = document.getElementById('suggestion-cards');
+    const refreshSuggestionsBtn = document.getElementById('refresh-suggestions-btn');
 
     const API_KEY = "AIzaSyBolo_dfR-aHyjmvNpTSuAZb2D3LfQi-48";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
@@ -118,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mainInterface.classList.contains('chat-active')) {
             mainInterface.classList.add('chat-active');
             shareChatBtn.classList.remove('hidden');
+            suggestionCardsContainer.innerHTML = `<p class="suggestions-placeholder">Click refresh for new Suggestions.</p>`;
         }
     };
 
@@ -127,6 +131,109 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMicIcon();
     });
     
+    const renderSuggestions = (suggestions) => {
+        suggestionCardsContainer.innerHTML = '';
+        if (suggestions.length === 0) {
+            preChatSuggestions.classList.add('hidden');
+            return;
+        }
+        suggestions.forEach(text => {
+            const card = document.createElement('button');
+            card.className = 'suggestion-card';
+            card.textContent = text;
+            card.addEventListener('click', () => {
+                userInput.value = text;
+                handleSendMessage();
+            });
+            suggestionCardsContainer.appendChild(card);
+        });
+        preChatSuggestions.classList.remove('hidden');
+    };
+    
+    const getSuggestionsFromAI = async (gender, age) => {
+        const prompt = `You are a health assistant. Generate 5 short, one-sentence health-related questions that a ${age}-year-old ${gender} in rural India might ask. Examples: 'What are the symptoms of diabetes?', 'How can I reduce stress?'. Respond ONLY with the questions, separated by a pipe | character. Do not include any other text, numbers, or bullet points.`;
+        const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) return [];
+            const data = await response.json();
+            const text = data.candidates[0].content.parts[0].text;
+            return text.split('|').map(s => s.trim()).filter(s => s);
+        } catch (error) {
+            console.error("Error fetching suggestions:", error);
+            return [];
+        }
+    };
+
+    const updateUserSuggestionsInDB = async (uid, gender, age) => {
+        const newSuggestions = await getSuggestionsFromAI(gender, age);
+        if (newSuggestions.length > 0) {
+            const userDocRef = db.collection('users').doc(uid);
+            await userDocRef.set({
+                suggestions: {
+                    prompts: newSuggestions,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }
+            }, { merge: true });
+        }
+        return newSuggestions;
+    };
+
+    const displayPreChatSuggestions = async () => {
+        const user = auth.currentUser;
+        if (user) {
+            const userDocRef = db.collection('users').doc(user.uid);
+            const userDoc = await userDocRef.get();
+            
+            if (userDoc.exists) {
+                const data = userDoc.data();
+                const savedSuggestions = data.suggestions;
+
+                if (savedSuggestions && savedSuggestions.prompts && savedSuggestions.timestamp) {
+                    renderSuggestions(savedSuggestions.prompts);
+
+                    const now = new Date();
+                    const suggestionDate = savedSuggestions.timestamp.toDate();
+                    const hoursDiff = (now - suggestionDate) / (1000 * 60 * 60);
+
+                    if (hoursDiff > 24) {
+                        updateUserSuggestionsInDB(user.uid, data.gender || 'person', data.age || 30);
+                    }
+                } else {
+                    const newSuggestions = await updateUserSuggestionsInDB(user.uid, data.gender || 'person', data.age || 30);
+                    renderSuggestions(newSuggestions);
+                }
+            }
+        } else {
+            renderSuggestions(["What are common symptoms of fever?", "How can I improve my diet?", "First aid for a minor cut", "Benefits of regular exercise"]);
+        }
+    };
+    
+    const fetchNewSuggestionsForSession = async () => {
+        refreshSuggestionsBtn.classList.add('loading');
+        const user = auth.currentUser;
+        let gender = 'person';
+        let age = 30;
+        if (user) {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                const data = userDoc.data();
+                gender = data.gender || 'person';
+                age = data.age || 30;
+            }
+        }
+        const suggestions = await getSuggestionsFromAI(gender, age);
+        renderSuggestions(suggestions);
+        refreshSuggestionsBtn.classList.remove('loading');
+    };
+
+    refreshSuggestionsBtn.addEventListener('click', fetchNewSuggestionsForSession);
+
     // --- Profile Modal Logic ---
     const openProfileModal = async () => {
         const user = auth.currentUser;
@@ -179,6 +286,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 age: age,
                 gender: gender
             }, { merge: true });
+            
+            updateUserSuggestionsInDB(user.uid, gender, age);
 
             updateUserProfileUI(auth.currentUser);
             closeProfileModal();
@@ -255,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     auth.onAuthStateChanged(async (user) => {
         updateUserProfileUI(user);
+        displayPreChatSuggestions();
         if (user) {
             profileDropdown.classList.remove('show');
             if (authContainer) authContainer.classList.remove('show');
@@ -509,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
     googleSigninBtn.addEventListener('click', handleGoogleSignIn);
     logoutLink.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
 
-    function addMessage(text, sender, file = null, shouldAnimate = true) {
+    function addMessage(text, sender, file = null, shouldAnimate = true, suggestions = []) {
         const messageElement = document.createElement('div');
         messageElement.className = `message ${sender}-message`;
         if(!shouldAnimate) messageElement.style.animation = 'none';
@@ -552,6 +662,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
             messageElement.appendChild(copyBtn);
+
+            if (suggestions.length > 0) {
+                const suggestionsContainer = document.createElement('div');
+                suggestionsContainer.className = 'suggested-questions-container';
+                suggestions.forEach(suggestionText => {
+                    const suggestionBtn = document.createElement('button');
+                    suggestionBtn.className = 'suggested-question';
+                    suggestionBtn.textContent = suggestionText;
+                    suggestionBtn.addEventListener('click', () => {
+                        userInput.value = suggestionText;
+                        handleSendMessage();
+                        suggestionsContainer.remove(); 
+                    });
+                    suggestionsContainer.appendChild(suggestionBtn);
+                });
+                messageElement.appendChild(suggestionsContainer);
+            }
         }
         
         chatMessages.appendChild(messageElement);
@@ -559,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return messageElement;
     }
 
-    function typeWriter(element, text, speed = 20, callback) {
+    function typeWriter(element, text, speed = 15, callback) {
         let i = 0;
         let currentText = '';
         const cursor = '<span class="typing-cursor">▋</span>';
@@ -599,8 +726,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!user || !chatId) return;
         const chatRef = db.collection('users').doc(user.uid).collection('chats').doc(chatId);
         await chatRef.collection('messages').add(message);
+        const mainText = message.text.split('[SUGGESTIONS]')[0].trim();
         await chatRef.set({
-            lastMessage: message.text.substring(0, 40),
+            lastMessage: mainText.substring(0, 40),
             timestamp: message.timestamp
         }, { merge: true });
     }
@@ -609,7 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let langInstruction = '';
         if (currentLanguage === 'hi') langInstruction = 'IMPORTANT: You must respond in Hindi.';
         else if (currentLanguage === 'or') langInstruction = 'IMPORTANT: You must respond in Odia.';
-        const systemPrompt = `${langInstruction} You are an AI Personal Health Companion for rural citizens of Odisha, India. **Your Persona & Style:** 1. **Warm and Empathetic:** Your tone must be caring, friendly, and human-like. When a user mentions they are feeling unwell, ALWAYS start with an empathetic response first. 2. **Detailed and Clear:** Always give detailed explanations. When you list symptoms or advice, don't just state the point. Explain it in a simple, easy-to-understand sentence. For example, instead of just "Fever," say "1. **Fever:** You might feel hotter than usual as this is your body's natural way of fighting off an infection." 3. **Structured Formatting:** Use clean, numbered lists (1., 2., 3., etc.) for advice or symptoms. **Crucially, add an extra line break between each number** to ensure there is clear spacing, making the list very easy to read. 4. **Subtle Emojis:** Use emojis sparingly to add a touch of friendliness to your conversation. **Do not use emojis as bullet points for lists.** The numbered list format is what you should use. **Core Guidelines (Safety First!):** 1. **Primary Focus on Health**: Your main purpose is to answer health-related questions. 2. **Handling Off-Topic Questions**: If the user asks about something unrelated to health, politely decline. 3. **Disclaimer is Crucial**: ALWAYS include this clear, bold disclaimer at the beginning of any detailed health advice: "**Disclaimer: This information is for educational purposes only and is not a substitute for professional medical advice. Please consult a qualified doctor for any health concerns.**" 4. **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages. 5. **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center.`;
+        const systemPrompt = `${langInstruction} You are an AI Personal Health Companion for rural citizens of Odisha, India. Your name is Remedi. **Your Persona & Style:** 1. **Warm and Empathetic:** Your tone must be caring, friendly, and human-like. When a user mentions they are feeling unwell, ALWAYS start with an empathetic response first. 2. **Detailed and Clear:** Always give detailed explanations. When you list symptoms or advice, don't just state the point. Explain it in a simple, easy-to-understand sentence. For example, instead of just "Fever," say "1. **Fever:** You might feel hotter than usual as this is your body's natural way of fighting off an infection." 3. **Structured Formatting:** Use clean, numbered lists (1., 2., 3., etc.) for advice or symptoms. **Crucially, add an extra line break between each number** to ensure there is clear spacing, making the list very easy to read. 4. **Subtle Emojis:** Use emojis sparingly to add a touch of friendliness to your conversation. **Do not use emojis as bullet points for lists.** The numbered list format is what you should use. **Core Guidelines (Safety First!):** 1. **Primary Focus on Health**: Your main purpose is to answer health-related questions. 2. **Handling Off-Topic Questions**: If the user asks about something unrelated to health, politely decline. 3. **Disclaimer is Crucial**: ALWAYS include this clear, bold disclaimer at the beginning of any detailed health advice: "**Disclaimer: This information is for educational purposes only and is not a substitute for professional medical advice. Please consult a qualified doctor for any health concerns.**" 4. **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages. 5. **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center. After your main response, you MUST provide 2-3 relevant, short, one-sentence follow-up questions a user might ask next. Format them strictly like this, with no extra text: [SUGGESTIONS]How can I prevent this?|What are the treatment options?|Where is the nearest clinic?[/SUGGESTIONS]`;
         const payload = { contents: chatHistory, systemInstruction: { parts: [{ text: systemPrompt }] } };
         
         try {
@@ -655,6 +783,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const headerTitle = document.getElementById('header-title');
         if (mainTitle) mainTitle.classList.remove('disappearing');
         if (headerTitle) headerTitle.classList.remove('visible');
+        
+        displayPreChatSuggestions();
     }
 
     async function handleSendMessage() {
@@ -693,15 +823,38 @@ document.addEventListener('DOMContentLoaded', () => {
         showTypingIndicator();
         userInput.disabled = true;
         micBtn.disabled = true;
+
         const botResponse = await getBotResponse(conversationHistory);
+        
+        let mainResponse = botResponse;
+        let suggestions = [];
+        const suggestionRegex = /\[SUGGESTIONS\](.*?)\[\/SUGGESTIONS\]/s;
+        const match = botResponse.match(suggestionRegex);
+
+        if (match && match[1]) {
+            mainResponse = botResponse.replace(suggestionRegex, '').trim();
+            suggestions = match[1].split('|').map(s => s.trim()).filter(s => s);
+        }
+
         conversationHistory.push({ role: 'model', parts: [{ text: botResponse }] });
         if(user && currentChatId){
             saveMessage(currentChatId, { text: botResponse, sender: 'bot', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         }
+        
         removeTypingIndicator();
-        const botMessageBubble = addMessage('', 'bot');
+        const botMessageBubble = addMessage('', 'bot', null, true, suggestions);
         const p_element = botMessageBubble.querySelector('p');
-        typeWriter(p_element, botResponse, 20, () => {
+        const suggestionsContainer = botMessageBubble.querySelector('.suggested-questions-container');
+
+        if (suggestionsContainer) {
+            suggestionsContainer.style.display = 'none';
+        }
+
+        typeWriter(p_element, mainResponse, 15, () => {
+            if (suggestionsContainer) {
+                suggestionsContainer.style.display = 'flex';
+                suggestionsContainer.classList.add('fade-in');
+            }
             userInput.disabled = false;
             micBtn.disabled = false;
             userInput.focus();
@@ -986,7 +1139,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const snapshot = await messagesQuery.get();
         snapshot.forEach(doc => {
             const msg = doc.data();
-            addMessage(msg.text, msg.sender, null, false);
+            let mainText = msg.text;
+
+            if (msg.sender === 'bot') {
+                const suggestionRegex = /\[SUGGESTIONS\](.*?)\[\/SUGGESTIONS\]/s;
+                mainText = mainText.replace(suggestionRegex, '').trim();
+            }
+
+            addMessage(mainText, msg.sender, null, false);
             conversationHistory.push({ role: msg.sender === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] });
         });
     }
@@ -1085,7 +1245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         shareChatBtn.disabled = true;
 
         chatContainer.classList.add('pdf-export-mode');
-        document.querySelectorAll('.copy-btn').forEach(btn => btn.classList.add('no-print'));
+        document.querySelectorAll('.copy-btn, .suggested-questions-container').forEach(el => el.classList.add('no-print'));
 
         try {
             const options = {
@@ -1123,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
             shareChatBtn.classList.remove('loading');
             shareChatBtn.disabled = false;
             chatContainer.classList.remove('pdf-export-mode');  
-            document.querySelectorAll('.copy-btn').forEach(btn => btn.classList.remove('no-print'));
+            document.querySelectorAll('.copy-btn, .suggested-questions-container').forEach(el => el.classList.remove('no-print'));
         }
     };
     
