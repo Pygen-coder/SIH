@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mainInterface.classList.contains('chat-active')) {
             mainInterface.classList.add('chat-active');
             shareChatBtn.classList.remove('hidden');
-            suggestionCardsContainer.innerHTML = `<p class="suggestions-placeholder">${t('refreshSuggestionsPrompt')}</p>`;
         }
     };
 
@@ -165,7 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     const getSuggestionsFromAI = async (gender, age) => {
-        const prompt = `You are a health assistant. Generate 5 short, one-sentence health-related questions that a ${age}-year-old ${gender} in rural India might ask. Examples: 'What are the symptoms of diabetes?', 'How can I reduce stress?'. Respond ONLY with the questions, separated by a pipe | character. Do not include any other text, numbers, or bullet points.`;
+        let languageName = 'English';
+        if (currentLanguage === 'hi') {
+            languageName = 'Hindi';
+        } else if (currentLanguage === 'or') {
+            languageName = 'Odia';
+        }
+        const prompt = `You are a health assistant. Generate 5 short, one-sentence health-related questions in ${languageName} that a ${age}-year-old ${gender} in rural India might ask. Respond ONLY with the questions in ${languageName}, separated by a pipe | character. Do not include any other text, numbers, or bullet points.`;
         const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
         try {
@@ -467,9 +472,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updateUIText(lang);
         localStorage.setItem('remediLang', lang);
-        if (!auth.currentUser) {
-            profileBtnText.textContent = t('profileSignIn');
-        }
+        updateUserProfileUI(auth.currentUser);
+        displayPreChatSuggestions();
     };
 
     langDropdown.querySelectorAll('a').forEach(link => {
