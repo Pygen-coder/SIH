@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let conversationHistory = [];
     let placesAutocomplete = null;
     let currentSearchLocation = null;
+    let isPrescriptionMode = false;
 
     const sidebar = document.getElementById('sidebar');
     const mainInterface = document.getElementById('main-interface');
@@ -750,13 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { merge: true });
     }
 
-    async function getBotResponse(chatHistory) {
-        let langInstruction = '';
-        if (currentLanguage === 'hi') langInstruction = 'IMPORTANT: You must respond in Hindi.';
-        else if (currentLanguage === 'or') langInstruction = 'IMPORTANT: You must respond in Odia.';
-        const systemPrompt = `${langInstruction} You are an AI Personal Health Companion for rural citizens of Odisha, India. Your name is Remedi. **Your Persona & Style:** 1. **Warm and Empathetic:** Your tone must be caring, friendly, and human-like. When a user mentions they are feeling unwell, ALWAYS start with an empathetic response first. 2. **Detailed and Clear:** Always give detailed explanations. When you list symptoms or advice, don't just state the point. Explain it in a simple, easy-to-understand sentence. For example, instead of just "Fever," say "1. **Fever:** You might feel hotter than usual as this is your body's natural way of fighting off an infection." 3. **Structured Formatting:** Use clean, numbered lists (1., 2., 3., etc.) for advice or symptoms. **Crucially, add an extra line break between each number** to ensure there is clear spacing, making the list very easy to read. 4. **Subtle Emojis:** Use emojis sparingly to add a touch of friendliness to your conversation. **Do not use emojis as bullet points for lists.** The numbered list format is what you should use. **Core Guidelines (Safety First!):** 1. **Primary Focus on Health**: Your main purpose is to answer health-related questions. 2. **Handling Off-Topic Questions**: If the user asks about something unrelated to health, politely decline. 3. **Disclaimer is Crucial**: ALWAYS include this clear, bold disclaimer at the beginning of any detailed health advice: "**Disclaimer: This information is for educational purposes only and is not a substitute for professional medical advice. Please consult a qualified doctor for any health concerns.**" 4. **Safety First - No Prescriptions**: NEVER prescribe specific medicines or dosages. 5. **Encourage Professional Help**: Always conclude your health advice by encouraging the user to visit a nearby health center. After your main response, you MUST provide 2-3 relevant, short, one-sentence follow-up questions a user might ask next. Format them strictly like this, with no extra text: [SUGGESTIONS]How can I prevent this?|What are the treatment options?|Where is the nearest clinic?[/SUGGESTIONS]`;
-        const payload = { contents: chatHistory, systemInstruction: { parts: [{ text: systemPrompt }] } };
-        
+    async function callGeminiAPI(payload) {
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -779,6 +774,35 @@ document.addEventListener('DOMContentLoaded', () => {
             return "An error occurred. Please check the console.";
         }
     }
+
+    async function getBotResponse(chatHistory) {
+        let langInstruction = '';
+        if (currentLanguage === 'hi') langInstruction = 'IMPORTANT: You must respond in Hindi.';
+        else if (currentLanguage === 'or') langInstruction = 'IMPORTANT: You must respond in Odia.';
+        
+        const systemPrompt = `${langInstruction} You are Remedi, an AI Personal Health Companion for rural citizens in India.
+
+**Your Persona & Style:**
+1.  **Warm and Empathetic:** Your tone must be caring, friendly, and reassuring. Always start with an empathetic response if a user feels unwell (e.g., "I'm sorry to hear you're not feeling well...").
+2.  **Simple and Clear:** Explain health topics in simple, easy-to-understand language. Avoid complex medical jargon. For example, instead of "analgesic," say "pain relief medicine."
+3.  **Structured for Readability:**
+    * For any lists (like symptoms or advice), you **MUST** use a numbered format (1., 2., 3., etc.). Do not use asterisks or dashes.
+    * **CRUCIAL:** You **MUST** add an extra line break between each item in a numbered list to create clear spacing. This is very important for readability.
+    * Use emojis sparingly (like 🙏 or 😊) to add a friendly touch, but never as bullet points.
+
+**Core Safety Guidelines:**
+1.  **Disclaimer First:** For any detailed health advice, you **MUST** begin your response with this exact disclaimer: "**Disclaimer: This information is for educational purposes only and is not a substitute for professional medical advice. Please consult a qualified doctor for any health concerns.**"
+2.  **No Prescriptions:** You **MUST NOT** prescribe or suggest specific medicine names or dosages.
+3.  **Encourage Professional Help:** You **MUST** conclude your health advice by encouraging the user to visit a doctor or a nearby health center.
+4.  **Stay On-Topic:** If asked about a non-health-related topic, politely state that your purpose is to assist with health questions.
+
+**Follow-up Suggestions:**
+After your main response, you **MUST** provide 2-3 relevant, short follow-up questions a user might ask next. Format them strictly like this, with no extra text: [SUGGESTIONS]How can I prevent this?|What are the treatment options?|Where is the nearest clinic?[/SUGGESTIONS]`;
+        
+        const payload = { contents: chatHistory, systemInstruction: { parts: [{ text: systemPrompt }] } };
+        return await callGeminiAPI(payload);
+    }
+
 
     function clearAttachedFile() {
         if(attachedFile && attachedFile.previewUrl) {
@@ -878,6 +902,90 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function handlePrescriptionAnalysis(file) {
+        if (!file) {
+            isPrescriptionMode = false;
+            return;
+        }
+
+        const isFirstMessage = !mainInterface.classList.contains('chat-active');
+        if (isFirstMessage) {
+            const mainTitle = document.querySelector('.main-title');
+            const headerTitle = document.getElementById('header-title');
+            if (mainTitle) mainTitle.classList.add('disappearing');
+            if (headerTitle) headerTitle.classList.add('visible');
+        }
+
+        const user = auth.currentUser;
+        if (user && !currentChatId) {
+            const newChatRef = await db.collection('users').doc(user.uid).collection('chats').add({ started: firebase.firestore.FieldValue.serverTimestamp() });
+            currentChatId = newChatRef.id;
+        }
+        
+        activateChatView();
+        const userMessageText = t('prescriptionAnalysisRequest');
+        addMessage(userMessageText, 'user', file);
+        
+        showTypingIndicator();
+        userInput.disabled = true;
+        micBtn.disabled = true;
+
+        let langInstruction = 'English';
+        if (currentLanguage === 'hi') langInstruction = 'Hindi';
+        else if (currentLanguage === 'or') langInstruction = 'Odia';
+
+        const prompt = `Your entire response **MUST** be in ${langInstruction}. You are Remedi, an AI assistant. Your tone must be very helpful, clear, empathetic, and simple, like a caring health worker explaining things to users in rural India. Analyze the attached image of a medical prescription.
+
+**Your Task:**
+1.  Perform OCR to read all text from the image.
+2.  Start your response with a warm, reassuring sentence like "I can certainly help you understand this prescription better. Let's go through it step-by-step."
+3.  **CRITICAL:** Immediately after the opening, you **MUST** provide this exact disclaimer: "**Disclaimer: This is an AI-generated analysis and not a substitute for professional medical advice. Always consult with your doctor for any health concerns.**"
+4.  Structure the information under the following bold headings: **How to Take Your Medicines** and **What These Medicines Do**.
+5.  Under **How to Take Your Medicines**, create a **numbered list (1., 2., 3.)** for each medicine.
+    * For each medicine, provide a detailed but simple breakdown. Explain the dosage clearly (e.g., "1-0-1 means one tablet in the morning, none in the afternoon, and one at night").
+    * Explain the reason for the timing (e.g., "It is best to take this after meals to avoid stomach upset.").
+    * For antibiotics, you **must** include a sentence reminding the user to finish the entire course, even if they start feeling better.
+    * **CRUCIAL:** Add an extra line break between each numbered item for clear spacing.
+6.  Under **What These Medicines Do**, create another **numbered list (1., 2., 3.)** corresponding to the medicines above.
+    * For each medicine, provide a detailed but simple explanation. For an antibiotic, say "This is an antibiotic. Its job is to fight the germs (bacteria) in your body that are causing the infection."
+    * For a supporting medicine (like an antacid), explain *why* it's given with other medicines (e.g., "This protects your stomach from the strong effects of the other tablets.").
+    * Keep the language extremely simple and relatable.
+    * Also, add an extra line break between each item here.
+7.  Conclude with a helpful closing remark, encouraging the user to follow their doctor's advice and visit a health center if their symptoms don't improve. Add a friendly emoji.
+8.  If the image is blurry or unreadable, state that clearly instead of guessing. Do not invent information.`;
+        
+        const payload = {
+            contents: [{
+                parts: [
+                    { text: prompt },
+                    { inlineData: { mimeType: file.mimeType, data: file.data } }
+                ]
+            }]
+        };
+
+        if (user && currentChatId) {
+            saveMessage(currentChatId, { text: userMessageText, sender: 'user', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+
+        const botResponse = await callGeminiAPI(payload);
+
+        if (user && currentChatId) {
+            saveMessage(currentChatId, { text: botResponse, sender: 'bot', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+
+        removeTypingIndicator();
+        const botMessageBubble = addMessage('', 'bot');
+        const p_element = botMessageBubble.querySelector('p');
+        typeWriter(p_element, botResponse, 15, () => {
+            userInput.disabled = false;
+            micBtn.disabled = false;
+            userInput.focus();
+        });
+
+        clearAttachedFile();
+        isPrescriptionMode = false;
+    }
+
     userInput.addEventListener('keyup', (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
@@ -944,12 +1052,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const base64Data = await fileToBase64(file);
             const objectURL = URL.createObjectURL(file);
             attachedFile = { name: file.name, mimeType: file.type, data: base64Data, previewUrl: objectURL };
-            displayFilePreview(file, objectURL);
-            updateMicIcon();
+            
+            if (isPrescriptionMode) {
+                handlePrescriptionAnalysis(attachedFile);
+            } else {
+                displayFilePreview(file, objectURL);
+                updateMicIcon();
+            }
         } catch (error) {
             console.error("Error reading file:", error);
             alert(t('fileProcessError'));
             clearAttachedFile();
+            isPrescriptionMode = false;
         }
     }
 
@@ -1070,6 +1184,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (feature === 'nearby-search') {
                 sidebar.classList.remove('expanded');
                 openPlacesModal('hospital', true);
+            } else if (feature === 'Read Prescription') {
+                sidebar.classList.remove('expanded');
+                isPrescriptionMode = true;
+                fileInput.click();
             } else if (feature) {
                 showCustomAlert('comingSoonTitle', t('featureComingSoon', { feature }), null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
             }

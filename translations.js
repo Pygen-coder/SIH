@@ -77,6 +77,7 @@ const translations = {
     copyAction: "Copy",
     copiedAction: "Copied",
     shareAction: "Share",
+    prescriptionAnalysisRequest: "Here is my prescription/report, can you please analyze it?",
     // Discover Section
     exploreHealthCenters: "Nearby Health Centers",
     exploreReadPrescription: "Read Prescription",
@@ -235,6 +236,7 @@ const translations = {
     copyAction: "कॉपी",
     copiedAction: "कॉपी किया गया",
     shareAction: "शेयर करें",
+    prescriptionAnalysisRequest: "यह मेरी पर्ची/रिपोर्ट है, क्या आप कृपया इसका विश्लेषण कर सकते हैं?",
     // Discover Section
     exploreHealthCenters: "आस-पास के स्वास्थ्य केंद्र",
     exploreReadPrescription: "पर्ची पढ़ें",
@@ -393,6 +395,7 @@ const translations = {
     copyAction: "କପି କରନ୍ତୁ",
     copiedAction: "କପି ହୋଇଗଲା",
     shareAction: "ସେୟାର କରନ୍ତୁ",
+    prescriptionAnalysisRequest: "ଏହା ମୋର ପ୍ରେସକ୍ରିପସନ୍/ରିପୋର୍ଟ, ଆପଣ ଦୟାକରି ଏହାର ବିଶ୍ଳେଷଣ କରିପାରିବେ କି?",
     // Discover Section
     exploreHealthCenters: "ନିକଟସ୍ଥ ସ୍ୱାସ୍ଥ୍ୟ କେନ୍ଦ୍ର",
     exploreReadPrescription: "ପ୍ରେସକ୍ରିପସନ୍ ପଢନ୍ତୁ",
