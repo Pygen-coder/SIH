@@ -1,25 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
     const firebaseConfig = {
-        apiKey: "AIzaSyCGO9vLvYRUOVz4urMatIvoyMoVOwoa0_8",
-        authDomain: "smart-india-hackathon-fb417.firebaseapp.com",
-        projectId: "smart-india-hackathon-fb417",
-        storageBucket: "smart-india-hackathon-fb417.firebasestorage.app",
-        messagingSenderId: "1049386565394",
-        appId: "1:1049386565394:web:a1fbd1f9f820c180b6bdcb",
-        measurementId: "G-D0CTBFWHYE"
+        apiKey: "AIzaSyB_bP3_aclWvt7d6nnEgyW93zT6MvgiUxw",
+        authDomain: "smart-india-hackathon-886f9.firebaseapp.com",
+        projectId: "smart-india-hackathon-886f9",
+        storageBucket: "smart-india-hackathon-886f9.firebasestorage.app",
+        messagingSenderId: "599601482698",
+        appId: "1:599601482698:web:091a27f50d18ed4652dd33",
+        measurementId: "G-J0BYSMRSY0"
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-
     let currentLanguage = 'en';
     let attachedFile = null;
     let cameraStream = null;
     let currentChatId = null;
     let unsubscribeHistory = null;
     let conversationHistory = [];
+    let placesAutocomplete = null;
+    let currentSearchLocation = null;
 
-    // --- DOM Element Selectors ---
     const sidebar = document.getElementById('sidebar');
     const mainInterface = document.getElementById('main-interface');
     const chatMessages = document.getElementById('chat-messages');
@@ -90,10 +90,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const preChatSuggestions = document.getElementById('pre-chat-suggestions');
     const suggestionCardsContainer = document.getElementById('suggestion-cards');
     const refreshSuggestionsBtn = document.getElementById('refresh-suggestions-btn');
+    const placesModalOverlay = document.getElementById('places-modal-overlay');
+    const closePlacesModalBtn = document.getElementById('close-places-modal');
+    const placesListContainer = document.getElementById('places-list');
+    const placesFilters = document.getElementById('places-filters');
+    const placesSearchForm = document.getElementById('places-search-form');
+    const placesSearchInput = document.getElementById('places-search-input');
 
-    const API_KEY = "AIzaSyBolo_dfR-aHyjmvNpTSuAZb2D3LfQi-48";
+    const API_KEY = "AIzaSyCBokerj127n_x2RwOgDd7ALgZtNxuMLyA";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
+    
+    const t = (key, params = {}) => {
+        let text = translations[currentLanguage]?.[key] || translations.en[key] || key;
+        for (const [param, value] of Object.entries(params)) {
+            text = text.replace(`{${param}}`, value);
+        }
+        return text;
+    };
+    
     const updateUIText = (lang) => {
         currentLanguage = lang;
         document.documentElement.lang = lang;
@@ -101,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.forEach(el => {
             const key = el.dataset.i18nKey;
             const attr = el.dataset.i18nAttr;
-            const translation = translations[lang][key];
+            const translation = t(key);
             if (attr) {
                 el.setAttribute(attr, translation);
             } else {
@@ -121,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mainInterface.classList.contains('chat-active')) {
             mainInterface.classList.add('chat-active');
             shareChatBtn.classList.remove('hidden');
-            suggestionCardsContainer.innerHTML = `<p class="suggestions-placeholder">Click refresh for new Suggestions.</p>`;
+            suggestionCardsContainer.innerHTML = `<p class="suggestions-placeholder">${t('refreshSuggestionsPrompt')}</p>`;
         }
     };
 
@@ -210,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
-            renderSuggestions(["What are common symptoms of fever?", "How can I improve my diet?", "First aid for a minor cut", "Benefits of regular exercise"]);
+            renderSuggestions([t('defaultSuggestion1'), t('defaultSuggestion2'), t('defaultSuggestion3'), t('defaultSuggestion4')]);
         }
     };
     
@@ -234,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     refreshSuggestionsBtn.addEventListener('click', fetchNewSuggestionsForSession);
 
-    // --- Profile Modal Logic ---
     const openProfileModal = async () => {
         const user = auth.currentUser;
         if (!user || !profileModalOverlay) return;
@@ -295,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Error updating profile: ", error);
-            showCustomAlert('Error', 'Failed to update profile. Please try again.');
+            showCustomAlert('errorTitle', 'profileUpdateFailedMessage');
         }
     };
 
@@ -317,10 +330,10 @@ document.addEventListener('DOMContentLoaded', () => {
             okBtnClass = 'btn-danger'
         } = options;
 
-        customAlertTitle.textContent = translations[currentLanguage][titleKey] || titleKey;
-        customAlertMessage.textContent = translations[currentLanguage][messageKey] || messageKey;
+        customAlertTitle.textContent = t(titleKey);
+        customAlertMessage.textContent = t(messageKey);
         
-        const okText = translations[currentLanguage][okTextKey] || okTextKey;
+        const okText = t(okTextKey);
         customAlertOkBtn.textContent = okText;
         customAlertOkBtn.className = '';
         customAlertOkBtn.classList.add(okBtnClass);
@@ -392,8 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
             isListening = true;
             micBtn.classList.add('listening');
             micIcon.className = 'fa-solid fa-stop';
-            micBtn.setAttribute('data-tooltip', translations[currentLanguage].micStopTooltip);
-            userInput.placeholder = translations[currentLanguage].listeningPlaceholder;
+            micBtn.setAttribute('data-tooltip', t('micStopTooltip'));
+            userInput.placeholder = t('listeningPlaceholder');
             userInput.focus();
             baseText = userInput.value ? userInput.value.trim() + ' ' : '';
         };
@@ -422,13 +435,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            alert(`Sorry, a speech recognition error occurred: ${event.error}\n\nPlease check your microphone connection and browser permissions.`);
+            alert(t('speechRecognitionError', {error: event.error}));
         };
 
         recognition.onend = () => {
             isListening = false;
             micBtn.classList.remove('listening');
-            userInput.placeholder = translations[currentLanguage].askAnythingPlaceholder;
+            userInput.placeholder = t('askAnythingPlaceholder');
             userInput.value = userInput.value.trim();
             updateMicIcon();
             userInput.dispatchEvent(new Event('input'));
@@ -455,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUIText(lang);
         localStorage.setItem('remediLang', lang);
         if (!auth.currentUser) {
-            profileBtnText.textContent = translations[lang].profileSignIn;
+            profileBtnText.textContent = t('profileSignIn');
         }
     };
 
@@ -578,11 +591,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             loggedOutView.style.display = 'block';
             loggedInView.style.display = 'none';
-            profileBtnText.textContent = translations[currentLanguage].profileSignIn;
+            profileBtnText.textContent = t('profileSignIn');
             avatarCapsule.innerHTML = '<i class="fa-solid fa-user-circle"></i>';
             avatarDropdown.innerHTML = '<i class="fa-solid fa-user-circle fa-2x"></i>';
             if (unsubscribeHistory) unsubscribeHistory();
-            historyList.innerHTML = '<p>Log in to see your chat history.</p>';
+            historyList.innerHTML = `<p>${t('historyLoginPrompt')}</p>`;
             startNewChat();
         }
     }
@@ -645,13 +658,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sender === 'bot') {
             const copyBtn = document.createElement('button');
             copyBtn.className = 'copy-btn';
-            copyBtn.title = 'Copy message';
-            const copyText = translations[currentLanguage].copyAction || 'Copy';
+            copyBtn.title = t('copyAction');
+            const copyText = t('copyAction');
             copyBtn.innerHTML = `<i class="fa-solid fa-copy"></i><span>${copyText}</span>`;
             
             copyBtn.addEventListener('click', () => {
                 const textToCopy = messageElement.querySelector('p').innerText;
-                const copiedText = translations[currentLanguage].copiedAction || 'Copied';
+                const copiedText = t('copiedAction');
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     copyBtn.innerHTML = `<i class="fa-solid fa-check"></i><span>${copiedText}</span>`;
                     setTimeout(() => {
@@ -874,11 +887,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hasContent) {
             micIcon.className = 'fa-solid fa-paper-plane';
             micBtn.classList.add('send-mode');
-            micBtn.setAttribute('data-tooltip', translations[currentLanguage].sendTooltip);
+            micBtn.setAttribute('data-tooltip', t('sendTooltip'));
         } else {
             micIcon.className = 'fa-solid fa-microphone';
             micBtn.classList.remove('send-mode');
-            micBtn.setAttribute('data-tooltip', translations[currentLanguage].micTooltip);
+            micBtn.setAttribute('data-tooltip', t('micTooltip'));
         }
     }
 
@@ -892,7 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 recognition.start();
             }
         } else {
-            alert("Voice input is not supported in your browser.");
+            alert(t('voiceInputNotSupported'));
         }
     });
     
@@ -908,7 +921,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayFilePreview(file, objectURL) {
         const isImage = file.type.startsWith('image/');
         const thumbnailContent = isImage ? `<img src="${objectURL}" alt="preview" class="file-thumbnail">` : `<div class="file-thumbnail"><i class="fa-solid fa-file-pdf"></i></div>`;
-        filePreviewContainer.innerHTML = `<div class="file-preview-item">${thumbnailContent}<span class="file-info">${file.name}</span><button class="remove-file-btn" title="Remove file">&times;</button></div>`;
+        filePreviewContainer.innerHTML = `<div class="file-preview-item">${thumbnailContent}<span class="file-info">${file.name}</span><button class="remove-file-btn" title="Remove file">×</button></div>`;
         filePreviewContainer.querySelector('.remove-file-btn').addEventListener('click', () => {
             clearAttachedFile();
             updateMicIcon();
@@ -919,7 +932,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file) return;
         const MAX_SIZE = 10 * 1024 * 1024;
         if (file.size > MAX_SIZE) {
-            alert(`File is too large. Maximum size is ${MAX_SIZE / 1024 / 1024}MB.`);
+            alert(t('fileTooLarge', { size: MAX_SIZE / 1024 / 1024 }));
             clearAttachedFile();
             return;
         }
@@ -931,7 +944,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateMicIcon();
         } catch (error) {
             console.error("Error reading file:", error);
-            alert("Could not process the file.");
+            alert(t('fileProcessError'));
             clearAttachedFile();
         }
     }
@@ -941,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function openCamera() {
         if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
-            alert("Your browser does not support camera access.");
+            alert(t('cameraNotSupported'));
             return;
         }
         try {
@@ -950,7 +963,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cameraModal.style.display = 'flex';
         } catch (err) {
             console.error("Error accessing camera:", err);
-            alert("Could not access the camera. Please check permissions.");
+            alert(t('cameraAccessError'));
         }
     }
 
@@ -1023,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     notificationBtn.addEventListener('click', () => {
         if (auth.currentUser) {
-            showCustomAlert('Notifications', 'The Notifications feature is coming soon!', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
+            showCustomAlert('notificationsTitle', 'notificationsComingSoon', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
         } else {
             showCustomAlert('signInRequiredTitle', 'signInToUseNotifications', () => openAuthModal(), {
                 okTextKey: 'signInAction',
@@ -1034,7 +1047,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     workerLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
-        showCustomAlert('Coming Soon', 'The "Worker Login" portal is under development!', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
+        showCustomAlert('comingSoonTitle', 'workerLoginComingSoon', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
     });
 
     homeBtn.addEventListener('click', (e) => {
@@ -1050,8 +1063,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 userInput.value = query;
                 handleSendMessage();
                 sidebar.classList.remove('expanded');
+            } else if (feature === 'nearby-search') {
+                sidebar.classList.remove('expanded');
+                openPlacesModal('hospital', true);
             } else if (feature) {
-                showCustomAlert('Coming Soon', `The "${feature}" feature is under development!`, null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
+                showCustomAlert('comingSoonTitle', t('featureComingSoon', { feature }), null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
             }
         });
     });
@@ -1063,7 +1079,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const historyQuery = db.collection('users').doc(uid).collection('chats').orderBy('timestamp', 'desc');
         unsubscribeHistory = historyQuery.onSnapshot(snapshot => {
             if (snapshot.empty) {
-                historyList.innerHTML = '<p>No chats yet. Start a conversation!</p>';
+                historyList.innerHTML = `<p>${t('historyNoChats')}</p>`;
                 return;
             }
             historyList.innerHTML = '';
@@ -1073,7 +1089,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 historyItem.className = 'history-item';
                 historyItem.dataset.chatId = doc.id;
                 
-                const title = chat.lastMessage || 'New Chat';
+                const title = chat.lastMessage || t('newThreadTooltip');
                 const date = chat.timestamp ? chat.timestamp.toDate().toLocaleDateString() : '';
 
                 historyItem.innerHTML = `
@@ -1081,7 +1097,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p>${title}</p>
                         <small>${date}</small>
                     </div>
-                    <button class="delete-chat-btn" data-chat-id="${doc.id}" title="Delete chat">
+                    <button class="delete-chat-btn" data-chat-id="${doc.id}" title="${t('deleteAction')}">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 `;
@@ -1089,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }, err => {
             console.error("Error fetching history:", err);
-            historyList.innerHTML = '<p>Could not load chat history.</p>';
+            historyList.innerHTML = `<p>${t('historyLoadError')}</p>`;
         });
     }
 
@@ -1123,7 +1139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error("Error deleting chat:", error);
-            showCustomAlert('Error', 'Could not delete the chat. Please try again.');
+            showCustomAlert('errorTitle', 'errorDeleteChat');
         }
     }
 
@@ -1169,7 +1185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteChatHistory(period) {
         const user = auth.currentUser;
         if (!user) {
-            showCustomAlert('Error', 'You must be logged in to delete history.');
+            showCustomAlert('errorTitle', 'errorLoginToDelete');
             return;
         }
 
@@ -1219,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Error deleting chat history: ", error);
-            showCustomAlert('Error', 'Could not delete chat history. Please try again.');
+            showCustomAlert('errorTitle', 'errorDeleteHistory');
         }
     }
 
@@ -1261,8 +1277,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
                 await navigator.share({
-                    title: 'Remedi Chat History',
-                    text: 'Here is my chat history from Remedi.',
+                    title: t('shareChatTitle'),
+                    text: t('shareChatText'),
                     files: [pdfFile]
                 });
             } else {
@@ -1288,4 +1304,197 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     shareChatBtn.addEventListener('click', shareChatAsPDF);
+
+    function displayPlaces(places, type) {
+        placesListContainer.innerHTML = '';
+        if (!places || places.length === 0) {
+            placesListContainer.innerHTML = `<div class="error-message">${t('placesNoResults', {placeType: type})}</div>`;
+            return;
+        }
+
+        places.forEach(place => {
+            const placeCard = document.createElement('div');
+            placeCard.className = 'place-card';
+            
+            const photoUrl = place.photos && place.photos.length > 0 
+                ? place.photos[0].getUrl({'maxWidth': 100, 'maxHeight': 100}) 
+                : null;
+            
+            const photoHTML = photoUrl 
+                ? `<img src="${photoUrl}" alt="${place.name}">` 
+                : `<i class="fa-solid fa-hospital"></i>`;
+
+            const rating = place.rating || 0;
+            let starsHTML = '';
+            for (let i = 0; i < 5; i++) {
+                if (i < Math.floor(rating)) {
+                    starsHTML += '<i class="fa-solid fa-star"></i>';
+                } else if (i < Math.ceil(rating) && (rating % 1) !== 0) {
+                    starsHTML += '<i class="fa-solid fa-star-half-stroke"></i>';
+                } else {
+                    starsHTML += '<i class="fa-regular fa-star"></i>';
+                }
+            }
+            
+            const directionsURL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.name)}&destination_place_id=${place.place_id}`;
+
+            placeCard.innerHTML = `
+                <div class="place-photo">${photoHTML}</div>
+                <div class="place-card-header">
+                    <span class="place-name">${place.name}</span>
+                    ${rating > 0 ? `<span class="place-rating">${rating.toFixed(1)} ${starsHTML}</span>` : ''}
+                </div>
+                <p class="place-address">${place.vicinity}</p>
+                <a href="${directionsURL}" target="_blank" rel="noopener noreferrer" class="directions-btn">
+                    <i class="fa-solid fa-location-arrow"></i>
+                    <span>${t('placesDirections')}</span>
+                </a>
+            `;
+            placesListContainer.appendChild(placeCard);
+        });
+    }
+    
+    function displayPlacesError(message, showTryAgain = true) {
+        let tryAgainButton = showTryAgain ? `<button class="directions-btn try-again-btn">${t('placesTryAgain')}</button>` : '';
+        placesListContainer.innerHTML = `
+            <div class="error-message">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <p>${message}</p>
+                ${tryAgainButton}
+            </div>
+        `;
+        if (showTryAgain) {
+            placesListContainer.querySelector('.try-again-btn').addEventListener('click', () => {
+                const activeFilter = placesFilters.querySelector('.active');
+                openPlacesModal(activeFilter ? activeFilter.dataset.type : 'hospital', true);
+            });
+        }
+    }
+
+    function findNearbyPlaces(location, type) {
+        placesListContainer.innerHTML = '<div class="loader"></div>';
+        const request = {
+            location: location,
+            radius: '5000',
+            keyword: type
+        };
+        const service = new google.maps.places.PlacesService(document.createElement('div'));
+        service.nearbySearch(request, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                displayPlaces(results, type);
+            } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                displayPlaces([], type);
+            } else {
+                displayPlacesError(t('placesFetchError', { status: status }));
+            }
+        });
+    }
+    
+    function initializePlacesAutocomplete() {
+        if (placesAutocomplete) return;
+
+        placesAutocomplete = new google.maps.places.Autocomplete(placesSearchInput, {
+            types: ['geocode'],
+            componentRestrictions: { 'country': 'in' }
+        });
+        placesAutocomplete.setFields(['geometry', 'name']);
+
+        placesAutocomplete.addListener('place_changed', () => {
+            const place = placesAutocomplete.getPlace();
+            if (place.geometry && place.geometry.location) {
+                currentSearchLocation = place.geometry.location;
+                const activeFilter = placesFilters.querySelector('.active').dataset.type;
+                findNearbyPlaces(currentSearchLocation, activeFilter);
+            }
+        });
+    }
+
+    function handleManualLocationSearch(e) {
+        e.preventDefault();
+        const query = placesSearchInput.value.trim();
+        if (!query) return;
+
+        placesListContainer.innerHTML = '<div class="loader"></div>';
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ 'address': query, 'componentRestrictions': { 'country': 'in' } }, (results, status) => {
+            if (status === 'OK') {
+                const newLocation = results[0].geometry.location;
+                currentSearchLocation = newLocation; 
+                const activeFilter = placesFilters.querySelector('.active').dataset.type;
+                findNearbyPlaces(newLocation, activeFilter);
+            } else {
+                displayPlacesError(t('placesSearchError', { query: query }), false);
+            }
+        });
+    }
+    
+    function openPlacesModal(type, useGeolocation = false) {
+        placesModalOverlay.classList.remove('hidden');
+        placesModalOverlay.classList.add('visible');
+        placesSearchInput.value = '';
+        
+        initializePlacesAutocomplete();
+
+        placesFilters.querySelectorAll('.places-filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === type);
+        });
+
+        if (useGeolocation) {
+            placesListContainer.innerHTML = '<div class="loader"></div>';
+            if (!navigator.geolocation) {
+                displayPlacesError(t('placesGeoNotSupported'));
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    currentSearchLocation = userLocation;
+                    findNearbyPlaces(userLocation, type);
+                },
+                (error) => {
+                    let errorMessage = t('placesGeoUnknownError');
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = t('placesGeoPermissionDenied');
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = t('placesGeoUnavailable');
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = t('placesGeoTimeout');
+                            break;
+                    }
+                    displayPlacesError(errorMessage);
+                }
+            );
+        } else {
+             placesListContainer.innerHTML = `<div class="error-message" style="padding: 40px 0;">${t('placesSearchPrompt')}</div>`;
+        }
+    }
+
+    function closePlacesModal() {
+        placesModalOverlay.classList.remove('visible');
+        setTimeout(() => {
+            placesModalOverlay.classList.add('hidden');
+        }, 300);
+    }
+
+    placesFilters.addEventListener('click', (e) => {
+        const target = e.target.closest('.places-filter-btn');
+        if (target && !target.classList.contains('active')) {
+            placesFilters.querySelector('.active').classList.remove('active');
+            target.classList.add('active');
+            if (currentSearchLocation) {
+                findNearbyPlaces(currentSearchLocation, target.dataset.type);
+            } else {
+                 placesListContainer.innerHTML = `<div class="error-message" style="padding: 40px 0;">${t('placesSearchFirst')}</div>`;
+            }
+        }
+    });
+    
+    placesSearchForm.addEventListener('submit', handleManualLocationSearch);
+    closePlacesModalBtn.addEventListener('click', closePlacesModal);
+    
+    const savedLang = localStorage.getItem('remediLang') || 'en';
+    setLanguage(savedLang);
 });

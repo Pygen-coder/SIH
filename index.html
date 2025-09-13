@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Noto+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDrK-JvI0n_V6sJjhVD0qBTZxN67YH_4Iw&libraries=places" async defer></script>
 </head>
 <body>
 
@@ -31,7 +31,7 @@
                         <a href="#" id="discover-btn" class="nav-link" data-i18n-key="discoverTooltip" data-i18n-attr="title" title="Discover">
                              <i class="fa-solid fa-compass fa-lg"></i>
                         </a>
-                        <button class="nav-link" id="notification-btn" title="Notifications">
+                        <button class="nav-link" id="notification-btn" data-i18n-key="notificationTooltip" data-i18n-attr="title" title="Notifications">
                             <i class="fa-solid fa-bell fa-lg"></i>
                         </button>
                         <button class="nav-link" id="history-btn" data-i18n-key="historyTooltip" data-i18n-attr="title" title="History">
@@ -64,13 +64,13 @@
                         </div>
                     </div>
                     <div class="history-list" id="history-list">
-                        <p>Log in to see your chat history.</p>
+                        <p data-i18n-key="historyLoginPrompt">Log in to see your chat history.</p>
                     </div>
                 </section>
                 <section class="discover-section panel-section" id="discover-section">
                     <h2 data-i18n-key="discoverTooltip">Discover</h2>
                     <div class="discover-list" id="discover-list">
-                        <div class="discover-item" data-query="Find clinics and hospitals near Burla">
+                        <div class="discover-item" data-feature="nearby-search">
                             <i class="fa-solid fa-location-dot icon-blue"></i>
                             <div class="discover-item-text">
                                 <span data-i18n-key="exploreHealthCenters">Nearby Health Centers</span>
@@ -142,7 +142,7 @@
                             <div class="profile-avatar" id="profile-avatar-capsule">
                                 <i class="fa-solid fa-user-circle"></i>
                             </div>
-                            <span id="profile-btn-text">Sign in</span>
+                            <span id="profile-btn-text" data-i18n-key="profileSignIn">Sign in</span>
                         </button>
                         <div id="profile-dropdown" class="dropdown-menu">
                             <div class="logged-out-view">
@@ -194,10 +194,10 @@
                 <div class="pre-chat-suggestions hidden" id="pre-chat-suggestions">
                     <div class="suggestion-cards" id="suggestion-cards">
                     </div>
-                    <button class="refresh-suggestions-btn" id="refresh-suggestions-btn" title="Get new suggestions">
+                    <button class="refresh-suggestions-btn" id="refresh-suggestions-btn" data-i18n-key="refreshSuggestionsPrompt" data-i18n-attr="title" title="Get new suggestions">
                         <i class="fa-solid fa-arrows-rotate"></i>
                     </button>
-                    <button class="suggestion-info-btn tooltip" id="suggestion-info-btn" data-tooltip="Suggestions are personalized based on your profile's age and gender. They are updated daily.">
+                    <button class="suggestion-info-btn tooltip" id="suggestion-info-btn" data-i18n-key="suggestionInfoTooltip" data-i18n-attr="data-tooltip" data-tooltip="Suggestions are personalized based on your profile's age and gender. They are updated daily.">
                         <i class="fa-solid fa-question"></i>
                     </button>
                 </div>
@@ -226,7 +226,7 @@
                     </div>
                 </div>
                 
-                <button id="share-chat-btn" class="action-btn-floating hidden" title="Share Chat as PDF">
+                <button id="share-chat-btn" class="action-btn-floating hidden" data-i18n-key="shareChatTooltip" data-i18n-attr="title" title="Share Chat as PDF">
                     <i class="fa-solid fa-share-alt"></i>
                     <span data-i18n-key="shareAction">Share</span>
                 </button>
@@ -241,8 +241,8 @@
         <video id="camera-view" autoplay playsinline></video>
         <canvas id="camera-canvas"></canvas>
         <div class="camera-controls">
-            <button id="close-camera-btn" class="close-camera-btn" title="Close Camera">&times;</button>
-            <button id="capture-btn" class="capture-btn" title="Take Picture"></button>
+            <button id="close-camera-btn" class="close-camera-btn" data-i18n-key="cameraCloseTooltip" data-i18n-attr="title" title="Close Camera">&times;</button>
+            <button id="capture-btn" class="capture-btn" data-i18n-key="cameraCaptureTooltip" data-i18n-attr="title" title="Take Picture"></button>
         </div>
     </div>
 
@@ -359,6 +359,26 @@
         </div>
     </div>
 
+    <div class="places-modal-overlay hidden" id="places-modal-overlay">
+        <div class="places-modal">
+            <div class="places-modal-header">
+                 <h2 id="places-modal-title" data-i18n-key="placesModalTitle">Nearby Health Centers</h2>
+                 <button class="close-places-modal" id="close-places-modal">&times;</button>
+            </div>
+            <form class="places-search-form" id="places-search-form">
+                <input type="text" id="places-search-input" data-i18n-key="placesSearchPlaceholder" data-i18n-attr="placeholder" placeholder="Enter a city or address...">
+                <button type="submit"><i class="fa-solid fa-search"></i></button>
+            </form>
+            <div class="places-filters" id="places-filters">
+                <button class="places-filter-btn active" data-type="hospital" data-i18n-key="placesHospitalFilter">Hospitals</button>
+                <button class="places-filter-btn" data-type="clinic" data-i18n-key="placesClinicFilter">Clinics</button>
+                <button class="places-filter-btn" data-type="pharmacy" data-i18n-key="placesPharmacyFilter">Pharmacies</button>
+            </div>
+            <div class="places-list" id="places-list">
+            </div>
+        </div>
+    </div>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
