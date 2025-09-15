@@ -30,6 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const cameraBtn = document.getElementById('camera-btn');
     const fileInput = document.getElementById('file-input');
     const filePreviewContainer = document.getElementById('file-preview-container');
+    const newThreadBtn = document.getElementById('new-thread-btn');
+    const homeBtn = document.getElementById('home-btn');
+    const shareChatBtn = document.getElementById('share-chat-btn');
+    const preChatSuggestions = document.getElementById('pre-chat-suggestions');
+    const suggestionCardsContainer = document.getElementById('suggestion-cards');
+    const refreshSuggestionsBtn = document.getElementById('refresh-suggestions-btn');
     const historyBtn = document.getElementById('history-btn');
     const notificationBtn = document.getElementById('notification-btn');
     const discoverBtn = document.getElementById('discover-btn');
@@ -40,15 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const micIcon = micBtn.querySelector('i');
     const profileBtnText = document.getElementById('profile-btn-text');
-    const newThreadBtn = document.getElementById('new-thread-btn');
-    const homeBtn = document.getElementById('home-btn');
-    const cameraModal = document.getElementById('camera-modal');
-    const cameraView = document.getElementById('camera-view');
-    const cameraCanvas = document.getElementById('camera-canvas');
-    const captureBtn = document.getElementById('capture-btn');
-    const closeCameraBtn = document.getElementById('close-camera-btn');
     const historyList = document.getElementById('history-list');
     const discoverItems = document.querySelectorAll('.discover-item');
+    const deleteHistoryBtn = document.getElementById('delete-history-btn');
+    const deleteHistoryDropdown = document.getElementById('delete-history-dropdown');
+    const notificationBadge = document.getElementById('notification-badge');
+    const notificationList = document.getElementById('notification-list');
     const customAlertOverlay = document.getElementById('custom-alert-overlay');
     const customAlertTitle = document.getElementById('custom-alert-title');
     const customAlertMessage = document.getElementById('custom-alert-message');
@@ -58,6 +61,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeWelcomeModalBtn = document.getElementById('close-welcome-modal');
     const dismissWelcomeModalBtn = document.getElementById('dismiss-welcome-modal');
     const signupWelcomeModalBtn = document.getElementById('signup-welcome-modal');
+    const cameraModal = document.getElementById('camera-modal');
+    const cameraView = document.getElementById('camera-view');
+    const cameraCanvas = document.getElementById('camera-canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const closeCameraBtn = document.getElementById('close-camera-btn');
+    const profileModalOverlay = document.getElementById('profile-modal-overlay');
+    const closeProfileModalBtn = document.getElementById('close-profile-modal');
+    const profileForm = document.getElementById('profile-form');
+    const profileNameInput = document.getElementById('profile-name');
+    const profileEmailInput = document.getElementById('profile-email');
+    const profilePhoneInput = document.getElementById('profile-phone');
+    const profileDobInput = document.getElementById('profile-dob');
+    const profileGenderInput = document.getElementById('profile-gender');
+    const placesModalOverlay = document.getElementById('places-modal-overlay');
+    const closePlacesModalBtn = document.getElementById('close-places-modal');
+    const placesListContainer = document.getElementById('places-list');
+    const placesFilters = document.getElementById('places-filters');
+    const placesSearchForm = document.getElementById('places-search-form');
+    const placesSearchInput = document.getElementById('places-search-input');
+    const familyModalOverlay = document.getElementById('family-modal-overlay');
+    const closeFamilyModalBtn = document.getElementById('close-family-modal');
+    const myFamilyLink = document.getElementById('my-family-link');
+    const familyListContainer = document.getElementById('family-list');
+    const addMemberBtn = document.getElementById('add-member-btn');
+    const familyForm = document.getElementById('family-form');
+    const familyFormTitle = document.getElementById('family-form-title');
+    const cancelFamilyFormBtn = document.getElementById('cancel-family-form');
+    const familyDobInput = document.getElementById('family-dob');
+    const vaccinationModalOverlay = document.getElementById('vaccination-modal-overlay');
+    const closeVaccinationModalBtn = document.getElementById('close-vaccination-modal');
+    const vaccineMemberSelect = document.getElementById('vaccine-member-select');
+    const vaccinationScheduleContainer = document.getElementById('vaccination-schedule-container');
+    const addCustomVaccineBtn = document.getElementById('add-custom-vaccine-btn');
+    const customVaccineForm = document.getElementById('custom-vaccine-form');
+    const cancelCustomVaccineBtn = document.getElementById('cancel-custom-vaccine-btn');
     const loggedOutView = profileDropdown.querySelector('.logged-out-view');
     const loggedInView = profileDropdown.querySelector('.logged-in-view');
     const loginBtnDropdown = document.getElementById('login-btn-dropdown');
@@ -65,6 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutLink = document.getElementById('logout-link');
     const userNameDropdown = document.getElementById('user-name-dropdown');
     const userEmailDropdown = document.getElementById('user-email-dropdown');
+    const myProfileLink = document.getElementById('my-profile-link');
+    const workerLoginLink = document.getElementById('worker-login-link');
     const authContainer = document.querySelector('.auth-container');
     const authCard = document.getElementById('auth-card');
     const signUpBtnCard = document.getElementById('signUp');
@@ -75,32 +115,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const signinForm = document.getElementById('signin-form');
     const googleSignupBtn = document.getElementById('google-signup-btn');
     const googleSigninBtn = document.getElementById('google-signin-btn');
-    const deleteHistoryBtn = document.getElementById('delete-history-btn');
-    const deleteHistoryDropdown = document.getElementById('delete-history-dropdown');
-    const myProfileLink = document.getElementById('my-profile-link');
-    const workerLoginLink = document.getElementById('worker-login-link');
-    const profileModalOverlay = document.getElementById('profile-modal-overlay');
-    const closeProfileModalBtn = document.getElementById('close-profile-modal');
-    const profileForm = document.getElementById('profile-form');
-    const profileNameInput = document.getElementById('profile-name');
-    const profileEmailInput = document.getElementById('profile-email');
-    const profilePhoneInput = document.getElementById('profile-phone');
-    const profileAgeInput = document.getElementById('profile-age');
-    const profileGenderInput = document.getElementById('profile-gender');
-    const shareChatBtn = document.getElementById('share-chat-btn');
-    const preChatSuggestions = document.getElementById('pre-chat-suggestions');
-    const suggestionCardsContainer = document.getElementById('suggestion-cards');
-    const refreshSuggestionsBtn = document.getElementById('refresh-suggestions-btn');
-    const placesModalOverlay = document.getElementById('places-modal-overlay');
-    const closePlacesModalBtn = document.getElementById('close-places-modal');
-    const placesListContainer = document.getElementById('places-list');
-    const placesFilters = document.getElementById('places-filters');
-    const placesSearchForm = document.getElementById('places-search-form');
-    const placesSearchInput = document.getElementById('places-search-input');
+    const workerLoginModalOverlay = document.getElementById('worker-login-modal-overlay');
+    const closeWorkerLoginModalBtn = document.getElementById('close-worker-login-modal');
+    const workerLoginForm = document.getElementById('worker-login-form-main');
+    const workerLoginError = document.getElementById('worker-login-error');
 
     const API_KEY = "AIzaSyCBokerj127n_x2RwOgDd7ALgZtNxuMLyA";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-    
+
     const t = (key, params = {}) => {
         let text = translations[currentLanguage]?.[key] || translations.en[key] || key;
         for (const [param, value] of Object.entries(params)) {
@@ -108,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return text;
     };
-    
+
     const updateUIText = (lang) => {
         currentLanguage = lang;
         document.documentElement.lang = lang;
@@ -120,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (attr) {
                 el.setAttribute(attr, translation);
             } else {
-                if(translation) el.textContent = translation;
+                if (translation) el.textContent = translation;
             }
         });
         updateMicIcon();
@@ -144,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.style.height = `${userInput.scrollHeight}px`;
         updateMicIcon();
     });
-    
+
     const renderSuggestions = (suggestions) => {
         suggestionCardsContainer.innerHTML = '';
         if (suggestions.length === 0) {
@@ -163,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         preChatSuggestions.classList.remove('hidden');
     };
-    
+
     const getSuggestionsFromAI = async (gender, age) => {
         let languageName = 'English';
         if (currentLanguage === 'hi') {
@@ -172,12 +194,20 @@ document.addEventListener('DOMContentLoaded', () => {
             languageName = 'Odia';
         }
         const prompt = `You are a health assistant. Generate 5 short, one-sentence health-related questions in ${languageName} that a ${age}-year-old ${gender} in rural India might ask. Respond ONLY with the questions in ${languageName}, separated by a pipe | character. Do not include any other text, numbers, or bullet points.`;
-        const payload = { contents: [{ parts: [{ text: prompt }] }] };
+        const payload = {
+            contents: [{
+                parts: [{
+                    text: prompt
+                }]
+            }]
+        };
 
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(payload),
             });
             if (!response.ok) return [];
@@ -190,7 +220,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const updateUserSuggestionsInDB = async (uid, gender, age) => {
+    const calculateAgeFromDob = (dobString) => {
+        if (!dobString) return 30;
+        const dob = new Date(dobString);
+        const diff_ms = Date.now() - dob.getTime();
+        const age_dt = new Date(diff_ms);
+        return Math.abs(age_dt.getUTCFullYear() - 1970);
+    };
+
+    const updateUserSuggestionsInDB = async (uid, gender, dob) => {
+        const age = calculateAgeFromDob(dob);
         const newSuggestions = await getSuggestionsFromAI(gender, age);
         if (newSuggestions.length > 0) {
             const userDocRef = db.collection('users').doc(uid);
@@ -199,7 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     prompts: newSuggestions,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }
-            }, { merge: true });
+            }, {
+                merge: true
+            });
         }
         return newSuggestions;
     };
@@ -209,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             const userDocRef = db.collection('users').doc(user.uid);
             const userDoc = await userDocRef.get();
-            
+
             if (userDoc.exists) {
                 const data = userDoc.data();
                 const savedSuggestions = data.suggestions;
@@ -222,10 +263,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const hoursDiff = (now - suggestionDate) / (1000 * 60 * 60);
 
                     if (hoursDiff > 24) {
-                        updateUserSuggestionsInDB(user.uid, data.gender || 'person', data.age || 30);
+                        updateUserSuggestionsInDB(user.uid, data.gender || 'person', data.dob || '1995-01-01');
                     }
                 } else {
-                    const newSuggestions = await updateUserSuggestionsInDB(user.uid, data.gender || 'person', data.age || 30);
+                    const newSuggestions = await updateUserSuggestionsInDB(user.uid, data.gender || 'person', data.dob || '1995-01-01');
                     renderSuggestions(newSuggestions);
                 }
             }
@@ -233,20 +274,21 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSuggestions([t('defaultSuggestion1'), t('defaultSuggestion2'), t('defaultSuggestion3'), t('defaultSuggestion4')]);
         }
     };
-    
+
     const fetchNewSuggestionsForSession = async () => {
         refreshSuggestionsBtn.classList.add('loading');
         const user = auth.currentUser;
         let gender = 'person';
-        let age = 30;
+        let dob = '1995-01-01';
         if (user) {
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
                 const data = userDoc.data();
                 gender = data.gender || 'person';
-                age = data.age || 30;
+                dob = data.dob || '1995-01-01';
             }
         }
+        const age = calculateAgeFromDob(dob);
         const suggestions = await getSuggestionsFromAI(gender, age);
         renderSuggestions(suggestions);
         refreshSuggestionsBtn.classList.remove('loading');
@@ -266,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userDoc.exists) {
             const data = userDoc.data();
             profilePhoneInput.value = data.phone || '';
-            profileAgeInput.value = data.age || '';
+            profileDobInput.value = data.dob || '';
             profileGenderInput.value = data.gender || 'male';
         }
 
@@ -289,12 +331,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const name = profileNameInput.value;
         const phone = profilePhoneInput.value;
-        const age = profileAgeInput.value;
+        const dob = profileDobInput.value;
         const gender = profileGenderInput.value;
 
         try {
             if (user.displayName !== name) {
-                await user.updateProfile({ displayName: name });
+                await user.updateProfile({
+                    displayName: name
+                });
             }
 
             const userDocRef = db.collection('users').doc(user.uid);
@@ -302,15 +346,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 displayName: name,
                 email: user.email,
                 phone: phone,
-                age: age,
+                dob: dob,
                 gender: gender
-            }, { merge: true });
-            
-            updateUserSuggestionsInDB(user.uid, gender, age);
+            }, {
+                merge: true
+            });
+
+            updateUserSuggestionsInDB(user.uid, gender, dob);
 
             updateUserProfileUI(auth.currentUser);
             closeProfileModal();
-            showCustomAlert('myProfileTitle', 'profileUpdatedMessage', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
+            showCustomAlert('myProfileTitle', 'profileUpdatedMessage', null, {
+                okTextKey: 'closeAction',
+                okBtnClass: 'btn-primary'
+            });
 
         } catch (error) {
             console.error("Error updating profile: ", error);
@@ -338,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         customAlertTitle.textContent = t(titleKey);
         customAlertMessage.textContent = t(messageKey);
-        
+
         const okText = t(okTextKey);
         customAlertOkBtn.textContent = okText;
         customAlertOkBtn.className = '';
@@ -388,11 +437,14 @@ document.addEventListener('DOMContentLoaded', () => {
             profileDropdown.classList.remove('show');
             if (authContainer) authContainer.classList.remove('show');
 
+            checkAllNotifications();
+
             const userDoc = await db.collection('users').doc(user.uid).get();
-            if (!userDoc.exists || !userDoc.data().age || !userDoc.data().gender) {
+            if (!userDoc.exists || !userDoc.data().dob || !userDoc.data().gender) {
                 setTimeout(openProfileModal, 1500);
             }
         } else {
+            updateNotificationBadge(0);
             setTimeout(showWelcomeModal, 2000);
         }
     });
@@ -441,7 +493,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            alert(t('speechRecognitionError', {error: event.error}));
+            alert(t('speechRecognitionError', {
+                error: event.error
+            }));
         };
 
         recognition.onend = () => {
@@ -535,12 +589,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const needsAnimation = isSignUp !== authCard.classList.contains("right-panel-active");
             if (needsAnimation && mobileSlider) {
                 mobileSlider.classList.add('is-animating');
-                mobileSlider.addEventListener('animationend', () => mobileSlider.classList.remove('is-animating'), { once: true });
+                mobileSlider.addEventListener('animationend', () => mobileSlider.classList.remove('is-animating'), {
+                    once: true
+                });
             }
             authCard.classList.toggle("right-panel-active", isSignUp);
         }
-        signInMobileLink.addEventListener('click', (e) => { e.preventDefault(); toggleMobilePanel(false); });
-        signUpMobileLink.addEventListener('click', (e) => { e.preventDefault(); toggleMobilePanel(true); });
+        signInMobileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleMobilePanel(false);
+        });
+        signUpMobileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleMobilePanel(true);
+        });
         authContainer.addEventListener('click', (event) => {
             if (event.target === authContainer) authContainer.classList.remove('show');
         });
@@ -551,8 +613,14 @@ document.addEventListener('DOMContentLoaded', () => {
         authCard.classList.toggle("right-panel-active", showSignUp);
         authContainer.classList.add('show');
     }
-    loginBtnDropdown.addEventListener('click', () => { openAuthModal(false); profileDropdown.classList.remove('show'); });
-    signupBtnDropdown.addEventListener('click', () => { openAuthModal(true); profileDropdown.classList.remove('show'); });
+    loginBtnDropdown.addEventListener('click', () => {
+        openAuthModal(false);
+        profileDropdown.classList.remove('show');
+    });
+    signupBtnDropdown.addEventListener('click', () => {
+        openAuthModal(true);
+        profileDropdown.classList.remove('show');
+    });
 
     function showWelcomeModal() {
         if (!welcomeModalOverlay) return;
@@ -604,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
             startNewChat();
         }
     }
-    
+
     signupForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = signupForm['signup-name'].value;
@@ -612,13 +680,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = signupForm['signup-password'].value;
         auth.createUserWithEmailAndPassword(email, password)
             .then(cred => {
-                return cred.user.updateProfile({ displayName: name })
+                return cred.user.updateProfile({
+                        displayName: name
+                    })
                     .then(() => {
                         updateUserProfileUI(auth.currentUser);
                     });
             })
-            .then(() => { signupForm.reset(); })
-            .catch(err => { alert(err.message); });
+            .then(() => {
+                signupForm.reset();
+            })
+            .catch(err => {
+                alert(err.message);
+            });
     });
 
     signinForm.addEventListener('submit', (e) => {
@@ -635,23 +709,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     googleSignupBtn.addEventListener('click', handleGoogleSignIn);
     googleSigninBtn.addEventListener('click', handleGoogleSignIn);
-    logoutLink.addEventListener('click', (e) => { e.preventDefault(); auth.signOut(); });
+    logoutLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        auth.signOut();
+    });
 
     function addMessage(text, sender, file = null, shouldAnimate = true, suggestions = []) {
         const messageElement = document.createElement('div');
         messageElement.className = `message ${sender}-message`;
-        if(!shouldAnimate) messageElement.style.animation = 'none';
+        if (!shouldAnimate) messageElement.style.animation = 'none';
         let contentHTML = '';
         if (file && sender === 'user') {
             const isImage = file.mimeType.startsWith('image/');
-            const thumbnailContent = isImage 
-                ? `<img src="${file.previewUrl}" alt="preview" class="chat-file-thumbnail">`
-                : `<div class="chat-file-thumbnail"><i class="fa-solid fa-file-pdf"></i></div>`;
+            const thumbnailContent = isImage ?
+                `<img src="${file.previewUrl}" alt="preview" class="chat-file-thumbnail">` :
+                `<div class="chat-file-thumbnail"><i class="fa-solid fa-file-pdf"></i></div>`;
             contentHTML += `<div class="chat-file-preview">${thumbnailContent}<span class="chat-file-name">${file.name}</span></div>`;
         }
         const p = document.createElement('p');
         if (text) {
-             if (sender === 'bot') {
+            if (sender === 'bot') {
                 p.innerHTML = renderMarkdown(text);
             } else {
                 p.textContent = text;
@@ -659,14 +736,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         messageElement.innerHTML = contentHTML;
         messageElement.appendChild(p);
-        
+
         if (sender === 'bot') {
             const copyBtn = document.createElement('button');
             copyBtn.className = 'copy-btn';
             copyBtn.title = t('copyAction');
             const copyText = t('copyAction');
             copyBtn.innerHTML = `<i class="fa-solid fa-copy"></i><span>${copyText}</span>`;
-            
+
             copyBtn.addEventListener('click', () => {
                 const textToCopy = messageElement.querySelector('p').innerText;
                 const copiedText = t('copiedAction');
@@ -691,14 +768,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     suggestionBtn.addEventListener('click', () => {
                         userInput.value = suggestionText;
                         handleSendMessage();
-                        suggestionsContainer.remove(); 
+                        suggestionsContainer.remove();
                     });
                     suggestionsContainer.appendChild(suggestionBtn);
                 });
                 messageElement.appendChild(suggestionsContainer);
             }
         }
-        
+
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return messageElement;
@@ -708,6 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let i = 0;
         let currentText = '';
         const cursor = '<span class="typing-cursor">▋</span>';
+
         function type() {
             if (i < text.length) {
                 currentText += text.charAt(i);
@@ -738,7 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const indicator = document.getElementById('typing-indicator');
         if (indicator) indicator.remove();
     }
-    
+
     async function saveMessage(chatId, message) {
         const user = auth.currentUser;
         if (!user || !chatId) return;
@@ -748,14 +826,18 @@ document.addEventListener('DOMContentLoaded', () => {
         await chatRef.set({
             lastMessage: mainText.substring(0, 40),
             timestamp: message.timestamp
-        }, { merge: true });
+        }, {
+            merge: true
+        });
     }
 
     async function callGeminiAPI(payload) {
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(payload),
             });
             if (!response.ok) {
@@ -779,7 +861,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let langInstruction = '';
         if (currentLanguage === 'hi') langInstruction = 'IMPORTANT: You must respond in Hindi.';
         else if (currentLanguage === 'or') langInstruction = 'IMPORTANT: You must respond in Odia.';
-        
+
         const systemPrompt = `${langInstruction} You are Remedi, an AI Personal Health Companion for rural citizens in India.
 
 **Your Persona & Style:**
@@ -798,33 +880,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
 **Follow-up Suggestions:**
 After your main response, you **MUST** provide 2-3 relevant, short follow-up questions a user might ask next. Format them strictly like this, with no extra text: [SUGGESTIONS]How can I prevent this?|What are the treatment options?|Where is the nearest clinic?[/SUGGESTIONS]`;
-        
-        const payload = { contents: chatHistory, systemInstruction: { parts: [{ text: systemPrompt }] } };
+
+        const payload = {
+            contents: chatHistory,
+            systemInstruction: {
+                parts: [{
+                    text: systemPrompt
+                }]
+            }
+        };
         return await callGeminiAPI(payload);
     }
 
 
     function clearAttachedFile() {
-        if(attachedFile && attachedFile.previewUrl) {
+        if (attachedFile && attachedFile.previewUrl) {
             URL.revokeObjectURL(attachedFile.previewUrl);
         }
         attachedFile = null;
         fileInput.value = '';
         filePreviewContainer.innerHTML = '';
     }
-    
+
     function startNewChat() {
         currentChatId = null;
         chatMessages.innerHTML = '';
         conversationHistory = [];
         mainInterface.classList.remove('chat-active');
         shareChatBtn.classList.add('hidden');
-        
+
         const mainTitle = document.querySelector('.main-title');
         const headerTitle = document.getElementById('header-title');
         if (mainTitle) mainTitle.classList.remove('disappearing');
         if (headerTitle) headerTitle.classList.remove('visible');
-        
+
         displayPreChatSuggestions();
     }
 
@@ -843,19 +932,35 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         }
 
         if (user && !currentChatId) {
-            const newChatRef = await db.collection('users').doc(user.uid).collection('chats').add({ started: firebase.firestore.FieldValue.serverTimestamp() });
+            const newChatRef = await db.collection('users').doc(user.uid).collection('chats').add({
+                started: firebase.firestore.FieldValue.serverTimestamp()
+            });
             currentChatId = newChatRef.id;
         }
         activateChatView();
         const fileToSend = attachedFile;
         addMessage(text, 'user', fileToSend);
-        const userMessageParts = [{ text }];
+        const userMessageParts = [{
+            text
+        }];
         if (fileToSend) {
-            userMessageParts.push({ inlineData: { mimeType: fileToSend.mimeType, data: fileToSend.data } });
+            userMessageParts.push({
+                inlineData: {
+                    mimeType: fileToSend.mimeType,
+                    data: fileToSend.data
+                }
+            });
         }
-        conversationHistory.push({ role: 'user', parts: userMessageParts });
-        if(user && currentChatId){
-            saveMessage(currentChatId, { text: text, sender: 'user', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        conversationHistory.push({
+            role: 'user',
+            parts: userMessageParts
+        });
+        if (user && currentChatId) {
+            saveMessage(currentChatId, {
+                text: text,
+                sender: 'user',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
         userInput.value = '';
         userInput.dispatchEvent(new Event('input'));
@@ -866,7 +971,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         micBtn.disabled = true;
 
         const botResponse = await getBotResponse(conversationHistory);
-        
+
         let mainResponse = botResponse;
         let suggestions = [];
         const suggestionRegex = /\[SUGGESTIONS\](.*?)\[\/SUGGESTIONS\]/s;
@@ -877,11 +982,20 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
             suggestions = match[1].split('|').map(s => s.trim()).filter(s => s);
         }
 
-        conversationHistory.push({ role: 'model', parts: [{ text: botResponse }] });
-        if(user && currentChatId){
-            saveMessage(currentChatId, { text: botResponse, sender: 'bot', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        conversationHistory.push({
+            role: 'model',
+            parts: [{
+                text: botResponse
+            }]
+        });
+        if (user && currentChatId) {
+            saveMessage(currentChatId, {
+                text: botResponse,
+                sender: 'bot',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
-        
+
         removeTypingIndicator();
         const botMessageBubble = addMessage('', 'bot', null, true, suggestions);
         const p_element = botMessageBubble.querySelector('p');
@@ -918,14 +1032,16 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
 
         const user = auth.currentUser;
         if (user && !currentChatId) {
-            const newChatRef = await db.collection('users').doc(user.uid).collection('chats').add({ started: firebase.firestore.FieldValue.serverTimestamp() });
+            const newChatRef = await db.collection('users').doc(user.uid).collection('chats').add({
+                started: firebase.firestore.FieldValue.serverTimestamp()
+            });
             currentChatId = newChatRef.id;
         }
-        
+
         activateChatView();
         const userMessageText = t('prescriptionAnalysisRequest');
         addMessage(userMessageText, 'user', file);
-        
+
         showTypingIndicator();
         userInput.disabled = true;
         micBtn.disabled = true;
@@ -953,24 +1069,36 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
     * Also, add an extra line break between each item here.
 7.  Conclude with a helpful closing remark, encouraging the user to follow their doctor's advice and visit a health center if their symptoms don't improve. Add a friendly emoji.
 8.  If the image is blurry or unreadable, state that clearly instead of guessing. Do not invent information.`;
-        
+
         const payload = {
             contents: [{
-                parts: [
-                    { text: prompt },
-                    { inlineData: { mimeType: file.mimeType, data: file.data } }
-                ]
+                parts: [{
+                    text: prompt
+                }, {
+                    inlineData: {
+                        mimeType: file.mimeType,
+                        data: file.data
+                    }
+                }]
             }]
         };
 
         if (user && currentChatId) {
-            saveMessage(currentChatId, { text: userMessageText, sender: 'user', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            saveMessage(currentChatId, {
+                text: userMessageText,
+                sender: 'user',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
 
         const botResponse = await callGeminiAPI(payload);
 
         if (user && currentChatId) {
-            saveMessage(currentChatId, { text: botResponse, sender: 'bot', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            saveMessage(currentChatId, {
+                text: botResponse,
+                sender: 'bot',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
 
         removeTypingIndicator();
@@ -1020,7 +1148,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
             alert(t('voiceInputNotSupported'));
         }
     });
-    
+
     function fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -1044,15 +1172,22 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         if (!file) return;
         const MAX_SIZE = 10 * 1024 * 1024;
         if (file.size > MAX_SIZE) {
-            alert(t('fileTooLarge', { size: MAX_SIZE / 1024 / 1024 }));
+            alert(t('fileTooLarge', {
+                size: MAX_SIZE / 1024 / 1024
+            }));
             clearAttachedFile();
             return;
         }
         try {
             const base64Data = await fileToBase64(file);
             const objectURL = URL.createObjectURL(file);
-            attachedFile = { name: file.name, mimeType: file.type, data: base64Data, previewUrl: objectURL };
-            
+            attachedFile = {
+                name: file.name,
+                mimeType: file.type,
+                data: base64Data,
+                previewUrl: objectURL
+            };
+
             if (isPrescriptionMode) {
                 handlePrescriptionAnalysis(attachedFile);
             } else {
@@ -1069,14 +1204,18 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
 
     uploadBtn.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-    
+
     async function openCamera() {
         if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
             alert(t('cameraNotSupported'));
             return;
         }
         try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment'
+                }
+            });
             cameraView.srcObject = cameraStream;
             cameraModal.style.display = 'flex';
         } catch (err) {
@@ -1098,7 +1237,9 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         cameraCanvas.height = cameraView.videoHeight;
         context.drawImage(cameraView, 0, 0, cameraCanvas.width, cameraCanvas.height);
         cameraCanvas.toBlob((blob) => {
-            const imageFile = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+            const imageFile = new File([blob], `capture-${Date.now()}.jpg`, {
+                type: 'image/jpeg'
+            });
             handleFile(imageFile);
             closeCamera();
         }, 'image/jpeg');
@@ -1108,7 +1249,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
     closeCameraBtn.addEventListener('click', closeCamera);
     captureBtn.addEventListener('click', takePicture);
 
-    if(welcomeModalOverlay) {
+    if (welcomeModalOverlay) {
         closeWelcomeModalBtn.addEventListener('click', hideWelcomeModal);
         dismissWelcomeModalBtn.addEventListener('click', hideWelcomeModal);
         signupWelcomeModalBtn.addEventListener('click', () => {
@@ -1117,18 +1258,22 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         });
     }
 
+    const toggleSidebarPanel = (panelToShow) => {
+        if (sidebar.classList.contains('expanded') && sidebar.classList.contains(panelToShow)) {
+            sidebar.classList.remove('expanded');
+        } else {
+            sidebar.classList.remove('showing-history', 'showing-discover', 'showing-notifications');
+            sidebar.classList.add(panelToShow);
+            sidebar.classList.add('expanded');
+        }
+    };
+
     historyBtn.addEventListener('click', () => {
         if (auth.currentUser) {
-            if (sidebar.classList.contains('showing-discover') || !sidebar.classList.contains('expanded')) {
-                sidebar.classList.remove('showing-discover');
-                sidebar.classList.add('showing-history');
-                sidebar.classList.add('expanded');
-            } else {
-                sidebar.classList.toggle('expanded');
-            }
+            toggleSidebarPanel('showing-history');
         } else {
             showCustomAlert('signInRequiredTitle', 'signInToViewHistory', () => openAuthModal(), {
-                okTextKey: 'signInAction', 
+                okTextKey: 'signInAction',
                 okBtnClass: 'btn-primary'
             });
         }
@@ -1137,13 +1282,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
     discoverBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (auth.currentUser) {
-            if (sidebar.classList.contains('showing-history') || !sidebar.classList.contains('expanded')) {
-                sidebar.classList.remove('showing-history');
-                sidebar.classList.add('showing-discover');
-                sidebar.classList.add('expanded');
-            } else {
-                sidebar.classList.toggle('expanded');
-            }
+            toggleSidebarPanel('showing-discover');
         } else {
             showCustomAlert('signInRequiredTitle', 'signInToUseDiscover', () => openAuthModal(), {
                 okTextKey: 'signInAction',
@@ -1154,7 +1293,8 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
 
     notificationBtn.addEventListener('click', () => {
         if (auth.currentUser) {
-            showCustomAlert('notificationsTitle', 'notificationsComingSoon', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
+            toggleSidebarPanel('showing-notifications');
+            checkAllNotifications();
         } else {
             showCustomAlert('signInRequiredTitle', 'signInToUseNotifications', () => openAuthModal(), {
                 okTextKey: 'signInAction',
@@ -1165,18 +1305,26 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
 
     workerLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
-        showCustomAlert('comingSoonTitle', 'workerLoginComingSoon', null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
+        profileDropdown.classList.remove('show');
+        openWorkerLoginModal();
     });
 
     homeBtn.addEventListener('click', (e) => {
         e.preventDefault();
         sidebar.classList.remove('expanded');
     });
-    
+
     discoverItems.forEach(card => {
         card.addEventListener('click', () => {
             const query = card.dataset.query;
             const feature = card.dataset.feature;
+            if (!auth.currentUser) {
+                showCustomAlert('signInRequiredTitle', 'signInToUseDiscover', () => openAuthModal(), {
+                    okTextKey: 'signInAction',
+                    okBtnClass: 'btn-primary'
+                });
+                return;
+            }
             if (query) {
                 userInput.value = query;
                 handleSendMessage();
@@ -1188,8 +1336,16 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
                 sidebar.classList.remove('expanded');
                 isPrescriptionMode = true;
                 fileInput.click();
+            } else if (feature === 'Vaccination Schedule') {
+                sidebar.classList.remove('expanded');
+                openVaccinationModal();
             } else if (feature) {
-                showCustomAlert('comingSoonTitle', t('featureComingSoon', { feature }), null, { okTextKey: 'closeAction', okBtnClass: 'btn-primary' });
+                showCustomAlert('comingSoonTitle', t('featureComingSoon', {
+                    feature
+                }), null, {
+                    okTextKey: 'closeAction',
+                    okBtnClass: 'btn-primary'
+                });
             }
         });
     });
@@ -1210,7 +1366,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
                 historyItem.dataset.chatId = doc.id;
-                
+
                 const title = chat.lastMessage || t('newThreadTooltip');
                 const date = chat.timestamp ? chat.timestamp.toDate().toLocaleDateString() : '';
 
@@ -1234,7 +1390,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
     historyList.addEventListener('click', (e) => {
         const deleteBtn = e.target.closest('.delete-chat-btn');
         const historyItemMain = e.target.closest('.history-item-main');
-    
+
         if (deleteBtn) {
             e.stopPropagation();
             const chatId = deleteBtn.dataset.chatId;
@@ -1285,7 +1441,12 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
             }
 
             addMessage(mainText, msg.sender, null, false);
-            conversationHistory.push({ role: msg.sender === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] });
+            conversationHistory.push({
+                role: msg.sender === 'user' ? 'user' : 'model',
+                parts: [{
+                    text: msg.text
+                }]
+            });
         });
     }
 
@@ -1340,9 +1501,9 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         try {
             const snapshot = await query.get();
             if (snapshot.empty) {
-                return; 
+                return;
             }
-            
+
             const deletePromises = [];
             snapshot.forEach(doc => {
                 const messageDeletionPromise = deleteSubcollection(doc.ref, 'messages');
@@ -1365,14 +1526,14 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         const subcollectionRef = parentRef.collection(subcollectionName);
         const snapshot = await subcollectionRef.get();
         if (snapshot.empty) return;
-        
+
         const deletePromises = [];
         snapshot.forEach(doc => {
             deletePromises.push(doc.ref.delete());
         });
         await Promise.all(deletePromises);
     }
-    
+
     const shareChatAsPDF = async () => {
         const chatContainer = document.getElementById('chat-messages');
         if (chatContainer.children.length === 0) return;
@@ -1387,17 +1548,32 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
 
         try {
             const options = {
-                margin:       [0.5, 0.5, 0.5, 0.5],
-                filename:     `Remedi-Chat-${new Date().toISOString().split('T')[0]}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `Remedi-Chat-${new Date().toISOString().split('T')[0]}.pdf`,
+                image: {
+                    type: 'jpeg',
+                    quality: 0.98
+                },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                },
+                jsPDF: {
+                    unit: 'in',
+                    format: 'a4',
+                    orientation: 'portrait'
+                }
             };
 
             const pdfBlob = await html2pdf().from(chatContainer).set(options).output('blob');
-            const pdfFile = new File([pdfBlob], options.filename, { type: 'application/pdf' });
-            
-            if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+            const pdfFile = new File([pdfBlob], options.filename, {
+                type: 'application/pdf'
+            });
+
+            if (navigator.canShare && navigator.canShare({
+                    files: [pdfFile]
+                })) {
                 await navigator.share({
                     title: t('shareChatTitle'),
                     text: t('shareChatText'),
@@ -1409,22 +1585,33 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         } catch (error) {
             console.error('Error generating or sharing PDF:', error);
             const options = {
-                margin:       [0.5, 0.5, 0.5, 0.5],
-                filename:     `Remedi-Chat-${new Date().toISOString().split('T')[0]}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `Remedi-Chat-${new Date().toISOString().split('T')[0]}.pdf`,
+                image: {
+                    type: 'jpeg',
+                    quality: 0.98
+                },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                },
+                jsPDF: {
+                    unit: 'in',
+                    format: 'a4',
+                    orientation: 'portrait'
+                }
             };
             html2pdf().from(chatContainer).set(options).save();
         } finally {
             shareChatBtn.innerHTML = originalIcon;
             shareChatBtn.classList.remove('loading');
             shareChatBtn.disabled = false;
-            chatContainer.classList.remove('pdf-export-mode');  
+            chatContainer.classList.remove('pdf-export-mode');
             document.querySelectorAll('.copy-btn, .suggested-questions-container').forEach(el => el.classList.remove('no-print'));
         }
     };
-    
+
     shareChatBtn.addEventListener('click', shareChatAsPDF);
 
     function displayPlaces(places, type) {
@@ -1437,14 +1624,17 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         places.forEach(place => {
             const placeCard = document.createElement('div');
             placeCard.className = 'place-card';
-            
-            const photoUrl = place.photos && place.photos.length > 0 
-                ? place.photos[0].getUrl({'maxWidth': 100, 'maxHeight': 100}) 
-                : null;
-            
-            const photoHTML = photoUrl 
-                ? `<img src="${photoUrl}" alt="${place.name}">` 
-                : `<i class="fa-solid fa-hospital"></i>`;
+
+            const photoUrl = place.photos && place.photos.length > 0 ?
+                place.photos[0].getUrl({
+                    'maxWidth': 100,
+                    'maxHeight': 100
+                }) :
+                null;
+
+            const photoHTML = photoUrl ?
+                `<img src="${photoUrl}" alt="${place.name}">` :
+                `<i class="fa-solid fa-hospital"></i>`;
 
             const rating = place.rating || 0;
             let starsHTML = '';
@@ -1457,8 +1647,8 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
                     starsHTML += '<i class="fa-regular fa-star"></i>';
                 }
             }
-            
-            const directionsURL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.name)}&destination_place_id=${place.place_id}`;
+
+            const directionsURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.place_id}`;
 
             placeCard.innerHTML = `
                 <div class="place-photo">${photoHTML}</div>
@@ -1475,7 +1665,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
             placesListContainer.appendChild(placeCard);
         });
     }
-    
+
     function displayPlacesError(message, showTryAgain = true) {
         let tryAgainButton = showTryAgain ? `<button class="directions-btn try-again-btn">${t('placesTryAgain')}</button>` : '';
         placesListContainer.innerHTML = `
@@ -1507,17 +1697,21 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
             } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
                 displayPlaces([], type);
             } else {
-                displayPlacesError(t('placesFetchError', { status: status }));
+                displayPlacesError(t('placesFetchError', {
+                    status: status
+                }));
             }
         });
     }
-    
+
     function initializePlacesAutocomplete() {
         if (placesAutocomplete) return;
 
         placesAutocomplete = new google.maps.places.Autocomplete(placesSearchInput, {
             types: ['geocode'],
-            componentRestrictions: { 'country': 'in' }
+            componentRestrictions: {
+                'country': 'in'
+            }
         });
         placesAutocomplete.setFields(['geometry', 'name']);
 
@@ -1538,23 +1732,30 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
 
         placesListContainer.innerHTML = '<div class="loader"></div>';
         const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ 'address': query, 'componentRestrictions': { 'country': 'in' } }, (results, status) => {
+        geocoder.geocode({
+            'address': query,
+            'componentRestrictions': {
+                'country': 'in'
+            }
+        }, (results, status) => {
             if (status === 'OK') {
                 const newLocation = results[0].geometry.location;
-                currentSearchLocation = newLocation; 
+                currentSearchLocation = newLocation;
                 const activeFilter = placesFilters.querySelector('.active').dataset.type;
                 findNearbyPlaces(newLocation, activeFilter);
             } else {
-                displayPlacesError(t('placesSearchError', { query: query }), false);
+                displayPlacesError(t('placesSearchError', {
+                    query: query
+                }), false);
             }
         });
     }
-    
+
     function openPlacesModal(type, useGeolocation = false) {
         placesModalOverlay.classList.remove('hidden');
         placesModalOverlay.classList.add('visible');
         placesSearchInput.value = '';
-        
+
         initializePlacesAutocomplete();
 
         placesFilters.querySelectorAll('.places-filter-btn').forEach(btn => {
@@ -1590,7 +1791,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
                 }
             );
         } else {
-             placesListContainer.innerHTML = `<div class="error-message" style="padding: 40px 0;">${t('placesSearchPrompt')}</div>`;
+            placesListContainer.innerHTML = `<div class="error-message" style="padding: 40px 0;">${t('placesSearchPrompt')}</div>`;
         }
     }
 
@@ -1609,14 +1810,966 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
             if (currentSearchLocation) {
                 findNearbyPlaces(currentSearchLocation, target.dataset.type);
             } else {
-                 placesListContainer.innerHTML = `<div class="error-message" style="padding: 40px 0;">${t('placesSearchFirst')}</div>`;
+                placesListContainer.innerHTML = `<div class="error-message" style="padding: 40px 0;">${t('placesSearchFirst')}</div>`;
             }
         }
     });
-    
+
     placesSearchForm.addEventListener('submit', handleManualLocationSearch);
     closePlacesModalBtn.addEventListener('click', closePlacesModal);
-    
+
+    let familyMembers = [];
+
+    const calculateAge = (dobString) => {
+        if (!dobString) return 0;
+        const dob = new Date(dobString);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    const openFamilyModal = () => {
+        if (!auth.currentUser) {
+            showCustomAlert('signInRequiredTitle', 'signInToManageFamily', () => openAuthModal(), {
+                okTextKey: 'signInAction',
+                okBtnClass: 'btn-primary'
+            });
+            return;
+        }
+        familyModalOverlay.classList.remove('hidden');
+        familyModalOverlay.classList.add('visible');
+        fetchFamilyMembers();
+    };
+
+    const closeFamilyModal = () => {
+        familyModalOverlay.classList.remove('visible');
+        setTimeout(() => {
+            familyModalOverlay.classList.add('hidden');
+            hideFamilyForm();
+        }, 300);
+    };
+
+    const fetchFamilyMembers = async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+        const snapshot = await db.collection('users').doc(user.uid).collection('familyMembers').orderBy('name').get();
+        familyMembers = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        renderFamilyList();
+    };
+
+    const renderFamilyList = () => {
+        familyListContainer.innerHTML = '';
+        if (familyMembers.length === 0) {
+            familyListContainer.innerHTML = `<p>${t('noFamilyMembers')}</p>`;
+            return;
+        }
+        familyMembers.forEach(member => {
+            const memberCard = document.createElement('div');
+            memberCard.className = 'family-member-card';
+            memberCard.dataset.id = member.id;
+
+            const initial = member.name.charAt(0).toUpperCase();
+            const avatarHTML = `<div class="profile-avatar family-member-avatar"><div class="initials-avatar">${initial}</div></div>`;
+
+            const age = calculateAge(member.dob);
+
+            memberCard.innerHTML = `
+                ${avatarHTML}
+                <div class="family-member-info">
+                    <strong>${member.name}</strong>
+                    <p>${member.relation} - ${age} ${t('ageLabel')}, ${t('gender' + member.gender.charAt(0).toUpperCase() + member.gender.slice(1))}</p>
+                </div>
+                <div class="family-member-actions">
+                    <button class="edit-btn"><i class="fa-solid fa-pencil"></i></button>
+                    <button class="delete-btn"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            `;
+            familyListContainer.appendChild(memberCard);
+        });
+    };
+
+    const showFamilyForm = (member = null) => {
+        familyForm.classList.remove('hidden');
+        addMemberBtn.classList.add('hidden');
+        if (member) {
+            familyFormTitle.textContent = t('editFamilyMember');
+            familyForm.querySelector('#family-member-id').value = member.id;
+            familyForm.querySelector('#family-name').value = member.name;
+            familyForm.querySelector('#family-relation').value = member.relation;
+            familyDobInput.value = member.dob;
+            familyForm.querySelector('#family-gender').value = member.gender;
+        } else {
+            familyFormTitle.textContent = t('addFamilyMember');
+            familyForm.reset();
+            familyForm.querySelector('#family-member-id').value = '';
+        }
+    };
+
+    const hideFamilyForm = () => {
+        familyForm.classList.add('hidden');
+        addMemberBtn.classList.remove('hidden');
+        familyForm.reset();
+    };
+
+    const handleFamilyFormSubmit = async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const memberId = familyForm.querySelector('#family-member-id').value;
+        const memberData = {
+            name: familyForm.querySelector('#family-name').value,
+            relation: familyForm.querySelector('#family-relation').value,
+            dob: familyDobInput.value,
+            gender: familyForm.querySelector('#family-gender').value,
+        };
+
+        const collectionRef = db.collection('users').doc(user.uid).collection('familyMembers');
+        try {
+            if (memberId) {
+                await collectionRef.doc(memberId).update(memberData);
+                showCustomAlert('myFamily', 'familyMemberUpdatedSuccess', null, {
+                    okTextKey: 'closeAction',
+                    okBtnClass: 'btn-primary'
+                });
+            } else {
+                await collectionRef.add(memberData);
+                showCustomAlert('myFamily', 'familyMemberAddedSuccess', null, {
+                    okTextKey: 'closeAction',
+                    okBtnClass: 'btn-primary'
+                });
+            }
+            hideFamilyForm();
+            fetchFamilyMembers();
+            checkAllNotifications();
+        } catch (error) {
+            showCustomAlert('errorTitle', 'errorFamilyOperation');
+            console.error("Error saving family member:", error);
+        }
+    };
+
+    const handleDeleteFamilyMember = (id, name) => {
+        showCustomAlert('confirmDeleteMemberTitle', t('confirmDeleteMemberMessage', {
+            name
+        }), async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+            try {
+                const memberRef = db.collection('users').doc(user.uid).collection('familyMembers').doc(id);
+                await deleteSubcollection(memberRef, 'vaccinations');
+                await memberRef.delete();
+
+                showCustomAlert('myFamily', 'familyMemberDeletedSuccess', null, {
+                    okTextKey: 'closeAction',
+                    okBtnClass: 'btn-primary'
+                });
+                fetchFamilyMembers();
+                checkAllNotifications();
+            } catch (error) {
+                showCustomAlert('errorTitle', 'errorFamilyOperation');
+                console.error("Error deleting member:", error);
+            }
+        });
+    };
+
+    myFamilyLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        openFamilyModal();
+        profileDropdown.classList.remove('show');
+    });
+    closeFamilyModalBtn.addEventListener('click', closeFamilyModal);
+    addMemberBtn.addEventListener('click', () => showFamilyForm());
+    cancelFamilyFormBtn.addEventListener('click', hideFamilyForm);
+    familyForm.addEventListener('submit', handleFamilyFormSubmit);
+
+    familyListContainer.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.edit-btn');
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (editBtn) {
+            const card = editBtn.closest('.family-member-card');
+            const member = familyMembers.find(m => m.id === card.dataset.id);
+            if (member) showFamilyForm(member);
+        }
+        if (deleteBtn) {
+            const card = deleteBtn.closest('.family-member-card');
+            const member = familyMembers.find(m => m.id === card.dataset.id);
+            if (member) handleDeleteFamilyMember(member.id, member.name);
+        }
+    });
+
+    const vaccinationSchedule = {
+        'At Birth': [{
+            name: 'BCG',
+            protectsAgainst: 'Tuberculosis'
+        }, {
+            name: 'OPV 0',
+            protectsAgainst: 'Poliomyelitis'
+        }, {
+            name: 'Hepatitis B - 1',
+            protectsAgainst: 'Hepatitis B'
+        }],
+        '6 Weeks': [{
+            name: 'DTwP / DTaP - 1',
+            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
+        }, {
+            name: 'IPV - 1',
+            protectsAgainst: 'Poliomyelitis'
+        }, {
+            name: 'Hepatitis B - 2',
+            protectsAgainst: 'Hepatitis B'
+        }, {
+            name: 'HiB - 1',
+            protectsAgainst: 'Haemophilus influenzae type b'
+        }, {
+            name: 'Rotavirus - 1',
+            protectsAgainst: 'Rotavirus diarrhea'
+        }, {
+            name: 'PCV - 1',
+            protectsAgainst: 'Pneumococcal disease'
+        }],
+        '10 Weeks': [{
+            name: 'DTwP / DTaP - 2',
+            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
+        }, {
+            name: 'IPV - 2',
+            protectsAgainst: 'Poliomyelitis'
+        }, {
+            name: 'HiB - 2',
+            protectsAgainst: 'Haemophilus influenzae type b'
+        }, {
+            name: 'Rotavirus - 2',
+            protectsAgainst: 'Rotavirus diarrhea'
+        }],
+        '14 Weeks': [{
+            name: 'DTwP / DTaP - 3',
+            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
+        }, {
+            name: 'IPV - 3',
+            protectsAgainst: 'Poliomyelitis'
+        }, {
+            name: 'HiB - 3',
+            protectsAgainst: 'Haemophilus influenzae type b'
+        }, {
+            name: 'Rotavirus - 3',
+            protectsAgainst: 'Rotavirus diarrhea'
+        }, {
+            name: 'PCV - 2',
+            protectsAgainst: 'Pneumococcal disease'
+        }],
+        '6 Months': [{
+            name: 'Influenza - 1',
+            protectsAgainst: 'Influenza (Flu)'
+        }, {
+            name: 'OPV 1',
+            protectsAgainst: 'Poliomyelitis'
+        }],
+        '7 Months': [{
+            name: 'Influenza - 2',
+            protectsAgainst: 'Influenza (Flu)'
+        }],
+        '9 Months': [{
+            name: 'MMR - 1',
+            protectsAgainst: 'Measles, Mumps, Rubella'
+        }, {
+            name: 'Typhoid Conjugate Vaccine',
+            protectsAgainst: 'Typhoid fever'
+        }, {
+            name: 'OPV 2',
+            protectsAgainst: 'Poliomyelitis'
+        }],
+        '9-12 Months': [{
+            name: 'PCV Booster',
+            protectsAgainst: 'Pneumococcal disease'
+        }],
+        '12 Months': [{
+            name: 'Hepatitis A - 1',
+            protectsAgainst: 'Hepatitis A'
+        }],
+        '15 Months': [{
+            name: 'MMR - 2',
+            protectsAgainst: 'Measles, Mumps, Rubella'
+        }, {
+            name: 'Varicella (Chickenpox) - 1',
+            protectsAgainst: 'Chickenpox'
+        }],
+        '16-18 Months': [{
+            name: 'DTwP / DTaP Booster 1',
+            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
+        }, {
+            name: 'IPV Booster 1',
+            protectsAgainst: 'Poliomyelitis'
+        }, {
+            name: 'HiB Booster 1',
+            protectsAgainst: 'Haemophilus influenzae type b'
+        }],
+        '18 Months': [{
+            name: 'Hepatitis A - 2',
+            protectsAgainst: 'Hepatitis A'
+        }],
+        '2 Years': [{
+            name: 'Meningococcal',
+            protectsAgainst: 'Meningitis'
+        }],
+        '4-6 Years': [{
+            name: 'DTwP / DTaP Booster 2',
+            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
+        }, {
+            name: 'OPV 3',
+            protectsAgainst: 'Poliomyelitis'
+        }, {
+            name: 'Varicella (Chickenpox) - 2',
+            protectsAgainst: 'Chickenpox'
+        }, {
+            name: 'MMR - 3',
+            protectsAgainst: 'Measles, Mumps, Rubella'
+        }],
+        '10-12 Years': [{
+            name: 'Tdap / Td',
+            protectsAgainst: 'Tetanus, Diphtheria, Pertussis'
+        }, {
+            name: 'HPV (2 doses)',
+            protectsAgainst: 'Human Papillomavirus'
+        }],
+    };
+
+    const getVaccineDate = (dobString, ageGroupString) => {
+        const dob = new Date(dobString);
+        if (isNaN(dob.getTime())) return null;
+
+        const number = parseFloat(ageGroupString.split('-')[0].trim());
+        let date = new Date(dob);
+
+        if (ageGroupString.toLowerCase().includes('birth')) {} else if (ageGroupString.toLowerCase().includes('week')) {
+            date.setDate(date.getDate() + number * 7);
+        } else if (ageGroupString.toLowerCase().includes('month')) {
+            date.setMonth(date.getMonth() + number);
+        } else if (ageGroupString.toLowerCase().includes('year')) {
+            date.setFullYear(date.getFullYear() + number);
+        }
+        return date;
+    };
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        const options = {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        };
+        return date.toLocaleDateString('en-GB', options).replace(/ /g, '-');
+    };
+
+    const checkAllNotifications = async () => {
+        const user = auth.currentUser;
+        if (!user) {
+            updateNotificationBadge(0);
+            return;
+        }
+
+        const [vaccineNotifications, accessRequests] = await Promise.all([
+            getVaccineNotifications(user.uid),
+            getAccessRequests(user.uid)
+        ]);
+
+        const groupedNotifications = {
+            accessRequests: accessRequests,
+            due: [],
+            upcoming: []
+        };
+
+        vaccineNotifications.forEach(notification => {
+            if (notification.status === 'due') {
+                groupedNotifications.due.push(notification);
+            } else {
+                groupedNotifications.upcoming.push(notification);
+            }
+        });
+
+        groupedNotifications.due.sort((a, b) => (a.sortDate || 0) - (b.sortDate || 0));
+        groupedNotifications.upcoming.sort((a, b) => (a.sortDate || 0) - (b.sortDate || 0));
+
+        renderNotifications(groupedNotifications);
+        updateNotificationBadge(accessRequests.length + vaccineNotifications.length);
+    };
+
+
+    async function getAccessRequests(uid) {
+        const requests = [];
+        const querySnapshot = await db.collection('accessRequests')
+            .where('userUid', '==', uid)
+            .where('status', '==', 'pending')
+            .get();
+
+        querySnapshot.forEach(doc => {
+            const request = doc.data();
+            requests.push({
+                type: 'accessRequest',
+                id: doc.id,
+                workerName: request.workerName,
+                workerUid: request.workerUid
+            });
+        });
+        return requests;
+    }
+
+    async function getVaccineNotifications(uid) {
+        const notifications = [];
+        const familySnapshot = await db.collection('users').doc(uid).collection('familyMembers').get();
+        if (familySnapshot.empty) return [];
+
+        const members = familySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        for (const member of members) {
+            if (!member.dob) continue;
+            const vaccinationSnapshot = await db.collection('users').doc(uid).collection('familyMembers').doc(member.id).collection('vaccinations').get();
+            const completedVaccines = new Set(vaccinationSnapshot.docs.filter(d => d.data().completed).map(d => d.id));
+
+            for (const [ageGroup, vaccines] of Object.entries(vaccinationSchedule)) {
+                for (const vaccine of vaccines) {
+                    const vaccineId = `${vaccine.name.replace(/[^a-zA-Z0-9]/g, '')}_${ageGroup.replace(/[^a-zA-Z0-9]/g, '')}`;
+                    if (completedVaccines.has(vaccineId)) continue;
+
+                    const dueDate = getVaccineDate(member.dob, ageGroup);
+                    if (!dueDate) continue;
+
+                    const dayDiff = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+
+                    if (dayDiff <= 7) {
+                        notifications.push({
+                            type: 'vaccine',
+                            status: dayDiff <= 0 ? 'due' : 'upcoming',
+                            memberName: member.name,
+                            vaccineName: vaccine.name,
+                            sortDate: dueDate
+                        });
+                    }
+                }
+            }
+        }
+        return notifications;
+    }
+
+    const renderNotifications = (groupedNotifications) => {
+        notificationList.innerHTML = '';
+        const { accessRequests, due, upcoming } = groupedNotifications;
+
+        const totalNotifications = accessRequests.length + due.length + upcoming.length;
+        if (totalNotifications === 0) {
+            notificationList.innerHTML = `<p>No new notifications.</p>`;
+            return;
+        }
+
+        const createGroup = (titleKey, items, isInitiallyOpen = false) => {
+            if (items.length === 0) return;
+
+            const groupWrapper = document.createElement('div');
+            groupWrapper.className = 'notification-group';
+            if (isInitiallyOpen) {
+                groupWrapper.classList.add('is-open');
+            }
+
+            const titleText = t(titleKey);
+
+            let countBadgeColorClass = '';
+            if (titleKey === 'vaccineDue') {
+                countBadgeColorClass = 'due';
+            } else if (titleKey === 'vaccineUpcoming') {
+                countBadgeColorClass = 'upcoming';
+            }
+
+            groupWrapper.innerHTML = `
+                <button class="notification-group-toggle">
+                    <span class="notification-group-title">${titleText}</span>
+                    <span class="notification-group-count ${countBadgeColorClass}">${items.length}</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="notification-group-content"></div>
+            `;
+
+            const contentContainer = groupWrapper.querySelector('.notification-group-content');
+
+            items.forEach(notification => {
+                const item = document.createElement('div');
+                item.className = 'notification-item';
+
+                if (notification.type === 'accessRequest') {
+                    item.classList.add('access-request');
+                    item.innerHTML = `
+                        <div class="notification-icon"><i class="fa-solid fa-user-shield"></i></div>
+                        <div class="notification-content">
+                            <p><strong>${notification.workerName}</strong> wants to connect with you.</p>
+                            <small>They will be able to view your family's health profile.</small>
+                            <div class="notification-actions">
+                                <button class="btn-deny" data-request-id="${notification.id}">Deny</button>
+                                <button class="btn-approve" data-request-id="${notification.id}" data-worker-uid="${notification.workerUid}">Approve</button>
+                            </div>
+                        </div>`;
+                } else if (notification.type === 'vaccine') {
+                    item.classList.add(notification.status);
+                    item.innerHTML = `
+                        <div class="notification-icon"><i class="fa-solid fa-syringe"></i></div>
+                        <div class="notification-content">
+                            <p><strong>${notification.vaccineName}</strong> vaccine for <strong>${notification.memberName}</strong> is ${notification.status}.</p>
+                        </div>`;
+                    item.style.cursor = 'pointer';
+                    item.addEventListener('click', () => {
+                        openVaccinationModal();
+                        sidebar.classList.remove('expanded', 'showing-notifications');
+                    });
+                }
+                contentContainer.appendChild(item);
+            });
+
+            notificationList.appendChild(groupWrapper);
+        };
+
+        const hasAccessRequests = accessRequests.length > 0;
+        const hasDue = due.length > 0;
+
+        createGroup('accessRequestsTitle', accessRequests, hasAccessRequests);
+        createGroup('vaccineDue', due, !hasAccessRequests && hasDue);
+        createGroup('vaccineUpcoming', upcoming, !hasAccessRequests && !hasDue);
+    };
+
+    const updateNotificationBadge = (count) => {
+        if (count > 0) {
+            notificationBadge.textContent = count;
+            notificationBadge.classList.remove('hidden');
+        } else {
+            notificationBadge.classList.add('hidden');
+        }
+    };
+
+    const displayVaccinationSchedule = (member, vaccineStatuses = []) => {
+        vaccinationScheduleContainer.innerHTML = '';
+        if (!member || !member.dob) {
+            vaccinationScheduleContainer.innerHTML = `<p>${t('noMembersForVaccine')}</p>`;
+            return;
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        Object.entries(vaccinationSchedule).forEach(([ageGroup, vaccines]) => {
+            const ageGroupEl = document.createElement('div');
+            ageGroupEl.className = 'vaccine-age-group';
+
+            const vaccineDueDate = getVaccineDate(member.dob, ageGroup);
+            const formattedDate = formatDate(vaccineDueDate);
+
+            const ageGroupHeader = document.createElement('h3');
+            ageGroupHeader.className = 'vaccine-age-group-header';
+            ageGroupHeader.innerHTML = `
+                <span>${ageGroup}</span>
+                <span class="vaccine-due-date">${formattedDate ? `Due by: ${formattedDate}` : ''}</span>
+            `;
+            ageGroupEl.appendChild(ageGroupHeader);
+
+            vaccines.forEach(vaccine => {
+                const vaccineId = `${vaccine.name.replace(/[^a-zA-Z0-9]/g, '')}_${ageGroup.replace(/[^a-zA-Z0-9]/g, '')}`;
+                const statusRecord = vaccineStatuses.find(s => s.id === vaccineId);
+                const isCompleted = statusRecord ? statusRecord.completed : false;
+
+                let status = 'upcoming';
+                let statusKey = 'vaccineUpcoming';
+
+                if (isCompleted) {
+                    status = 'completed';
+                    statusKey = 'vaccineCompleted';
+                } else if (vaccineDueDate) {
+                    const timeDiff = vaccineDueDate.getTime() - today.getTime();
+                    const dayDiff = timeDiff / (1000 * 3600 * 24);
+                    if (dayDiff <= 0) {
+                        status = 'due';
+                        statusKey = 'vaccineDue';
+                    }
+                }
+
+                const vaccineItem = document.createElement('div');
+                vaccineItem.className = 'vaccine-item';
+                vaccineItem.innerHTML = `
+                    <input
+                        type="checkbox"
+                        class="vaccine-checkbox"
+                        ${isCompleted ? 'checked' : ''}
+                        data-vaccine-id="${vaccineId}"
+                        data-vaccine-name="${vaccine.name}"
+                        data-age-group="${ageGroup}"
+                        data-is-custom="false"
+                    >
+                    <div class="vaccine-item-details">
+                        <div class="vaccine-name">
+                            ${vaccine.name}
+                            <small>${vaccine.protectsAgainst}</small>
+                        </div>
+                        <span class="vaccine-status ${status}">${t(statusKey)}</span>
+                    </div>
+                `;
+                ageGroupEl.appendChild(vaccineItem);
+            });
+            vaccinationScheduleContainer.appendChild(ageGroupEl);
+        });
+
+        const customVaccines = vaccineStatuses.filter(v => v.isCustom);
+        if (customVaccines.length > 0) {
+            const customHeader = document.createElement('h3');
+            customHeader.className = 'vaccine-custom-header';
+            customHeader.textContent = 'Custom Vaccines';
+            vaccinationScheduleContainer.appendChild(customHeader);
+
+            customVaccines.forEach(vaccine => {
+                const isCompleted = vaccine.completed || false;
+                const vaccineItem = document.createElement('div');
+                vaccineItem.className = 'vaccine-item';
+
+                let status = '';
+                let statusKey = '';
+                let dateText = '';
+                let statusSpanHTML = '';
+
+                if (isCompleted) {
+                    status = 'completed';
+                    statusKey = 'vaccineCompleted';
+                    dateText = `Given on: ${vaccine.dateGiven || vaccine.dueDate}`;
+                    statusSpanHTML = `<span class="vaccine-status ${status}">${t(statusKey)}</span>`;
+                } else {
+                    dateText = `Due by: ${vaccine.dueDate}`;
+                    const dueDate = new Date(vaccine.dueDate);
+                    if (!isNaN(dueDate.getTime())) {
+                        const timeDiff = dueDate.getTime() - today.getTime();
+                        const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                        if (dayDiff <= 0) {
+                            status = 'due';
+                            statusKey = 'vaccineDue';
+                        } else if (dayDiff <= 7) {
+                            status = 'due';
+                            statusKey = 'vaccineDue';
+                        } else {
+                            status = 'upcoming';
+                            statusKey = 'vaccineUpcoming';
+                        }
+                        statusSpanHTML = `<span class="vaccine-status ${status}">${t(statusKey)}</span>`;
+                    }
+                }
+
+                vaccineItem.innerHTML = `
+                    <input
+                        type="checkbox"
+                        class="vaccine-checkbox"
+                        ${isCompleted ? 'checked' : ''}
+                        data-vaccine-id="${vaccine.id}"
+                        data-vaccine-name="${vaccine.name}"
+                        data-age-group="custom"
+                        data-is-custom="true"
+                        data-due-date="${vaccine.dueDate || ''}"
+                    >
+                    <div class="vaccine-item-details">
+                        <div class="vaccine-name">
+                            ${vaccine.name}
+                            <small>${dateText}</small>
+                        </div>
+                        ${statusSpanHTML}
+                    </div>
+                `;
+                vaccinationScheduleContainer.appendChild(vaccineItem);
+            });
+        }
+    };
+
+    const loadAndDisplayScheduleForMember = async (member) => {
+        if (!member) {
+            displayVaccinationSchedule(null);
+            return;
+        }
+        const user = auth.currentUser;
+        const snapshot = await db.collection('users').doc(user.uid)
+            .collection('familyMembers').doc(member.id)
+            .collection('vaccinations').get();
+        const vaccineStatuses = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        displayVaccinationSchedule(member, vaccineStatuses);
+    };
+
+    const openVaccinationModal = async () => {
+        vaccinationModalOverlay.classList.remove('hidden');
+        vaccinationModalOverlay.classList.add('visible');
+        await fetchFamilyMembers();
+
+        vaccineMemberSelect.innerHTML = '';
+        if (familyMembers.length > 0) {
+            familyMembers.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = member.name;
+                vaccineMemberSelect.appendChild(option);
+            });
+            loadAndDisplayScheduleForMember(familyMembers[0]);
+        } else {
+            loadAndDisplayScheduleForMember(null);
+        }
+    };
+
+    const closeVaccinationModal = () => {
+        vaccinationModalOverlay.classList.remove('visible');
+        setTimeout(() => {
+            vaccinationModalOverlay.classList.add('hidden');
+            customVaccineForm.classList.add('hidden');
+        }, 300);
+    };
+
+    vaccineMemberSelect.addEventListener('change', (e) => {
+        const selectedId = e.target.value;
+        const selectedMember = familyMembers.find(m => m.id === selectedId);
+        loadAndDisplayScheduleForMember(selectedMember);
+    });
+
+    closeVaccinationModalBtn.addEventListener('click', closeVaccinationModal);
+
+    addCustomVaccineBtn.addEventListener('click', () => {
+        customVaccineForm.classList.remove('hidden');
+    });
+
+    cancelCustomVaccineBtn.addEventListener('click', () => {
+        customVaccineForm.classList.add('hidden');
+    });
+
+    customVaccineForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        const selectedMemberId = vaccineMemberSelect.value;
+        if (!user || !selectedMemberId) {
+            alert("Please select a family member first.");
+            return;
+        }
+
+        const vaccineData = {
+            name: document.getElementById('custom-vaccine-name').value,
+            protectsAgainst: document.getElementById('custom-vaccine-protects').value,
+            dueDate: document.getElementById('custom-vaccine-date').value,
+            isCustom: true,
+            completed: false
+        };
+
+        try {
+            const memberRef = db.collection('users').doc(user.uid).collection('familyMembers').doc(selectedMemberId);
+            await memberRef.collection('vaccinations').add(vaccineData);
+
+            customVaccineForm.reset();
+            customVaccineForm.classList.add('hidden');
+
+            const selectedMember = familyMembers.find(m => m.id === selectedMemberId);
+            loadAndDisplayScheduleForMember(selectedMember);
+            checkAllNotifications();
+        } catch (error) {
+            console.error("Error saving custom vaccine:", error);
+            alert("Could not save custom vaccine. Please try again.");
+        }
+    });
+
+    vaccinationScheduleContainer.addEventListener('change', async (e) => {
+        if (!e.target.classList.contains('vaccine-checkbox')) return;
+
+        const checkbox = e.target;
+        const user = auth.currentUser;
+        const selectedMemberId = vaccineMemberSelect.value;
+        if (!user || !selectedMemberId) return;
+
+        const {
+            vaccineId,
+            ageGroup,
+            isCustom,
+            dueDate
+        } = checkbox.dataset;
+        const isCompleted = checkbox.checked;
+
+        try {
+            const docRef = db.collection('users').doc(user.uid)
+                .collection('familyMembers').doc(selectedMemberId)
+                .collection('vaccinations').doc(vaccineId);
+
+            let updateData = {};
+            if (isCompleted) {
+                updateData.completed = true;
+                updateData.dateGiven = new Date().toISOString().split('T')[0];
+            } else {
+                updateData.completed = false;
+                updateData.dateGiven = firebase.firestore.FieldValue.delete();
+            }
+
+            await docRef.set(updateData, {
+                merge: true
+            });
+
+            const detailsDiv = checkbox.nextElementSibling;
+            const nameDiv = detailsDiv.querySelector('.vaccine-name');
+            let statusSpan = detailsDiv.querySelector('.vaccine-status');
+            const smallEl = nameDiv.querySelector('small');
+
+            if (isCompleted) {
+                if (!statusSpan) {
+                    statusSpan = document.createElement('span');
+                    detailsDiv.appendChild(statusSpan);
+                }
+                statusSpan.className = 'vaccine-status completed';
+                statusSpan.textContent = t('vaccineCompleted');
+                smallEl.textContent = `Given on: ${updateData.dateGiven}`;
+            } else {
+                let status = 'upcoming';
+                let statusKey = 'vaccineUpcoming';
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                let vaccineDueDate;
+
+                if (isCustom === 'true') {
+                    smallEl.textContent = `Due by: ${dueDate}`;
+                    vaccineDueDate = new Date(dueDate);
+                } else {
+                    const member = familyMembers.find(m => m.id === selectedMemberId);
+                    vaccineDueDate = getVaccineDate(member.dob, ageGroup);
+                }
+
+                if (vaccineDueDate && !isNaN(vaccineDueDate.getTime())) {
+                    const timeDiff = vaccineDueDate.getTime() - today.getTime();
+                    const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    if (dayDiff <= 0) {
+                        status = 'due';
+                        statusKey = 'vaccineDue';
+                    }
+                }
+
+                if (!statusSpan) {
+                    statusSpan = document.createElement('span');
+                    detailsDiv.appendChild(statusSpan);
+                }
+                statusSpan.className = `vaccine-status ${status}`;
+                statusSpan.textContent = t(statusKey);
+            }
+            checkAllNotifications();
+        } catch (error) {
+            console.error("Error updating vaccine status: ", error);
+            alert("Could not update status. Please try again.");
+            checkbox.checked = !isCompleted;
+        }
+    });
+
     const savedLang = localStorage.getItem('remediLang') || 'en';
     setLanguage(savedLang);
+
+    const openWorkerLoginModal = () => {
+        if (!workerLoginModalOverlay) return;
+        workerLoginModalOverlay.classList.remove('hidden');
+        workerLoginModalOverlay.classList.add('visible');
+    };
+
+    const closeWorkerLoginModal = () => {
+        if (!workerLoginModalOverlay) return;
+        workerLoginModalOverlay.classList.remove('visible');
+        setTimeout(() => {
+            workerLoginModalOverlay.classList.add('hidden');
+        }, 300);
+    };
+
+    closeWorkerLoginModalBtn.addEventListener('click', closeWorkerLoginModal);
+
+    workerLoginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('worker-email-main').value;
+        const password = document.getElementById('worker-password-main').value;
+        workerLoginError.textContent = '';
+        const submitBtn = workerLoginForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in...';
+
+        try {
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+            const userDocRef = db.collection('users').doc(user.uid);
+            const doc = await userDocRef.get();
+
+            if (doc.exists && doc.data().role === 'worker') {
+                window.location.href = 'worker.html';
+            } else {
+                workerLoginError.textContent = 'Access Denied. Not a worker account.';
+                await auth.signOut();
+            }
+        } catch (error) {
+            workerLoginError.textContent = 'Invalid email or password.';
+            console.error("Worker login failed:", error);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = t('signInAction');
+        }
+    });
+
+    notificationList.addEventListener('click', async (e) => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const toggleButton = e.target.closest('.notification-group-toggle');
+        if (toggleButton) {
+            const group = toggleButton.parentElement;
+            group.classList.toggle('is-open');
+            return;
+        }
+
+        if (e.target.classList.contains('btn-approve')) {
+            const button = e.target;
+            const {
+                requestId,
+                workerUid
+            } = button.dataset;
+
+            button.disabled = true;
+            button.textContent = 'Approving...';
+
+            try {
+                await db.collection('users').doc(user.uid).update({
+                    assignedWorker: workerUid
+                });
+                await db.collection('accessRequests').doc(requestId).update({
+                    status: 'approved'
+                });
+                checkAllNotifications();
+            } catch (error) {
+                console.error("Error approving request:", error);
+                button.disabled = false;
+                button.textContent = 'Approve';
+            }
+
+        } else if (e.target.classList.contains('btn-deny')) {
+            const button = e.target;
+            const {
+                requestId
+            } = button.dataset;
+
+            button.disabled = true;
+            button.textContent = 'Denying...';
+
+            try {
+                await db.collection('accessRequests').doc(requestId).update({
+                    status: 'denied'
+                });
+                checkAllNotifications();
+            } catch (error) {
+                console.error("Error denying request:", error);
+                button.disabled = false;
+                button.textContent = 'Deny';
+            }
+        }
+    });
 });

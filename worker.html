@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASHA Worker Portal - Remedi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="worker.css">
+</head>
+<body>
+    <div class="worker-page-wrapper">
+        <aside class="primary-sidebar" id="primary-sidebar">
+            <div class="primary-sidebar-top">
+                <a href="index.html" class="sidebar-logo" title="Remedi Home">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM12 20C7.589 20 4 16.411 4 12C4 7.589 7.589 4 12 4C16.411 4 20 7.589 20 12C20 16.411 16.411 20 12 20Z" fill="currentColor"/><path d="M12 6C8.686 6 6 8.686 6 12C6 15.314 8.686 18 12 18V6Z" fill="currentColor"/></svg>
+                </a>
+                <nav class="primary-nav">
+                    <button class="primary-nav-link active" data-view="dashboard" title="Dashboard">
+                        <i class="fa-solid fa-users fa-lg"></i>
+                    </button>
+                    <button class="primary-nav-link" data-view="vaccines" title="Vaccine Tracking (Coming Soon)">
+                        <i class="fa-solid fa-syringe fa-lg"></i>
+                    </button>
+                    <button class="primary-nav-link" data-view="quizzes" title="Health Quizzes (Coming Soon)">
+                        <i class="fa-solid fa-question-circle fa-lg"></i>
+                    </button>
+                    <button class="primary-nav-link" data-view="analytics" title="Analytics (Coming Soon)">
+                        <i class="fa-solid fa-chart-pie fa-lg"></i>
+                    </button>
+                    <button class="primary-nav-link" data-view="alerts" title="Send Alerts (Coming Soon)">
+                        <i class="fa-solid fa-tower-broadcast fa-lg"></i>
+                    </button>
+                </nav>
+            </div>
+            <div class="primary-sidebar-bottom">
+                <button id="logout-btn" class="primary-nav-link" title="Logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket fa-lg"></i>
+                </button>
+            </div>
+        </aside>
+
+        <div class="worker-main-content">
+            <header class="dashboard-header">
+                <h1 class="header-title">Remedi Dashboard</h1>
+                <div class="worker-info" id="worker-name">
+                    Loading...
+                </div>
+            </header>
+            <main class="dashboard-main">
+                <aside class="family-list-panel">
+                    <h2>Assigned Families</h2>
+                    <div class="add-family-section">
+                        <form id="add-family-form">
+                            <input type="email" id="family-email-input" placeholder="Enter user's email ID" required>
+                            <button type="submit">Send Request</button>
+                        </form>
+                        <p id="request-status-msg"></p>
+                    </div>
+                    <div id="family-list-container">
+                        <div class="loader-small"></div>
+                    </div>
+                </aside>
+                <section id="details-view" class="details-view">
+                    <div class="placeholder">
+                        <i class="fa-solid fa-users"></i>
+                        <p>Select a family from the list to view their details.</p>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    
+    <div id="loader-overlay" class="loader-overlay">
+        <div class="loader-large"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="worker.js"></script>
+</body>
+</html>

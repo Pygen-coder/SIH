@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Remedi</title>
-    <link rel="stylesheet" href="Main.css"> 
+    <link rel="stylesheet" href="Main.css">
     <link rel="stylesheet" href="mobile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,6 +33,7 @@
                         </a>
                         <button class="nav-link" id="notification-btn" data-i18n-key="notificationTooltip" data-i18n-attr="title" title="Notifications">
                             <i class="fa-solid fa-bell fa-lg"></i>
+                            <span class="notification-badge hidden" id="notification-badge">0</span>
                         </button>
                         <button class="nav-link" id="history-btn" data-i18n-key="historyTooltip" data-i18n-attr="title" title="History">
                             <i class="fa-solid fa-clock-rotate-left fa-lg"></i>
@@ -114,6 +115,14 @@
                         </div>
                     </div>
                 </section>
+                 <section class="notification-section panel-section" id="notification-section">
+                    <div class="panel-header">
+                        <h2 data-i18n-key="notificationsTitle">Notifications</h2>
+                    </div>
+                    <div class="notification-list" id="notification-list">
+                        <p>No new notifications.</p>
+                    </div>
+                </section>
             </div>
         </aside>
 
@@ -170,7 +179,7 @@
                                 </div>
                                 <div class="dropdown-links">
                                     <a href="#" id="my-profile-link"><i class="fa-solid fa-user fa-fw"></i><span data-i18n-key="myProfile">My Profile</span></a>
-                                    <a href="#"><i class="fa-solid fa-users fa-fw"></i><span data-i18n-key="myFamily">My Family</span></a>
+                                    <a href="#" id="my-family-link"><i class="fa-solid fa-users fa-fw"></i><span data-i18n-key="myFamily">My Family</span></a>
                                     <a href="#"><i class="fa-solid fa-bell fa-fw"></i><span data-i18n-key="healthReminders">Health Reminders</span></a>
                                     <hr>
                                     <a href="#" id="worker-login-link"><i class="fa-solid fa-user-shield fa-fw"></i><span data-i18n-key="workerLogin">Worker Login</span></a>
@@ -241,7 +250,7 @@
         <video id="camera-view" autoplay playsinline></video>
         <canvas id="camera-canvas"></canvas>
         <div class="camera-controls">
-            <button id="close-camera-btn" class="close-camera-btn" data-i18n-key="cameraCloseTooltip" data-i18n-attr="title" title="Close Camera">&times;</button>
+            <button id="close-camera-btn" class="close-camera-btn" data-i18n-key="cameraCloseTooltip" data-i18n-attr="title" title="Close Camera">×</button>
             <button id="capture-btn" class="capture-btn" data-i18n-key="cameraCaptureTooltip" data-i18n-attr="title" title="Take Picture"></button>
         </div>
     </div>
@@ -296,7 +305,7 @@
 
     <div class="welcome-modal-overlay hidden" id="welcome-modal-overlay">
         <div class="welcome-modal">
-            <button class="close-welcome-modal" id="close-welcome-modal">&times;</button>
+            <button class="close-welcome-modal" id="close-welcome-modal">×</button>
             <h2 data-i18n-key="welcomeModalTitle">Welcome to Remedi!</h2>
             <p data-i18n-key="welcomeModalBody1">Sign in to get the most out of your personal health companion.</p>
             <ul>
@@ -324,7 +333,7 @@
 
     <div class="profile-modal-overlay hidden" id="profile-modal-overlay">
         <div class="profile-modal">
-            <button class="close-profile-modal" id="close-profile-modal">&times;</button>
+            <button class="close-profile-modal" id="close-profile-modal">×</button>
             <h2 data-i18n-key="myProfileTitle">My Profile</h2>
             <form id="profile-form" class="profile-form">
                 <div class="form-group">
@@ -341,8 +350,8 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="profile-age" data-i18n-key="ageLabel">Age</label>
-                        <input type="number" id="profile-age" min="1">
+                        <label for="profile-dob" data-i18n-key="dobLabel">Date of Birth</label>
+                        <input type="date" id="profile-dob">
                     </div>
                     <div class="form-group">
                         <label for="profile-gender" data-i18n-key="genderLabel">Gender</label>
@@ -350,7 +359,6 @@
                             <option value="male" data-i18n-key="genderMale">Male</option>
                             <option value="female" data-i18n-key="genderFemale">Female</option>
                             <option value="other" data-i18n-key="genderOther">Other</option>
-                            <option value="prefer_not_to_say" data-i18n-key="genderPreferNotToSay">Prefer not to say</option>
                         </select>
                     </div>
                 </div>
@@ -363,7 +371,7 @@
         <div class="places-modal">
             <div class="places-modal-header">
                  <h2 id="places-modal-title" data-i18n-key="placesModalTitle">Nearby Health Centers</h2>
-                 <button class="close-places-modal" id="close-places-modal">&times;</button>
+                 <button class="close-places-modal" id="close-places-modal">×</button>
             </div>
             <form class="places-search-form" id="places-search-form">
                 <input type="text" id="places-search-input" data-i18n-key="placesSearchPlaceholder" data-i18n-attr="placeholder" placeholder="Enter a city or address...">
@@ -379,6 +387,111 @@
         </div>
     </div>
     
+    <div class="family-modal-overlay hidden" id="family-modal-overlay">
+        <div class="family-modal">
+            <div class="family-modal-header">
+                <h2 data-i18n-key="myFamily">My Family</h2>
+                <button class="close-family-modal" id="close-family-modal">×</button>
+            </div>
+            <div class="family-list" id="family-list">
+                </div>
+            <button class="add-member-btn" id="add-member-btn"><i class="fa-solid fa-plus"></i> <span data-i18n-key="addFamilyMember">Add Family Member</span></button>
+            <form id="family-form" class="family-form hidden">
+                <h3 id="family-form-title" data-i18n-key="addFamilyMember">Add Family Member</h3>
+                <input type="hidden" id="family-member-id">
+                <div class="form-group">
+                    <label for="family-name" data-i18n-key="nameLabel">Name</label>
+                    <input type="text" id="family-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="family-relation" data-i18n-key="relationLabel">Relation</label>
+                    <input type="text" id="family-relation" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="family-dob" data-i18n-key="dobLabel">Date of Birth</label>
+                        <input type="date" id="family-dob" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="family-gender" data-i18n-key="genderLabel">Gender</label>
+                        <select id="family-gender" required>
+                            <option value="male" data-i18n-key="genderMale">Male</option>
+                            <option value="female" data-i18n-key="genderFemale">Female</option>
+                            <option value="other" data-i18n-key="genderOther">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancel-family-form" class="btn-secondary" data-i18n-key="cancelAction">Cancel</button>
+                    <button type="submit" class="btn-primary" data-i18n-key="saveButton">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="vaccination-modal-overlay hidden" id="vaccination-modal-overlay">
+        <div class="vaccination-modal">
+            <div class="vaccination-modal-header">
+                <h2 data-i18n-key="exploreVaccination">Vaccination Schedule</h2>
+                <button class="close-vaccination-modal" id="close-vaccination-modal">×</button>
+            </div>
+            <div class="vaccination-controls">
+                 <div class="form-group">
+                    <label for="vaccine-member-select" data-i18n-key="viewScheduleFor">View Schedule for:</label>
+                    <select id="vaccine-member-select">
+                        </select>
+                </div>
+                <button id="add-custom-vaccine-btn" class="btn-secondary"><i class="fa-solid fa-plus"></i> <span data-i18n-key="addCustomVaccine">Add Custom</span></button>
+            </div>
+             <form id="custom-vaccine-form" class="custom-vaccine-form hidden">
+                <h3 data-i18n-key="customVaccineFormTitle">Add Custom Vaccine</h3>
+                <div class="form-group">
+                    <label for="custom-vaccine-name" data-i18n-key="vaccineNameLabel">Vaccine Name</label>
+                    <input type="text" id="custom-vaccine-name" required>
+                </div>
+                 <div class="form-group">
+                    <label for="custom-vaccine-protects" data-i18n-key="protectsAgainstLabel">Protects Against</label>
+                    <input type="text" id="custom-vaccine-protects">
+                </div>
+                <div class="form-group">
+                    <label for="custom-vaccine-date" data-i18n-key="dateLabel">Date Given / Due Date</label>
+                    <input type="date" id="custom-vaccine-date" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancel-custom-vaccine-btn" class="btn-secondary" data-i18n-key="cancelAction">Cancel</button>
+                    <button type="submit" class="btn-primary" data-i18n-key="saveButton">Save</button>
+                </div>
+            </form>
+            <div class="vaccination-schedule-container" id="vaccination-schedule-container">
+                 </div>
+            <div class="vaccine-legend">
+                 <span class="legend-item due"><span class="legend-color"></span><span data-i18n-key="vaccineDue">Due</span></span>
+                 <span class="legend-item upcoming"><span class="legend-color"></span><span data-i18n-key="vaccineUpcoming">Upcoming</span></span>
+                 <span class="legend-item completed"><span class="legend-color"></span><span data-i18n-key="vaccineCompleted">Completed</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-modal-overlay hidden" id="worker-login-modal-overlay">
+        <div class="profile-modal">
+            <button class="close-profile-modal" id="close-worker-login-modal">×</button>
+            <h2 data-i18n-key="workerLogin">ASHA Worker Login</h2>
+            <form id="worker-login-form-main" class="profile-form">
+                <div class="form-group">
+                    <label for="worker-email-main" data-i18n-key="emailLabel">Email</label>
+                    <input type="email" id="worker-email-main" required>
+                </div>
+                <div class="form-group">
+                    <label for="worker-password-main" data-i18n-key="passwordPlaceholder">Password</label>
+                    <input type="password" id="worker-password-main" required>
+                </div>
+                <p id="worker-login-error" style="color: #ef4444; font-size: 0.9rem; text-align: center; min-height: 1em;"></p>
+                <button type="submit" class="btn-primary" data-i18n-key="signInAction">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>

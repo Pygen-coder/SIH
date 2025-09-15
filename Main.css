@@ -134,6 +134,7 @@ body.light-mode .sidebar-logo {
 }
 
 .nav-link {
+    position: relative;
     height: 56px;
     width: 56px;
     border-radius: 12px;
@@ -1389,7 +1390,7 @@ body.light-mode .google-login-btn:hover {
     display: none
 }
 
-.welcome-modal-overlay, .profile-modal-overlay {
+.welcome-modal-overlay, .profile-modal-overlay, .family-modal-overlay, .vaccination-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -1407,12 +1408,12 @@ body.light-mode .google-login-btn:hover {
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.welcome-modal-overlay.visible, .profile-modal-overlay.visible {
+.welcome-modal-overlay.visible, .profile-modal-overlay.visible, .family-modal-overlay.visible, .vaccination-modal-overlay.visible {
     opacity: 1;
     visibility: visible;
 }
 
-.welcome-modal, .profile-modal {
+.welcome-modal, .profile-modal, .family-modal, .vaccination-modal {
     background-color: var(--dm-bg-secondary);
     padding: 24px 32px;
     border-radius: 16px;
@@ -1424,19 +1425,23 @@ body.light-mode .google-login-btn:hover {
     transform: scale(0.95);
     transition: transform 0.3s ease;
 }
-.welcome-modal-overlay.visible .welcome-modal, 
-.profile-modal-overlay.visible .profile-modal {
+.welcome-modal-overlay.visible .welcome-modal,
+.profile-modal-overlay.visible .profile-modal,
+.family-modal-overlay.visible .family-modal,
+.vaccination-modal-overlay.visible .vaccination-modal {
     transform: scale(1);
 }
 
-body.light-mode .welcome-modal, 
-body.light-mode .profile-modal {
+body.light-mode .welcome-modal,
+body.light-mode .profile-modal,
+body.light-mode .family-modal,
+body.light-mode .vaccination-modal {
     background-color: var(--lm-bg-secondary);
     border-color: var(--lm-border);
     box-shadow: 0 10px 30px var(--dm-shadow-light);
 }
 
-.close-welcome-modal, .close-profile-modal {
+.close-welcome-modal, .close-profile-modal, .close-family-modal, .close-vaccination-modal {
     position: absolute;
     top: 12px;
     right: 12px;
@@ -1447,7 +1452,7 @@ body.light-mode .profile-modal {
     cursor: pointer;
 }
 
-.welcome-modal h2, .profile-modal h2 {
+.welcome-modal h2, .profile-modal h2, .family-modal h2, .vaccination-modal h2 {
     margin-top: 0;
     font-family: 'Montserrat', sans-serif;
 }
@@ -1486,7 +1491,7 @@ body.light-mode .welcome-modal p {
     margin-top: 24px;
 }
 
-.welcome-modal-actions .btn-secondary {
+.btn-secondary {
     background: transparent;
     border: 1px solid var(--dm-border);
     color: var(--dm-text-primary);
@@ -1496,18 +1501,18 @@ body.light-mode .welcome-modal p {
     font-weight: 500;
     transition: background-color 0.2s;
 }
-body.light-mode .welcome-modal-actions .btn-secondary {
+body.light-mode .btn-secondary {
     border-color: var(--lm-border);
     color: var(--lm-text-primary);
 }
-.welcome-modal-actions .btn-secondary:hover {
+.btn-secondary:hover {
      background-color: var(--dm-bg-tertiary);
 }
-body.light-mode .welcome-modal-actions .btn-secondary:hover {
+body.light-mode .btn-secondary:hover {
      background-color: var(--lm-bg-tertiary);
 }
 
-.welcome-modal-actions .btn-primary, .profile-form .btn-primary {
+.btn-primary {
     background: var(--accent-primary);
     border: 1px solid var(--accent-primary);
     color: white;
@@ -1516,53 +1521,49 @@ body.light-mode .welcome-modal-actions .btn-secondary:hover {
     cursor: pointer;
     font-weight: 500;
     transition: background-color 0.2s;
-    width: 100%;
 }
-.welcome-modal-actions .btn-primary:hover, .profile-form .btn-primary:hover {
+.btn-primary:hover {
     background: var(--accent-secondary);
 }
+
 .profile-form .btn-primary {
+    width: 100%;
     margin-top: 16px;
     padding: 12px 20px;
     font-size: 1rem;
 }
 
+
 .hidden {
-    display: none;
+    display: none !important;
 }
 
-.profile-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.profile-form .form-group {
+.form-group {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
-.profile-form .form-row {
+.form-row {
     display: flex;
     gap: 16px;
 }
 
-.profile-form .form-row .form-group {
+.form-row .form-group {
     flex: 1;
 }
 
-.profile-form label {
+.form-group label {
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--dm-text-secondary);
 }
 
-body.light-mode .profile-form label {
+body.light-mode .form-group label {
      color: var(--lm-text-secondary);
 }
 
-.profile-form input, .profile-form select {
+.form-group input, .form-group select {
     background-color: var(--dm-bg-primary);
     border: 1px solid var(--dm-border);
     color: var(--dm-text-primary);
@@ -1571,28 +1572,34 @@ body.light-mode .profile-form label {
     font-size: 1rem;
     font-family: inherit;
 }
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
 .profile-form input:disabled {
     background-color: var(--dm-bg-tertiary);
     cursor: not-allowed;
 }
 
-body.light-mode .profile-form input, body.light-mode .profile-form select {
+body.light-mode .form-group input, body.light-mode .form-group select {
     background-color: var(--lm-bg-tertiary);
     border-color: var(--lm-border);
     color: var(--lm-text-primary);
 }
 
-.profile-form input[type=number]::-webkit-inner-spin-button,
-.profile-form input[type=number]::-webkit-outer-spin-button {
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-.profile-form input[type=number] {
+input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
 
-.profile-form select {
+.form-group select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -1603,7 +1610,7 @@ body.light-mode .profile-form input, body.light-mode .profile-form select {
     padding-right: 2.5rem;
 }
 
-body.light-mode .profile-form select {
+body.light-mode .form-group select {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
 }
 
@@ -2172,7 +2179,7 @@ body.light-mode .suggestion-card:hover {
     animation: spin 1s linear infinite;
 }
 
-body.light-mode .refresh-suggestions-btn, 
+body.light-mode .refresh-suggestions-btn,
 body.light-mode .suggestion-info-btn {
     background-color: var(--lm-bg-tertiary);
     border-color: var(--lm-border);
@@ -2450,11 +2457,346 @@ body.light-mode .places-search-form button {
     margin-top: 1rem;
 }
 
-/* --- START: Themed Scrollbar Styles --- */
+.family-modal {
+    max-width: 520px;
+}
+.family-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--dm-border);
+    margin-bottom: 16px;
+}
+body.light-mode .family-modal-header {
+    border-bottom-color: var(--lm-border);
+}
+
+.family-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+    max-height: 40vh;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.family-member-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background-color: var(--dm-bg-tertiary);
+    border-radius: 12px;
+}
+body.light-mode .family-member-card {
+    background-color: var(--lm-bg-tertiary);
+}
+.family-member-avatar {
+    width: 48px;
+    height: 48px;
+}
+.family-member-info {
+    flex-grow: 1;
+}
+.family-member-info strong {
+    font-size: 1.1rem;
+}
+.family-member-info p {
+    margin: 2px 0 0;
+    color: var(--dm-text-secondary);
+    font-size: 0.9rem;
+}
+.family-member-actions button {
+    background: none;
+    border: none;
+    color: var(--dm-text-secondary);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+}
+.family-member-actions button:hover {
+    background-color: var(--dm-bg-secondary);
+    color: var(--dm-text-primary);
+}
+body.light-mode .family-member-actions button:hover {
+    background-color: var(--lm-bg-secondary);
+    color: var(--lm-text-primary);
+}
+.family-member-actions .delete-btn:hover {
+    color: #ef4444;
+}
+.add-member-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px dashed var(--dm-border);
+    background-color: transparent;
+    color: var(--dm-text-secondary);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.add-member-btn:hover {
+    background-color: var(--dm-bg-tertiary);
+    color: var(--dm-text-primary);
+    border-color: var(--accent-primary);
+}
+body.light-mode .add-member-btn {
+    border-color: var(--lm-border);
+}
+body.light-mode .add-member-btn:hover {
+    background-color: var(--lm-bg-tertiary);
+    color: var(--lm-text-primary);
+}
+.family-form {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--dm-border);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+body.light-mode .family-form {
+    border-top-color: var(--lm-border);
+}
+.family-form h3 {
+    margin: 0;
+}
+.family-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.vaccination-modal {
+    max-width: 720px;
+}
+.vaccination-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--dm-border);
+}
+body.light-mode .vaccination-modal-header {
+    border-bottom-color: var(--lm-border);
+}
+
+.vaccination-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.vaccination-controls .form-group {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+.vaccination-schedule-container {
+    max-height: 55vh;
+    overflow-y: auto;
+    border: 1px solid var(--dm-border);
+    border-radius: 8px;
+    padding: 8px;
+}
+body.light-mode .vaccination-schedule-container {
+    border-color: var(--lm-border);
+}
+.vaccine-age-group {
+    margin-bottom: 16px;
+}
+.vaccine-age-group-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    background-color: var(--dm-bg-tertiary);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+body.light-mode .vaccine-age-group-header {
+    background-color: var(--lm-bg-tertiary);
+}
+
+.vaccine-due-date {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--dm-text-secondary);
+}
+
+.vaccine-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.vaccine-item:not(:last-child) {
+    border-bottom: 1px solid var(--dm-border);
+}
+body.light-mode .vaccine-item:not(:last-child) {
+    border-bottom-color: var(--lm-border);
+}
+
+.vaccine-item-details {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vaccine-name {
+    font-weight: 500;
+}
+.vaccine-name small {
+    display: block;
+    color: var(--dm-text-secondary);
+    font-weight: 400;
+    font-size: 0.85rem;
+}
+.vaccine-status {
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.vaccine-status.due {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #F87171;
+}
+.vaccine-status.upcoming {
+    background-color: rgba(251, 191, 36, 0.1);
+    color: #FBBF24;
+}
+.vaccine-status.completed {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #4ADE80;
+}
+
+.vaccine-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 16px;
+    font-size: 0.9rem;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+.legend-item.due .legend-color { background-color: #F87171; }
+.legend-item.upcoming .legend-color { background-color: #FBBF24; }
+.legend-item.completed .legend-color { background-color: #4ADE80; }
+
+.custom-vaccine-form {
+    margin: 0 0 16px 0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--dm-border);
+    background-color: var(--dm-bg-tertiary);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+body.light-mode .custom-vaccine-form {
+    border-color: var(--lm-border);
+    background-color: var(--lm-bg-tertiary);
+}
+.custom-vaccine-form h3 {
+    margin: 0 0 8px 0;
+}
+.custom-vaccine-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.form-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 24px;
+}
+.form-group-checkbox label {
+    cursor: pointer;
+}
+.form-group-checkbox input {
+    width: 18px;
+    height: 18px;
+}
+
+.vaccine-checkbox {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    background-color: transparent;
+    border: 2px solid var(--dm-border);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+.vaccine-checkbox:checked {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+.vaccine-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+body.light-mode .vaccine-checkbox {
+    border-color: var(--lm-border);
+}
+
+.vaccine-custom-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    background-color: var(--dm-bg-tertiary);
+    border-radius: 6px;
+    margin-top: 24px;
+    margin-bottom: 8px;
+}
+body.light-mode .vaccine-custom-header {
+    background-color: var(--lm-bg-tertiary);
+}
+
 .history-list::-webkit-scrollbar,
 .discover-list::-webkit-scrollbar,
 .places-list::-webkit-scrollbar,
 .chat-messages::-webkit-scrollbar,
+.family-list::-webkit-scrollbar,
+.vaccination-schedule-container::-webkit-scrollbar,
 #user-input::-webkit-scrollbar {
     width: 8px;
 }
@@ -2463,6 +2805,8 @@ body.light-mode .places-search-form button {
 .discover-list::-webkit-scrollbar-track,
 .places-list::-webkit-scrollbar-track,
 .chat-messages::-webkit-scrollbar-track,
+.family-list::-webkit-scrollbar-track,
+.vaccination-schedule-container::-webkit-scrollbar-track,
 #user-input::-webkit-scrollbar-track {
     background: transparent;
 }
@@ -2470,6 +2814,8 @@ body.light-mode .places-search-form button {
 .history-list::-webkit-scrollbar-thumb,
 .discover-list::-webkit-scrollbar-thumb,
 .places-list::-webkit-scrollbar-thumb,
+.family-list::-webkit-scrollbar-thumb,
+.vaccination-schedule-container::-webkit-scrollbar-thumb,
 #user-input::-webkit-scrollbar-thumb {
     background-color: var(--dm-bg-tertiary);
     border-radius: 10px;
@@ -2485,6 +2831,8 @@ body.light-mode .places-search-form button {
 .discover-list::-webkit-scrollbar-thumb:hover,
 .places-list::-webkit-scrollbar-thumb:hover,
 .chat-messages::-webkit-scrollbar-thumb:hover,
+.family-list::-webkit-scrollbar-thumb:hover,
+.vaccination-schedule-container::-webkit-scrollbar-thumb:hover,
 #user-input::-webkit-scrollbar-thumb:hover {
     background-color: var(--dm-border);
 }
@@ -2492,6 +2840,8 @@ body.light-mode .places-search-form button {
 body.light-mode .history-list::-webkit-scrollbar-thumb,
 body.light-mode .discover-list::-webkit-scrollbar-thumb,
 body.light-mode .places-list::-webkit-scrollbar-thumb,
+body.light-mode .family-list::-webkit-scrollbar-thumb,
+body.light-mode .vaccination-schedule-container::-webkit-scrollbar-thumb,
 body.light-mode #user-input::-webkit-scrollbar-thumb {
     background-color: #d1d5db;
     border-color: var(--lm-bg-primary);
@@ -2505,13 +2855,12 @@ body.light-mode .history-list::-webkit-scrollbar-thumb:hover,
 body.light-mode .discover-list::-webkit-scrollbar-thumb:hover,
 body.light-mode .places-list::-webkit-scrollbar-thumb:hover,
 body.light-mode .chat-messages::-webkit-scrollbar-thumb:hover,
+body.light-mode .family-list::-webkit-scrollbar-thumb:hover,
+body.light-mode .vaccination-schedule-container::-webkit-scrollbar-thumb:hover,
 body.light-mode #user-input::-webkit-scrollbar-thumb:hover {
     background-color: #9ca3af;
 }
-/* --- END: Themed Scrollbar Styles --- */
 
-
-/* --- START: Google Places Autocomplete Dropdown Styling --- */
 .pac-container {
     background-color: var(--dm-bg-primary);
     border: 1px solid var(--dm-border);
@@ -2544,11 +2893,11 @@ body.light-mode .pac-item:hover {
 
 .pac-item,
 .pac-item .pac-item-query {
-    color: var(--dm-text-primary); /* For matched (bold) and unmatched text */
+    color: var(--dm-text-primary);
 }
 
 .pac-item span {
-    color: var(--dm-text-secondary); /* For secondary text like ", India" */
+    color: var(--dm-text-secondary);
 }
 
 body.light-mode .pac-item,
@@ -2567,9 +2916,242 @@ body.light-mode .pac-item span {
 .pac-logo:after {
     display: none;
 }
-/* --- END: Google Places Autocomplete Dropdown Styling --- */
 
+.sidebar.showing-notifications .notification-section {
+    display: flex;
+}
 
+.notification-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ef4444;
+    color: white;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--dm-bg-primary);
+}
+body.light-mode .notification-badge {
+    border-color: var(--lm-bg-primary);
+}
+
+.notification-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.notification-list::-webkit-scrollbar { width: 8px; }
+.notification-list::-webkit-scrollbar-track { background: transparent; }
+.notification-list::-webkit-scrollbar-thumb {
+    background-color: var(--dm-bg-tertiary);
+    border-radius: 10px;
+    border: 2px solid var(--dm-bg-primary);
+}
+body.light-mode .notification-list::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-color: var(--lm-bg-primary);
+}
+
+.notification-group {
+    width: 100%;
+}
+
+.notification-group-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 16px;
+    background-color: var(--dm-bg-tertiary);
+    border: 1px solid var(--dm-border);
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--dm-text-primary);
+    text-align: left;
+    transition: background-color 0.2s, border-radius 0.15s ease-in-out, border-color 0.2s;
+}
+
+body.light-mode .notification-group-toggle {
+    background-color: var(--lm-bg-secondary);
+    border-color: var(--lm-border);
+    color: var(--lm-text-primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.notification-group.is-open .notification-group-toggle {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-color: transparent;
+}
+
+.notification-group-toggle:hover {
+    border-color: var(--accent-primary);
+}
+
+.notification-group-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.notification-group-count {
+    background-color: var(--dm-border);
+    color: var(--dm-text-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 12px;
+}
+body.light-mode .notification-group-count {
+    background-color: var(--lm-border);
+    color: var(--lm-text-secondary);
+}
+.notification-group-count.due {
+    background-color: var(--color-danger);
+    color: white;
+}
+.notification-group-count.upcoming {
+    background-color: var(--color-warning);
+    color: #111827;
+}
+
+.notification-group-toggle .fa-chevron-down {
+    margin-left: auto;
+    color: var(--dm-text-secondary);
+    transition: transform 0.3s ease;
+}
+
+.notification-group.is-open .notification-group-toggle .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.notification-group-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, padding 0.4s ease-out, border-color 0.4s ease;
+    background-color: var(--dm-bg-secondary);
+    border: 1px solid transparent;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 0 8px;
+}
+
+body.light-mode .notification-group-content {
+    background-color: #f8fafc;
+    border-color: var(--lm-border);
+}
+
+.notification-group.is-open .notification-group-content {
+    max-height: 1000px;
+    transition: max-height 0.5s ease-in, padding 0.5s ease-in;
+    padding: 8px;
+    border-color: var(--dm-border);
+}
+body.light-mode .notification-group.is-open .notification-group-content {
+     border-color: var(--lm-border);
+}
+
+.notification-group-content .notification-item {
+    margin: 0 0 4px 0;
+    background-color: transparent;
+    border-left: 4px solid transparent;
+    border-radius: 8px;
+    padding-left: 12px;
+}
+.notification-group-content .notification-item:last-child {
+    margin-bottom: 0;
+}
+.notification-group-content .notification-item:hover {
+    background-color: var(--dm-bg-primary);
+}
+body.light-mode .notification-group-content .notification-item:hover {
+    background-color: var(--lm-bg-secondary);
+}
+
+.notification-item {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    border-radius: 12px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.notification-item.due {
+    border-left-color: var(--color-danger);
+}
+.notification-item.upcoming {
+    border-left-color: var(--color-warning);
+}
+.notification-item.access-request {
+    border-left-color: var(--accent-primary);
+}
+
+.notification-icon {
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.notification-item.due .notification-icon {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger);
+}
+.notification-item.upcoming .notification-icon {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--color-warning);
+}
+.notification-item.access-request .notification-icon {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--accent-primary);
+}
+
+.notification-content p {
+    margin: 0;
+    font-weight: 500;
+    line-height: 1.5;
+}
+.notification-content small {
+    color: var(--dm-text-secondary);
+}
+
+.notification-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.notification-actions button {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--dm-border);
+    background-color: transparent;
+    color: var(--dm-text-primary);
+    cursor: pointer;
+    font-weight: 500;
+}
+.notification-actions .btn-approve {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: white;
+}
+.notification-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
 
 @media (max-width: 960px) {
