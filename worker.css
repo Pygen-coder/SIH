@@ -230,6 +230,27 @@ body {
 .member-header h4 { margin: 0; font-size: 1.2rem; }
 .member-info { font-size: 0.9rem; color: var(--dm-text-secondary); }
 
+.member-selector-container {
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.member-selector-container label {
+    font-weight: 500;
+}
+#member-select {
+    flex-grow: 1;
+    background-color: var(--dm-bg-secondary);
+    border: 1px solid var(--dm-border);
+    color: var(--dm-text-primary);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+
 .vaccine-table {
     width: 100%;
     border-collapse: collapse;
@@ -237,11 +258,44 @@ body {
     margin-top: 16px;
 }
 .vaccine-table th, .vaccine-table td {
-    padding: 8px;
+    padding: 10px 8px;
     text-align: left;
     border-bottom: 1px solid var(--dm-border);
+    vertical-align: middle;
 }
 .vaccine-table th { font-weight: 600; }
+.vaccine-table td:first-child { width: 30px; }
+
+.vaccine-checkbox {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    background-color: transparent;
+    border: 2px solid var(--dm-border);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+.vaccine-checkbox:checked {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+.vaccine-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
 .status-due { color: var(--color-danger); font-weight: bold; }
 .status-upcoming { color: var(--color-warning); }
 .status-completed { color: var(--color-success); }
@@ -276,7 +330,6 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* FIX: Added missing .hidden class */
 .hidden {
     display: none !important;
 }
