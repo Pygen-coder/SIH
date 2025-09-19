@@ -6,6 +6,7 @@
     <title>ASHA Worker Portal - Remedi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="worker.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDrK-JvI0n_V6sJjhVD0qBTZxN67YH_4Iw&libraries=places" async defer></script>
 </head>
 <body>
     <div class="worker-page-wrapper">
@@ -18,17 +19,14 @@
                     <button class="primary-nav-link active" data-view="dashboard" title="Dashboard">
                         <i class="fa-solid fa-users fa-lg"></i>
                     </button>
-                    <button class="primary-nav-link" data-view="vaccines" title="Vaccine Tracking (Coming Soon)">
+                    <button class="primary-nav-link" data-view="vaccine-management" title="Vaccine Management">
                         <i class="fa-solid fa-syringe fa-lg"></i>
                     </button>
-                    <button class="primary-nav-link" data-view="quizzes" title="Health Quizzes (Coming Soon)">
-                        <i class="fa-solid fa-question-circle fa-lg"></i>
-                    </button>
-                    <button class="primary-nav-link" data-view="analytics" title="Analytics (Coming Soon)">
-                        <i class="fa-solid fa-chart-pie fa-lg"></i>
-                    </button>
-                    <button class="primary-nav-link" data-view="alerts" title="Send Alerts (Coming Soon)">
+                    <button class="primary-nav-link" data-view="alerts" title="Send Alerts">
                         <i class="fa-solid fa-tower-broadcast fa-lg"></i>
+                    </button>
+                     <button class="primary-nav-link" data-view="analytics" title="Analytics (Coming Soon)">
+                        <i class="fa-solid fa-chart-pie fa-lg"></i>
                     </button>
                 </nav>
             </div>
@@ -41,12 +39,13 @@
 
         <div class="worker-main-content">
             <header class="dashboard-header">
-                <h1 class="header-title">Remedi Dashboard</h1>
+                <h1 class="header-title" id="header-title">Remedi Dashboard</h1>
                 <div class="worker-info" id="worker-name">
                     Loading...
                 </div>
             </header>
-            <main class="dashboard-main">
+            
+            <main id="dashboard-main" class="dashboard-main">
                 <aside class="family-list-panel">
                     <h2>Assigned Families</h2>
                     <div class="add-family-section">
@@ -71,9 +70,76 @@
                             <select id="member-select"></select>
                         </div>
                         <div id="member-details-container">
-                            </div>
+                            <!-- Member vaccine info will be loaded here -->
+                        </div>
                     </div>
                 </section>
+            </main>
+
+            <main id="vaccine-management-main" class="vaccine-management-main hidden">
+                <div class="vaccine-management-form-container">
+                    <h3>Add New Default Vaccine</h3>
+                    <form id="add-vaccine-form" class="add-vaccine-form">
+                         <div class="form-group">
+                            <label for="vaccine-age-group">Age Group (e.g., 6 Weeks)</label>
+                            <input type="text" id="vaccine-age-group" placeholder="e.g., 6 Weeks" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="vaccine-name">Vaccine Name</label>
+                            <input type="text" id="vaccine-name" placeholder="e.g., DTwP 1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="vaccine-protects">Protects Against</label>
+                            <input type="text" id="vaccine-protects" placeholder="e.g., Diphtheria, Tetanus" required>
+                        </div>
+                        <button type="submit">Add Vaccine</button>
+                    </form>
+                </div>
+                <div id="default-schedule-container" class="default-schedule-container">
+                    <!-- Default vaccine schedule editor will be loaded here -->
+                </div>
+            </main>
+
+            <main id="send-alert-main" class="send-alert-main hidden">
+                <div class="alert-form-container">
+                    <h3><i class="fa-solid fa-bullhorn"></i> Broadcast New Health Alert</h3>
+                    <form id="send-alert-form">
+                        <div class="form-group">
+                            <label>Target Audience</label>
+                            <div class="radio-group-pills">
+                                <label><input type="radio" name="alert-target" value="all" checked><span><i class="fa-solid fa-globe"></i> All Users</span></label>
+                                <label><input type="radio" name="alert-target" value="location"><span><i class="fa-solid fa-map-marker-alt"></i> Specific Location</span></label>
+                                <label><input type="radio" name="alert-target" value="user"><span><i class="fa-solid fa-user"></i> Specific User</span></label>
+                            </div>
+                        </div>
+                        <div id="location-input-container" class="form-group hidden">
+                             <label for="alert-location">Location (City, District, or State)</label>
+                            <input type="text" id="alert-location" placeholder="e.g., Jatni, Khordha">
+                        </div>
+                         <div id="user-input-container" class="form-group hidden">
+                             <label for="alert-user-email">User Email</label>
+                            <input type="email" id="alert-user-email" placeholder="e.g., user@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="alert-title">Alert Title</label>
+                            <input type="text" id="alert-title" placeholder="e.g., Dengue Outbreak Warning" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="alert-message">Message</label>
+                            <textarea id="alert-message" rows="5" placeholder="Enter the full alert message for users..." required></textarea>
+                        </div>
+                        <button type="submit">
+                           <i class="fa-solid fa-paper-plane"></i> Send Alert
+                        </button>
+                    </form>
+                    <p id="alert-status-msg"></p>
+                </div>
+                <div class="recent-alerts-container">
+                    <h3><i class="fa-solid fa-history"></i> Recent Alerts</h3>
+                    <div id="recent-alerts-list">
+                        <p>No recent alerts found.</p>
+                    </div>
+                </div>
             </main>
         </div>
     </div>

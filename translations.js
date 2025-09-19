@@ -107,6 +107,10 @@ const translations = {
     historyLoginPrompt: "Log in to see your chat history.",
     historyNoChats: "No chats yet. Start a conversation!",
     historyLoadError: "Could not load chat history.",
+    // Notifications
+    notificationsTitle: "Notifications",
+    accessRequestsTitle: "Access Requests",
+    healthAlertsTitle: "Health Alerts",
     // General Actions & Alerts
     signInRequiredTitle: "Sign In Required",
     signInToViewHistory: "Please sign in to view your chat history.",
@@ -118,7 +122,6 @@ const translations = {
     closeAction: "Close",
     errorTitle: "Error",
     comingSoonTitle: "Coming Soon",
-    notificationsTitle: "Notifications",
     profileUpdateFailedMessage: "Failed to update profile. Please try again.",
     speechRecognitionError: "Sorry, a speech recognition error occurred: {error}\n\nPlease check your microphone and browser permissions.",
     voiceInputNotSupported: "Voice input is not supported in your browser.",
@@ -290,6 +293,10 @@ const translations = {
     historyLoginPrompt: "अपनी चैट इतिहास देखने के लिए लॉग इन करें।",
     historyNoChats: "अभी तक कोई चैट नहीं। एक वार्तालाप शुरू करें!",
     historyLoadError: "चैट इतिहास लोड नहीं हो सका।",
+    // Notifications
+    notificationsTitle: "सूचनाएं",
+    accessRequestsTitle: "पहुँच अनुरोध",
+    healthAlertsTitle: "स्वास्थ्य चेतावनी",
     // General Actions & Alerts
     signInRequiredTitle: "साइन इन आवश्यक है",
     signInToViewHistory: "कृपया अपनी चैट इतिहास देखने के लिए साइन इन करें।",
@@ -301,7 +308,6 @@ const translations = {
     closeAction: "बंद करें",
     errorTitle: "त्रुटि",
     comingSoonTitle: "जल्द आ रहा है",
-    notificationsTitle: "सूचनाएं",
     profileUpdateFailedMessage: "प्रोफ़ाइल अपडेट करने में विफल। कृपया पुन: प्रयास करें।",
     speechRecognitionError: "क्षमा करें, एक वाक् पहचान त्रुटि हुई: {error}\n\nकृपया अपना माइक्रोफ़ोन कनेक्शन और ब्राउज़र अनुमतियाँ जांचें।",
     voiceInputNotSupported: "आपके ब्राउज़र में ध्वनि इनपुट समर्थित नहीं है।",
@@ -473,6 +479,10 @@ const translations = {
     historyLoginPrompt: "ଆପଣଙ୍କର ଚାଟ୍ ଇତିହାସ ଦେଖିବା ପାଇଁ ଲଗ୍ ଇନ୍ କରନ୍ତୁ।",
     historyNoChats: "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଚାଟ୍ ନାହିଁ। ଏକ ବାର୍ତ୍ତାଳାପ ଆରମ୍ଭ କରନ୍ତୁ!",
     historyLoadError: "ଚାଟ୍ ଇତିହାସ ଲୋଡ୍ ହୋଇପାରିଲା ନାହିଁ।",
+    // Notifications
+    notificationsTitle: "ବିଜ୍ଞପ୍ତି",
+    accessRequestsTitle: "ପ୍ରବେଶ ଅନୁରୋଧ",
+    healthAlertsTitle: "ସ୍ୱାସ୍ଥ୍ୟ ସତର୍କତା",
     // General Actions & Alerts
     signInRequiredTitle: "ସାଇନ୍ ଇନ୍ ଆବଶ୍ୟକ",
     signInToViewHistory: "ଆପଣଙ୍କର ଚାଟ୍ ଇତିହାସ ଦେଖିବା ପାଇଁ ଦୟାକରି ସାଇନ୍ ଇନ୍ କରନ୍ତୁ।",
@@ -484,7 +494,6 @@ const translations = {
     closeAction: "ବନ୍ଦ କରନ୍ତୁ",
     errorTitle: "ତ୍ରୁଟି",
     comingSoonTitle: "ଶୀଘ୍ର ଆସୁଛି",
-    notificationsTitle: "ବିଜ୍ଞପ୍ତି",
     profileUpdateFailedMessage: "ପ୍ରୋଫାଇଲ୍ ଅପଡେଟ୍ କରିବାରେ ବିଫଳ। ଦୟାକରି ପୁନର୍ବାର ଚେଷ୍ଟା କରନ୍ତୁ।",
     speechRecognitionError: "କ୍ଷମା କରନ୍ତୁ, ଏକ ବାକ୍ ଚିହ୍ନଟ ତ୍ରୁଟି ଘଟିଛି: {error}\n\nଦୟାକରି ଆପଣଙ୍କର ମାଇକ୍ରୋଫୋନ୍ ସଂଯୋଗ ଏବଂ ବ୍ରାଉଜର୍ ଅନୁମତି ଯାଞ୍ଚ କରନ୍ତୁ।",
     voiceInputNotSupported: "ଆପଣଙ୍କ ବ୍ରାଉଜରରେ ଭଏସ୍ ଇନପୁଟ୍ ସମର୍ଥିତ ନୁହେଁ।",

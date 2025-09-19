@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let placesAutocomplete = null;
     let currentSearchLocation = null;
     let isPrescriptionMode = false;
+    let defaultVaccineSchedule = {};
 
     const sidebar = document.getElementById('sidebar');
     const mainInterface = document.getElementById('main-interface');
@@ -123,6 +124,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_KEY = "AIzaSyCBokerj127n_x2RwOgDd7ALgZtNxuMLyA";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
+    async function fetchDefaultSchedule() {
+        if (Object.keys(defaultVaccineSchedule).length > 0) return;
+        try {
+            const scheduleSnapshot = await db.collection('defaultVaccineSchedule').orderBy('displayOrder').get();
+            const schedule = {};
+            for (const doc of scheduleSnapshot.docs) {
+                const ageGroupData = doc.data();
+                const vaccinesSnapshot = await doc.ref.collection('vaccines').get();
+                schedule[doc.id] = {
+                    ...ageGroupData,
+                    vaccines: vaccinesSnapshot.docs.map(vaccineDoc => ({ id: vaccineDoc.id, ...vaccineDoc.data() }))
+                };
+            }
+            defaultVaccineSchedule = schedule;
+        } catch (error) {
+            console.error("Error fetching default vaccine schedule:", error);
+        }
+    }
+
     const t = (key, params = {}) => {
         let text = translations[currentLanguage]?.[key] || translations.en[key] || key;
         for (const [param, value] of Object.entries(params)) {
@@ -148,6 +168,274 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMicIcon();
     };
 
+    auth.onAuthStateChanged(async (user) => {
+        updateUserProfileUI(user);
+        displayPreChatSuggestions();
+        if (user) {
+            profileDropdown.classList.remove('show');
+            if (authContainer) authContainer.classList.remove('show');
+            
+            await fetchDefaultSchedule();
+            checkAllNotifications();
+
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (!userDoc.exists || !userDoc.data().dob || !userDoc.data().gender) {
+                setTimeout(openProfileModal, 1500);
+            }
+        } else {
+            updateNotificationBadge(0);
+            setTimeout(showWelcomeModal, 2000);
+        }
+    });
+
+    function updateUserProfileUI(user) {
+        const avatarCapsule = document.getElementById('profile-avatar-capsule');
+        const avatarDropdown = document.getElementById('profile-avatar-dropdown');
+        if (user) {
+            loggedOutView.style.display = 'none';
+            loggedInView.style.display = 'block';
+            const displayName = user.displayName || user.email.split('@')[0];
+            profileBtnText.textContent = displayName;
+            userNameDropdown.textContent = user.displayName || 'User';
+            userEmailDropdown.textContent = user.email;
+            if (user.photoURL) {
+                avatarCapsule.innerHTML = `<img src="${user.photoURL}" alt="Profile Picture">`;
+                avatarDropdown.innerHTML = `<img src="${user.photoURL}" alt="Profile Picture">`;
+            } else {
+                const initial = (displayName).charAt(0).toUpperCase();
+                const colors = ["#ffc107", "#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", "#00bcd4", "#4caf50", "#8bc34a", "#ff9800", "#795548"];
+                const colorIndex = Math.abs(displayName.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0)) % colors.length;
+                const avatarHTML = `<div class="initials-avatar" style="background-color: ${colors[colorIndex]}; color: #fff;">${initial}</div>`;
+                avatarCapsule.innerHTML = avatarHTML;
+                avatarDropdown.innerHTML = avatarHTML;
+            }
+            fetchChatHistory(user.uid);
+        } else {
+            loggedOutView.style.display = 'block';
+            loggedInView.style.display = 'none';
+            profileBtnText.textContent = t('profileSignIn');
+            avatarCapsule.innerHTML = '<i class="fa-solid fa-user-circle"></i>';
+            avatarDropdown.innerHTML = '<i class="fa-solid fa-user-circle fa-2x"></i>';
+            if (unsubscribeHistory) unsubscribeHistory();
+            historyList.innerHTML = `<p>${t('historyLoginPrompt')}</p>`;
+            startNewChat();
+        }
+    }
+
+    const checkAllNotifications = async () => {
+        const user = auth.currentUser;
+        if (!user) {
+            updateNotificationBadge(0);
+            return;
+        }
+        await fetchDefaultSchedule();
+        const [vaccineNotifications, accessRequests, globalAlerts] = await Promise.all([
+            getVaccineNotifications(user.uid),
+            getAccessRequests(user.uid),
+            getGlobalAlerts(user.uid)
+        ]);
+        const groupedNotifications = {
+            alerts: globalAlerts.alerts,
+            accessRequests: accessRequests,
+            due: [],
+            upcoming: []
+        };
+        vaccineNotifications.forEach(notification => {
+            if (notification.status === 'due') {
+                groupedNotifications.due.push(notification);
+            } else {
+                groupedNotifications.upcoming.push(notification);
+            }
+        });
+        groupedNotifications.due.sort((a, b) => (a.sortDate || 0) - (b.sortDate || 0));
+        groupedNotifications.upcoming.sort((a, b) => (a.sortDate || 0) - (b.sortDate || 0));
+        renderNotifications(groupedNotifications);
+        updateNotificationBadge(accessRequests.length + vaccineNotifications.length + globalAlerts.unreadCount);
+    };
+
+    async function getGlobalAlerts(uid) {
+        const user = auth.currentUser;
+        if (!user) return { alerts: [], unreadCount: 0 };
+    
+        const userDoc = await db.collection('users').doc(uid).get();
+        const userProfile = userDoc.data();
+        const lastViewTimestamp = userProfile?.lastAlertViewTimestamp || null;
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    
+        const alertsQuery = db.collection('globalAlerts')
+                              .where('createdAt', '>=', sevenDaysAgo)
+                              .orderBy('createdAt', 'desc');
+        
+        const snapshot = await alertsQuery.get();
+        
+        const relevantAlerts = [];
+        snapshot.forEach(doc => {
+            const alert = { id: doc.id, ...doc.data() };
+            const target = alert.target;
+
+            if (target && target.type === 'all') {
+                relevantAlerts.push(alert);
+            } else if (target && target.type === 'user' && target.value === user.email) {
+                relevantAlerts.push(alert);
+            }
+        });
+    
+        let unreadCount = 0;
+        if (lastViewTimestamp) {
+            unreadCount = relevantAlerts.filter(alert => alert.createdAt && alert.createdAt.toDate() > lastViewTimestamp.toDate()).length;
+        } else {
+            unreadCount = relevantAlerts.length;
+        }
+    
+        return { alerts: relevantAlerts, unreadCount };
+    }
+
+    async function getAccessRequests(uid) {
+        const requests = [];
+        const querySnapshot = await db.collection('accessRequests').where('userUid', '==', uid).where('status', '==', 'pending').get();
+        querySnapshot.forEach(doc => {
+            requests.push({ type: 'accessRequest', id: doc.id, ...doc.data() });
+        });
+        return requests;
+    }
+
+    async function getVaccineNotifications(uid) {
+        if (Object.keys(defaultVaccineSchedule).length === 0) return [];
+        const notifications = [];
+        const familySnapshot = await db.collection('users').doc(uid).collection('familyMembers').get();
+        if (familySnapshot.empty) return [];
+        const members = familySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        for (const member of members) {
+            if (!member.dob) continue;
+            const vaccinationSnapshot = await db.collection('users').doc(uid).collection('familyMembers').doc(member.id).collection('vaccinations').get();
+            const completedVaccines = new Set(vaccinationSnapshot.docs.filter(d => d.data().completed).map(d => d.id));
+            for (const [ageGroupId, ageGroupData] of Object.entries(defaultVaccineSchedule)) {
+                for (const vaccine of ageGroupData.vaccines) {
+                    const vaccineId = `${vaccine.name.replace(/[^a-zA-Z0-9]/g, '')}_${ageGroupId.replace(/[^a-zA-Z0-9]/g, '')}`;
+                    if (completedVaccines.has(vaccineId)) continue;
+                    const dueDate = getVaccineDate(member.dob, ageGroupData);
+                    if (!dueDate) continue;
+                    const dayDiff = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+                    if (dayDiff <= 7) {
+                        notifications.push({ type: 'vaccine', status: dayDiff <= 0 ? 'due' : 'upcoming', memberName: member.name, vaccineName: vaccine.name, sortDate: dueDate });
+                    }
+                }
+            }
+        }
+        return notifications;
+    }
+
+    const renderNotifications = (groupedNotifications) => {
+        notificationList.innerHTML = '';
+        const { alerts, accessRequests, due, upcoming } = groupedNotifications;
+        const totalNotifications = (alerts?.length || 0) + accessRequests.length + due.length + upcoming.length;
+        if (totalNotifications === 0) {
+            notificationList.innerHTML = `<p>No new notifications.</p>`;
+            return;
+        }
+
+        const createGroup = (titleKey, items, isInitiallyOpen, renderFn) => {
+            if (!items || items.length === 0) return;
+            const groupWrapper = document.createElement('div');
+            groupWrapper.className = `notification-group ${isInitiallyOpen ? 'is-open' : ''}`;
+            const titleText = t(titleKey);
+            groupWrapper.innerHTML = `
+                <button class="notification-group-toggle">
+                    <span class="notification-group-title">${titleText}</span>
+                    <span class="notification-group-count">${items.length}</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="notification-group-content"></div>`;
+            const contentContainer = groupWrapper.querySelector('.notification-group-content');
+            items.forEach(item => contentContainer.appendChild(renderFn(item)));
+            notificationList.appendChild(groupWrapper);
+        };
+
+        const renderAlertItem = (alert) => {
+            const item = document.createElement('div');
+            item.className = 'notification-item access-request';
+            item.innerHTML = `
+                <div class="notification-icon"><i class="fa-solid fa-bullhorn"></i></div>
+                <div class="notification-content">
+                    <p><strong>${alert.title}</strong></p>
+                    <small>${alert.message}</small>
+                </div>`;
+            return item;
+        };
+        const renderAccessRequestItem = (req) => {
+            const item = document.createElement('div');
+            item.className = 'notification-item access-request';
+            item.innerHTML = `
+                <div class="notification-icon"><i class="fa-solid fa-user-shield"></i></div>
+                <div class="notification-content">
+                    <p><strong>${req.workerName}</strong> wants to connect with you.</p>
+                    <small>They will be able to view your family's health profile.</small>
+                    <div class="notification-actions">
+                        <button class="btn-deny" data-request-id="${req.id}">Deny</button>
+                        <button class="btn-approve" data-request-id="${req.id}" data-worker-uid="${req.workerUid}">Approve</button>
+                    </div>
+                </div>`;
+            return item;
+        };
+        const renderVaccineItem = (vaccine) => {
+            const item = document.createElement('div');
+            item.className = `notification-item ${vaccine.status}`;
+            item.innerHTML = `
+                <div class="notification-icon"><i class="fa-solid fa-syringe"></i></div>
+                <div class="notification-content">
+                    <p><strong>${vaccine.vaccineName}</strong> vaccine for <strong>${vaccine.memberName}</strong> is ${vaccine.status}.</p>
+                </div>`;
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', () => {
+                openVaccinationModal();
+                sidebar.classList.remove('expanded', 'showing-notifications');
+            });
+            return item;
+        };
+
+        const hasAlerts = alerts?.length > 0;
+        const hasAccessRequests = accessRequests.length > 0;
+        const hasDue = due.length > 0;
+
+        createGroup('healthAlertsTitle', alerts, hasAlerts, renderAlertItem);
+        createGroup('accessRequestsTitle', accessRequests, !hasAlerts && hasAccessRequests, renderAccessRequestItem);
+        createGroup('vaccineDue', due, !hasAlerts && !hasAccessRequests && hasDue, renderVaccineItem);
+        createGroup('vaccineUpcoming', upcoming, !hasAlerts && !hasAccessRequests && !hasDue, renderVaccineItem);
+    };
+
+    const updateNotificationBadge = (count) => {
+        notificationBadge.textContent = count;
+        notificationBadge.classList.toggle('hidden', count === 0);
+    };
+
+    notificationBtn.addEventListener('click', async () => {
+        const user = auth.currentUser;
+        if (user) {
+            toggleSidebarPanel('showing-notifications');
+            await db.collection('users').doc(user.uid).set({
+                lastAlertViewTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            await checkAllNotifications();
+        } else {
+            showCustomAlert('signInRequiredTitle', 'signInToUseNotifications', () => openAuthModal(), { okTextKey: 'signInAction', okBtnClass: 'btn-primary' });
+        }
+    });
+
+    const getVaccineDate = (dobString, time) => {
+        const dob = new Date(dobString);
+        if (isNaN(dob.getTime())) return null;
+        let date = new Date(dob);
+        const value = time.timeValue || 0;
+        const unit = time.timeUnit || 'days';
+        if (unit === 'weeks') { date.setDate(date.getDate() + value * 7); } 
+        else if (unit === 'months') { date.setMonth(date.getMonth() + value); } 
+        else if (unit === 'years') { date.setFullYear(date.getFullYear() + value); } 
+        else { date.setDate(date.getDate() + value); }
+        return date;
+    };
+    
     function renderMarkdown(text) {
         let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\n/g, '<br>');
@@ -430,25 +718,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    auth.onAuthStateChanged(async (user) => {
-        updateUserProfileUI(user);
-        displayPreChatSuggestions();
-        if (user) {
-            profileDropdown.classList.remove('show');
-            if (authContainer) authContainer.classList.remove('show');
-
-            checkAllNotifications();
-
-            const userDoc = await db.collection('users').doc(user.uid).get();
-            if (!userDoc.exists || !userDoc.data().dob || !userDoc.data().gender) {
-                setTimeout(openProfileModal, 1500);
-            }
-        } else {
-            updateNotificationBadge(0);
-            setTimeout(showWelcomeModal, 2000);
-        }
-    });
-
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     let isListening = false;
@@ -635,44 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
             welcomeModalOverlay.classList.add('hidden');
         }, 300);
     }
-
-    function updateUserProfileUI(user) {
-        const avatarCapsule = document.getElementById('profile-avatar-capsule');
-        const avatarDropdown = document.getElementById('profile-avatar-dropdown');
-
-        if (user) {
-            loggedOutView.style.display = 'none';
-            loggedInView.style.display = 'block';
-
-            const displayName = user.displayName || user.email.split('@')[0];
-            profileBtnText.textContent = displayName;
-            userNameDropdown.textContent = user.displayName || 'User';
-            userEmailDropdown.textContent = user.email;
-
-            if (user.photoURL) {
-                avatarCapsule.innerHTML = `<img src="${user.photoURL}" alt="Profile Picture">`;
-                avatarDropdown.innerHTML = `<img src="${user.photoURL}" alt="Profile Picture">`;
-            } else {
-                const initial = (displayName).charAt(0).toUpperCase();
-                const colors = ["#ffc107", "#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", "#00bcd4", "#4caf50", "#8bc34a", "#ff9800", "#795548"];
-                const colorIndex = Math.abs(displayName.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0)) % colors.length;
-                const avatarHTML = `<div class="initials-avatar" style="background-color: ${colors[colorIndex]}; color: #fff;">${initial}</div>`;
-                avatarCapsule.innerHTML = avatarHTML;
-                avatarDropdown.innerHTML = avatarHTML;
-            }
-            fetchChatHistory(user.uid);
-        } else {
-            loggedOutView.style.display = 'block';
-            loggedInView.style.display = 'none';
-            profileBtnText.textContent = t('profileSignIn');
-            avatarCapsule.innerHTML = '<i class="fa-solid fa-user-circle"></i>';
-            avatarDropdown.innerHTML = '<i class="fa-solid fa-user-circle fa-2x"></i>';
-            if (unsubscribeHistory) unsubscribeHistory();
-            historyList.innerHTML = `<p>${t('historyLoginPrompt')}</p>`;
-            startNewChat();
-        }
-    }
-
+    
     signupForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = signupForm['signup-name'].value;
@@ -1285,18 +1517,6 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
             toggleSidebarPanel('showing-discover');
         } else {
             showCustomAlert('signInRequiredTitle', 'signInToUseDiscover', () => openAuthModal(), {
-                okTextKey: 'signInAction',
-                okBtnClass: 'btn-primary'
-            });
-        }
-    });
-
-    notificationBtn.addEventListener('click', () => {
-        if (auth.currentUser) {
-            toggleSidebarPanel('showing-notifications');
-            checkAllNotifications();
-        } else {
-            showCustomAlert('signInRequiredTitle', 'signInToUseNotifications', () => openAuthModal(), {
                 okTextKey: 'signInAction',
                 okBtnClass: 'btn-primary'
             });
@@ -2004,158 +2224,6 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         }
     });
 
-    const vaccinationSchedule = {
-        'At Birth': [{
-            name: 'BCG',
-            protectsAgainst: 'Tuberculosis'
-        }, {
-            name: 'OPV 0',
-            protectsAgainst: 'Poliomyelitis'
-        }, {
-            name: 'Hepatitis B - 1',
-            protectsAgainst: 'Hepatitis B'
-        }],
-        '6 Weeks': [{
-            name: 'DTwP / DTaP - 1',
-            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
-        }, {
-            name: 'IPV - 1',
-            protectsAgainst: 'Poliomyelitis'
-        }, {
-            name: 'Hepatitis B - 2',
-            protectsAgainst: 'Hepatitis B'
-        }, {
-            name: 'HiB - 1',
-            protectsAgainst: 'Haemophilus influenzae type b'
-        }, {
-            name: 'Rotavirus - 1',
-            protectsAgainst: 'Rotavirus diarrhea'
-        }, {
-            name: 'PCV - 1',
-            protectsAgainst: 'Pneumococcal disease'
-        }],
-        '10 Weeks': [{
-            name: 'DTwP / DTaP - 2',
-            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
-        }, {
-            name: 'IPV - 2',
-            protectsAgainst: 'Poliomyelitis'
-        }, {
-            name: 'HiB - 2',
-            protectsAgainst: 'Haemophilus influenzae type b'
-        }, {
-            name: 'Rotavirus - 2',
-            protectsAgainst: 'Rotavirus diarrhea'
-        }],
-        '14 Weeks': [{
-            name: 'DTwP / DTaP - 3',
-            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
-        }, {
-            name: 'IPV - 3',
-            protectsAgainst: 'Poliomyelitis'
-        }, {
-            name: 'HiB - 3',
-            protectsAgainst: 'Haemophilus influenzae type b'
-        }, {
-            name: 'Rotavirus - 3',
-            protectsAgainst: 'Rotavirus diarrhea'
-        }, {
-            name: 'PCV - 2',
-            protectsAgainst: 'Pneumococcal disease'
-        }],
-        '6 Months': [{
-            name: 'Influenza - 1',
-            protectsAgainst: 'Influenza (Flu)'
-        }, {
-            name: 'OPV 1',
-            protectsAgainst: 'Poliomyelitis'
-        }],
-        '7 Months': [{
-            name: 'Influenza - 2',
-            protectsAgainst: 'Influenza (Flu)'
-        }],
-        '9 Months': [{
-            name: 'MMR - 1',
-            protectsAgainst: 'Measles, Mumps, Rubella'
-        }, {
-            name: 'Typhoid Conjugate Vaccine',
-            protectsAgainst: 'Typhoid fever'
-        }, {
-            name: 'OPV 2',
-            protectsAgainst: 'Poliomyelitis'
-        }],
-        '9-12 Months': [{
-            name: 'PCV Booster',
-            protectsAgainst: 'Pneumococcal disease'
-        }],
-        '12 Months': [{
-            name: 'Hepatitis A - 1',
-            protectsAgainst: 'Hepatitis A'
-        }],
-        '15 Months': [{
-            name: 'MMR - 2',
-            protectsAgainst: 'Measles, Mumps, Rubella'
-        }, {
-            name: 'Varicella (Chickenpox) - 1',
-            protectsAgainst: 'Chickenpox'
-        }],
-        '16-18 Months': [{
-            name: 'DTwP / DTaP Booster 1',
-            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
-        }, {
-            name: 'IPV Booster 1',
-            protectsAgainst: 'Poliomyelitis'
-        }, {
-            name: 'HiB Booster 1',
-            protectsAgainst: 'Haemophilus influenzae type b'
-        }],
-        '18 Months': [{
-            name: 'Hepatitis A - 2',
-            protectsAgainst: 'Hepatitis A'
-        }],
-        '2 Years': [{
-            name: 'Meningococcal',
-            protectsAgainst: 'Meningitis'
-        }],
-        '4-6 Years': [{
-            name: 'DTwP / DTaP Booster 2',
-            protectsAgainst: 'Diphtheria, Tetanus, Pertussis'
-        }, {
-            name: 'OPV 3',
-            protectsAgainst: 'Poliomyelitis'
-        }, {
-            name: 'Varicella (Chickenpox) - 2',
-            protectsAgainst: 'Chickenpox'
-        }, {
-            name: 'MMR - 3',
-            protectsAgainst: 'Measles, Mumps, Rubella'
-        }],
-        '10-12 Years': [{
-            name: 'Tdap / Td',
-            protectsAgainst: 'Tetanus, Diphtheria, Pertussis'
-        }, {
-            name: 'HPV (2 doses)',
-            protectsAgainst: 'Human Papillomavirus'
-        }],
-    };
-
-    const getVaccineDate = (dobString, ageGroupString) => {
-        const dob = new Date(dobString);
-        if (isNaN(dob.getTime())) return null;
-
-        const number = parseFloat(ageGroupString.split('-')[0].trim());
-        let date = new Date(dob);
-
-        if (ageGroupString.toLowerCase().includes('birth')) {} else if (ageGroupString.toLowerCase().includes('week')) {
-            date.setDate(date.getDate() + number * 7);
-        } else if (ageGroupString.toLowerCase().includes('month')) {
-            date.setMonth(date.getMonth() + number);
-        } else if (ageGroupString.toLowerCase().includes('year')) {
-            date.setFullYear(date.getFullYear() + number);
-        }
-        return date;
-    };
-
     const formatDate = (date) => {
         if (!date) return '';
         const options = {
@@ -2166,219 +2234,38 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         return date.toLocaleDateString('en-GB', options).replace(/ /g, '-');
     };
 
-    const checkAllNotifications = async () => {
-        const user = auth.currentUser;
-        if (!user) {
-            updateNotificationBadge(0);
-            return;
-        }
-
-        const [vaccineNotifications, accessRequests] = await Promise.all([
-            getVaccineNotifications(user.uid),
-            getAccessRequests(user.uid)
-        ]);
-
-        const groupedNotifications = {
-            accessRequests: accessRequests,
-            due: [],
-            upcoming: []
-        };
-
-        vaccineNotifications.forEach(notification => {
-            if (notification.status === 'due') {
-                groupedNotifications.due.push(notification);
-            } else {
-                groupedNotifications.upcoming.push(notification);
-            }
-        });
-
-        groupedNotifications.due.sort((a, b) => (a.sortDate || 0) - (b.sortDate || 0));
-        groupedNotifications.upcoming.sort((a, b) => (a.sortDate || 0) - (b.sortDate || 0));
-
-        renderNotifications(groupedNotifications);
-        updateNotificationBadge(accessRequests.length + vaccineNotifications.length);
-    };
-
-
-    async function getAccessRequests(uid) {
-        const requests = [];
-        const querySnapshot = await db.collection('accessRequests')
-            .where('userUid', '==', uid)
-            .where('status', '==', 'pending')
-            .get();
-
-        querySnapshot.forEach(doc => {
-            const request = doc.data();
-            requests.push({
-                type: 'accessRequest',
-                id: doc.id,
-                workerName: request.workerName,
-                workerUid: request.workerUid
-            });
-        });
-        return requests;
-    }
-
-    async function getVaccineNotifications(uid) {
-        const notifications = [];
-        const familySnapshot = await db.collection('users').doc(uid).collection('familyMembers').get();
-        if (familySnapshot.empty) return [];
-
-        const members = familySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        for (const member of members) {
-            if (!member.dob) continue;
-            const vaccinationSnapshot = await db.collection('users').doc(uid).collection('familyMembers').doc(member.id).collection('vaccinations').get();
-            const completedVaccines = new Set(vaccinationSnapshot.docs.filter(d => d.data().completed).map(d => d.id));
-
-            for (const [ageGroup, vaccines] of Object.entries(vaccinationSchedule)) {
-                for (const vaccine of vaccines) {
-                    const vaccineId = `${vaccine.name.replace(/[^a-zA-Z0-9]/g, '')}_${ageGroup.replace(/[^a-zA-Z0-9]/g, '')}`;
-                    if (completedVaccines.has(vaccineId)) continue;
-
-                    const dueDate = getVaccineDate(member.dob, ageGroup);
-                    if (!dueDate) continue;
-
-                    const dayDiff = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
-
-                    if (dayDiff <= 7) {
-                        notifications.push({
-                            type: 'vaccine',
-                            status: dayDiff <= 0 ? 'due' : 'upcoming',
-                            memberName: member.name,
-                            vaccineName: vaccine.name,
-                            sortDate: dueDate
-                        });
-                    }
-                }
-            }
-        }
-        return notifications;
-    }
-
-    const renderNotifications = (groupedNotifications) => {
-        notificationList.innerHTML = '';
-        const { accessRequests, due, upcoming } = groupedNotifications;
-
-        const totalNotifications = accessRequests.length + due.length + upcoming.length;
-        if (totalNotifications === 0) {
-            notificationList.innerHTML = `<p>No new notifications.</p>`;
-            return;
-        }
-
-        const createGroup = (titleKey, items, isInitiallyOpen = false) => {
-            if (items.length === 0) return;
-
-            const groupWrapper = document.createElement('div');
-            groupWrapper.className = 'notification-group';
-            if (isInitiallyOpen) {
-                groupWrapper.classList.add('is-open');
-            }
-
-            const titleText = t(titleKey);
-
-            let countBadgeColorClass = '';
-            if (titleKey === 'vaccineDue') {
-                countBadgeColorClass = 'due';
-            } else if (titleKey === 'vaccineUpcoming') {
-                countBadgeColorClass = 'upcoming';
-            }
-
-            groupWrapper.innerHTML = `
-                <button class="notification-group-toggle">
-                    <span class="notification-group-title">${titleText}</span>
-                    <span class="notification-group-count ${countBadgeColorClass}">${items.length}</span>
-                    <i class="fa-solid fa-chevron-down"></i>
-                </button>
-                <div class="notification-group-content"></div>
-            `;
-
-            const contentContainer = groupWrapper.querySelector('.notification-group-content');
-
-            items.forEach(notification => {
-                const item = document.createElement('div');
-                item.className = 'notification-item';
-
-                if (notification.type === 'accessRequest') {
-                    item.classList.add('access-request');
-                    item.innerHTML = `
-                        <div class="notification-icon"><i class="fa-solid fa-user-shield"></i></div>
-                        <div class="notification-content">
-                            <p><strong>${notification.workerName}</strong> wants to connect with you.</p>
-                            <small>They will be able to view your family's health profile.</small>
-                            <div class="notification-actions">
-                                <button class="btn-deny" data-request-id="${notification.id}">Deny</button>
-                                <button class="btn-approve" data-request-id="${notification.id}" data-worker-uid="${notification.workerUid}">Approve</button>
-                            </div>
-                        </div>`;
-                } else if (notification.type === 'vaccine') {
-                    item.classList.add(notification.status);
-                    item.innerHTML = `
-                        <div class="notification-icon"><i class="fa-solid fa-syringe"></i></div>
-                        <div class="notification-content">
-                            <p><strong>${notification.vaccineName}</strong> vaccine for <strong>${notification.memberName}</strong> is ${notification.status}.</p>
-                        </div>`;
-                    item.style.cursor = 'pointer';
-                    item.addEventListener('click', () => {
-                        openVaccinationModal();
-                        sidebar.classList.remove('expanded', 'showing-notifications');
-                    });
-                }
-                contentContainer.appendChild(item);
-            });
-
-            notificationList.appendChild(groupWrapper);
-        };
-
-        const hasAccessRequests = accessRequests.length > 0;
-        const hasDue = due.length > 0;
-
-        createGroup('accessRequestsTitle', accessRequests, hasAccessRequests);
-        createGroup('vaccineDue', due, !hasAccessRequests && hasDue);
-        createGroup('vaccineUpcoming', upcoming, !hasAccessRequests && !hasDue);
-    };
-
-    const updateNotificationBadge = (count) => {
-        if (count > 0) {
-            notificationBadge.textContent = count;
-            notificationBadge.classList.remove('hidden');
-        } else {
-            notificationBadge.classList.add('hidden');
-        }
-    };
-
     const displayVaccinationSchedule = (member, vaccineStatuses = []) => {
         vaccinationScheduleContainer.innerHTML = '';
         if (!member || !member.dob) {
             vaccinationScheduleContainer.innerHTML = `<p>${t('noMembersForVaccine')}</p>`;
             return;
         }
+        
+        if (Object.keys(defaultVaccineSchedule).length === 0) {
+             vaccinationScheduleContainer.innerHTML = '<div class="loader"></div> <p>Loading schedule...</p>';
+             return;
+        }
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        Object.entries(vaccinationSchedule).forEach(([ageGroup, vaccines]) => {
+        Object.entries(defaultVaccineSchedule).forEach(([ageGroupId, ageGroupData]) => {
             const ageGroupEl = document.createElement('div');
             ageGroupEl.className = 'vaccine-age-group';
 
-            const vaccineDueDate = getVaccineDate(member.dob, ageGroup);
+            const vaccineDueDate = getVaccineDate(member.dob, ageGroupData);
             const formattedDate = formatDate(vaccineDueDate);
 
             const ageGroupHeader = document.createElement('h3');
             ageGroupHeader.className = 'vaccine-age-group-header';
             ageGroupHeader.innerHTML = `
-                <span>${ageGroup}</span>
+                <span>${ageGroupData.ageGroup}</span>
                 <span class="vaccine-due-date">${formattedDate ? `Due by: ${formattedDate}` : ''}</span>
             `;
             ageGroupEl.appendChild(ageGroupHeader);
 
-            vaccines.forEach(vaccine => {
-                const vaccineId = `${vaccine.name.replace(/[^a-zA-Z0-9]/g, '')}_${ageGroup.replace(/[^a-zA-Z0-9]/g, '')}`;
+            ageGroupData.vaccines.forEach(vaccine => {
+                const vaccineId = `${vaccine.name.replace(/[^a-zA-Z0-9]/g, '')}_${ageGroupId.replace(/[^a-zA-Z0-9]/g, '')}`;
                 const statusRecord = vaccineStatuses.find(s => s.id === vaccineId);
                 const isCompleted = statusRecord ? statusRecord.completed : false;
 
@@ -2389,9 +2276,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
                     status = 'completed';
                     statusKey = 'vaccineCompleted';
                 } else if (vaccineDueDate) {
-                    const timeDiff = vaccineDueDate.getTime() - today.getTime();
-                    const dayDiff = timeDiff / (1000 * 3600 * 24);
-                    if (dayDiff <= 0) {
+                    if (today.getTime() >= vaccineDueDate.getTime()) {
                         status = 'due';
                         statusKey = 'vaccineDue';
                     }
@@ -2406,7 +2291,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
                         ${isCompleted ? 'checked' : ''}
                         data-vaccine-id="${vaccineId}"
                         data-vaccine-name="${vaccine.name}"
-                        data-age-group="${ageGroup}"
+                        data-age-group-id="${ageGroupId}"
                         data-is-custom="false"
                     >
                     <div class="vaccine-item-details">
@@ -2434,34 +2319,20 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
                 const vaccineItem = document.createElement('div');
                 vaccineItem.className = 'vaccine-item';
 
-                let status = '';
-                let statusKey = '';
-                let dateText = '';
-                let statusSpanHTML = '';
-
+                let status = 'upcoming';
+                let statusKey = 'vaccineUpcoming';
+                let dateText = `Due by: ${vaccine.dueDate}`;
+                
                 if (isCompleted) {
                     status = 'completed';
                     statusKey = 'vaccineCompleted';
                     dateText = `Given on: ${vaccine.dateGiven || vaccine.dueDate}`;
-                    statusSpanHTML = `<span class="vaccine-status ${status}">${t(statusKey)}</span>`;
-                } else {
-                    dateText = `Due by: ${vaccine.dueDate}`;
-                    const dueDate = new Date(vaccine.dueDate);
-                    if (!isNaN(dueDate.getTime())) {
-                        const timeDiff = dueDate.getTime() - today.getTime();
-                        const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                        if (dayDiff <= 0) {
-                            status = 'due';
-                            statusKey = 'vaccineDue';
-                        } else if (dayDiff <= 7) {
-                            status = 'due';
-                            statusKey = 'vaccineDue';
-                        } else {
-                            status = 'upcoming';
-                            statusKey = 'vaccineUpcoming';
-                        }
-                        statusSpanHTML = `<span class="vaccine-status ${status}">${t(statusKey)}</span>`;
-                    }
+                } else if (vaccine.dueDate) {
+                     const dueDate = new Date(vaccine.dueDate);
+                     if (!isNaN(dueDate.getTime()) && today.getTime() >= dueDate.getTime()) {
+                         status = 'due';
+                         statusKey = 'vaccineDue';
+                     }
                 }
 
                 vaccineItem.innerHTML = `
@@ -2471,16 +2342,14 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
                         ${isCompleted ? 'checked' : ''}
                         data-vaccine-id="${vaccine.id}"
                         data-vaccine-name="${vaccine.name}"
-                        data-age-group="custom"
                         data-is-custom="true"
-                        data-due-date="${vaccine.dueDate || ''}"
                     >
                     <div class="vaccine-item-details">
                         <div class="vaccine-name">
                             ${vaccine.name}
                             <small>${dateText}</small>
                         </div>
-                        ${statusSpanHTML}
+                       <span class="vaccine-status ${status}">${t(statusKey)}</span>
                     </div>
                 `;
                 vaccinationScheduleContainer.appendChild(vaccineItem);
@@ -2517,7 +2386,7 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
                 option.textContent = member.name;
                 vaccineMemberSelect.appendChild(option);
             });
-            loadAndDisplayScheduleForMember(familyMembers[0]);
+            await loadAndDisplayScheduleForMember(familyMembers[0]);
         } else {
             loadAndDisplayScheduleForMember(null);
         }
@@ -2588,77 +2457,32 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         const selectedMemberId = vaccineMemberSelect.value;
         if (!user || !selectedMemberId) return;
 
-        const {
-            vaccineId,
-            ageGroup,
-            isCustom,
-            dueDate
-        } = checkbox.dataset;
+        const { vaccineId, isCustom } = checkbox.dataset;
         const isCompleted = checkbox.checked;
 
         try {
-            const docRef = db.collection('users').doc(user.uid)
-                .collection('familyMembers').doc(selectedMemberId)
-                .collection('vaccinations').doc(vaccineId);
+            const docRef = db.collection('users').doc(user.uid).collection('familyMembers').doc(selectedMemberId).collection('vaccinations').doc(vaccineId);
+            const updateData = { completed: isCompleted };
 
-            let updateData = {};
             if (isCompleted) {
-                updateData.completed = true;
                 updateData.dateGiven = new Date().toISOString().split('T')[0];
             } else {
-                updateData.completed = false;
                 updateData.dateGiven = firebase.firestore.FieldValue.delete();
             }
-
-            await docRef.set(updateData, {
-                merge: true
-            });
-
-            const detailsDiv = checkbox.nextElementSibling;
-            const nameDiv = detailsDiv.querySelector('.vaccine-name');
-            let statusSpan = detailsDiv.querySelector('.vaccine-status');
-            const smallEl = nameDiv.querySelector('small');
-
-            if (isCompleted) {
-                if (!statusSpan) {
-                    statusSpan = document.createElement('span');
-                    detailsDiv.appendChild(statusSpan);
+             
+            if(isCustom === 'true'){
+                const docSnap = await docRef.get();
+                if(docSnap.exists()){
+                   Object.assign(updateData, docSnap.data());
                 }
-                statusSpan.className = 'vaccine-status completed';
-                statusSpan.textContent = t('vaccineCompleted');
-                smallEl.textContent = `Given on: ${updateData.dateGiven}`;
-            } else {
-                let status = 'upcoming';
-                let statusKey = 'vaccineUpcoming';
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                let vaccineDueDate;
-
-                if (isCustom === 'true') {
-                    smallEl.textContent = `Due by: ${dueDate}`;
-                    vaccineDueDate = new Date(dueDate);
-                } else {
-                    const member = familyMembers.find(m => m.id === selectedMemberId);
-                    vaccineDueDate = getVaccineDate(member.dob, ageGroup);
-                }
-
-                if (vaccineDueDate && !isNaN(vaccineDueDate.getTime())) {
-                    const timeDiff = vaccineDueDate.getTime() - today.getTime();
-                    const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                    if (dayDiff <= 0) {
-                        status = 'due';
-                        statusKey = 'vaccineDue';
-                    }
-                }
-
-                if (!statusSpan) {
-                    statusSpan = document.createElement('span');
-                    detailsDiv.appendChild(statusSpan);
-                }
-                statusSpan.className = `vaccine-status ${status}`;
-                statusSpan.textContent = t(statusKey);
             }
+
+            await docRef.set(updateData, { merge: true });
+
+            const selectedMember = familyMembers.find(m => m.id === selectedMemberId);
+            await loadAndDisplayScheduleForMember(selectedMember);
             checkAllNotifications();
+
         } catch (error) {
             console.error("Error updating vaccine status: ", error);
             alert("Could not update status. Please try again.");
@@ -2729,41 +2553,25 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
 
         if (e.target.classList.contains('btn-approve')) {
             const button = e.target;
-            const {
-                requestId,
-                workerUid
-            } = button.dataset;
-
+            const { requestId, workerUid } = button.dataset;
             button.disabled = true;
             button.textContent = 'Approving...';
-
             try {
-                await db.collection('users').doc(user.uid).update({
-                    assignedWorker: workerUid
-                });
-                await db.collection('accessRequests').doc(requestId).update({
-                    status: 'approved'
-                });
+                await db.collection('users').doc(user.uid).update({ assignedWorker: workerUid });
+                await db.collection('accessRequests').doc(requestId).update({ status: 'approved' });
                 checkAllNotifications();
             } catch (error) {
                 console.error("Error approving request:", error);
                 button.disabled = false;
                 button.textContent = 'Approve';
             }
-
         } else if (e.target.classList.contains('btn-deny')) {
             const button = e.target;
-            const {
-                requestId
-            } = button.dataset;
-
+            const { requestId } = button.dataset;
             button.disabled = true;
             button.textContent = 'Denying...';
-
             try {
-                await db.collection('accessRequests').doc(requestId).update({
-                    status: 'denied'
-                });
+                await db.collection('accessRequests').doc(requestId).update({ status: 'denied' });
                 checkAllNotifications();
             } catch (error) {
                 console.error("Error denying request:", error);
@@ -2773,3 +2581,5 @@ After your main response, you **MUST** provide 2-3 relevant, short follow-up que
         }
     });
 });
+
+
