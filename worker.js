@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // --- DOM ELEMENT REFERENCES ---
     const loaderOverlay = document.getElementById('loader-overlay');
     const workerNameEl = document.getElementById('worker-name');
     const logoutBtn = document.getElementById('logout-btn');
@@ -22,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const vaccineManagementMain = document.getElementById('vaccine-management-main');
     const sendAlertMain = document.getElementById('send-alert-main');
     
-    // Dashboard View Elements
     const familyListContainer = document.getElementById('family-list-container');
     const addFamilyForm = document.getElementById('add-family-form');
     const familyEmailInput = document.getElementById('family-email-input');
@@ -33,11 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const memberSelect = document.getElementById('member-select');
     const memberDetailsContainer = document.getElementById('member-details-container');
 
-    // Vaccine Management View Elements
     const addVaccineForm = document.getElementById('add-vaccine-form');
     const defaultScheduleContainer = document.getElementById('default-schedule-container');
 
-    // Send Alert View Elements
     const sendAlertForm = document.getElementById('send-alert-form');
     const alertStatusMsg = document.getElementById('alert-status-msg');
     const locationInputContainer = document.getElementById('location-input-container');
@@ -45,12 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const alertLocationInput = document.getElementById('alert-location');
     const recentAlertsList = document.getElementById('recent-alerts-list');
 
-    // --- STATE VARIABLES ---
     let defaultVaccineSchedule = {};
     let currentFamilyId = null;
     let currentFamilyMembers = [];
 
-    // --- INITIAL VACCINE DATA FOR SEEDING ---
     const initialVaccineSchedule = {
         'At Birth': { ageGroup: 'At Birth', displayOrder: 1, timeValue: 0, timeUnit: 'days', vaccines: [{ name: 'BCG', protectsAgainst: 'Tuberculosis' }, { name: 'OPV 0', protectsAgainst: 'Poliomyelitis' }, { name: 'Hepatitis B - 1', protectsAgainst: 'Hepatitis B' }] },
         '6 Weeks': { ageGroup: '6 Weeks', displayOrder: 2, timeValue: 6, timeUnit: 'weeks', vaccines: [{ name: 'DTwP 1', protectsAgainst: 'Diphtheria, Tetanus, Pertussis' }, { name: 'IPV 1', protectsAgainst: 'Poliomyelitis' }, { name: 'Hepatitis B - 2', protectsAgainst: 'Hepatitis B' }, { name: 'HiB 1', protectsAgainst: 'Haemophilus influenzae type b' }, { name: 'Rotavirus 1', protectsAgainst: 'Rotavirus diarrhea' }, { name: 'PCV 1', protectsAgainst: 'Pneumococcal disease' }] },
@@ -58,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         '14 Weeks': { ageGroup: '14 Weeks', displayOrder: 4, timeValue: 14, timeUnit: 'weeks', vaccines: [{ name: 'DTwP 3', protectsAgainst: 'Diphtheria, Tetanus, Pertussis' }, { name: 'IPV 3', protectsAgainst: 'Poliomyelitis' }, { name: 'HiB 3', protectsAgainst: 'Haemophilus influenzae type b' }, { name: 'Rotavirus 3', protectsAgainst: 'Rotavirus diarrhea' }, { name: 'PCV 2', protectsAgainst: 'Pneumococcal disease' }] },
     };
 
-    // --- INITIALIZATION ---
     auth.onAuthStateChanged(user => {
         if (user) {
             initializeDashboard(user);
@@ -92,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- DATA FETCHING & SEEDING ---
     async function seedDefaultSchedule() {
         console.log("Database empty. Seeding initial vaccine schedule...");
         const batch = db.batch();
@@ -135,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- VIEW SWITCHING ---
     primarySidebar.addEventListener('click', (e) => {
         const link = e.target.closest('.primary-nav-link');
         if (!link || link.id === 'logout-btn') return;
@@ -170,10 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboardMain.classList.add('hidden');
         vaccineManagementMain.classList.add('hidden');
         sendAlertMain.classList.remove('hidden');
-        loadRecentAlerts(); // Refresh alerts list when viewing the page
+        loadRecentAlerts();
     }
     
-    // --- DASHBOARD: FAMILY MANAGEMENT ---
     function loadAssignedFamilies(workerUid) {
         db.collection('users').where('assignedWorker', '==', workerUid).onSnapshot(querySnapshot => {
             familyListContainer.innerHTML = querySnapshot.empty ? '<p style="padding: 16px;">No families assigned.</p>' : '';
@@ -275,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // --- VACCINE MANAGEMENT VIEW ---
     function renderDefaultScheduleEditor() {
         defaultScheduleContainer.innerHTML = '';
         if (Object.keys(defaultVaccineSchedule).length === 0) {
@@ -308,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const ageGroupRef = db.collection('defaultVaccineSchedule').doc(ageGroup);
             await ageGroupRef.collection('vaccines').add({ name: vaccineName, protectsAgainst });
-            await ageGroupRef.set({ ageGroup, displayOrder: 99, timeValue: 0, timeUnit: 'years' }, { merge: true }); // Basic data for new group
+            await ageGroupRef.set({ ageGroup, displayOrder: 99, timeValue: 0, timeUnit: 'years' }, { merge: true });
             alert("Vaccine added successfully!");
             addVaccineForm.reset();
             await fetchDefaultSchedule();
@@ -336,7 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- SEND ALERT VIEW ---
     function initializePlacesAutocomplete() {
         if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
             console.error("Google Maps script not loaded yet.");
@@ -452,7 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // --- EVENT LISTENERS & UTILS ---
     addFamilyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const targetEmail = familyEmailInput.value.trim();
